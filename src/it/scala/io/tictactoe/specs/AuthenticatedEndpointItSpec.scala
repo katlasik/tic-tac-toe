@@ -61,7 +61,9 @@ class AuthenticatedEndpointItSpec extends FeatureSpec with GivenWhenThen with Ma
         Map("Authorization" -> s"Bearer $token")
       )
 
-      result.success.json[List[SimpleUser]] should have size 2
+      result.success
+        .json[List[SimpleUser]]
+        .map(_.id.value.toString) should contain allOf ("7e9f3585-c1e3-4a71-b724-f5fdac912d32", "348d4be8-8b23-49f6-a1d7-227064bd8a23")
 
     }
   }

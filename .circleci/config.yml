@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: hseeberger/scala-sbt:11.0.3_1.2.8_2.13.0
+        environment:
+          DATABASE_URL: postgres://tictactoe_user:tictactoe@0.0.0.0:5432/tictactoe
+          IT_TEST_REUSE_DB: true
+      - image: postgres:12
+        environment:
+          POSTGRES_DB: tictactoe
+          POSTGRES_USER: tictactoe_user
+          POSTGRES_PASSWORD: tictactoe
+    steps:
+      - checkout
+      - restore_cache:
+          key: tictactoe-{{ checksum "build.sbt" }}
+      - run: sbt update
+      - save_cache:
+          paths:
+            - ~/.ivy2
+          key: tictactoe-{{ checksum "build.sbt" }}
+      - run: sbt -mem 2048 coverage test it:test coverageReport
+      - store_artifacts:
+          path: target/scala-2.13/scoverage-report
