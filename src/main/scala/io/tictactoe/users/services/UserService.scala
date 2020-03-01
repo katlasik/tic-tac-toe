@@ -14,7 +14,7 @@ trait UserService[F[_]] {
 }
 
 object UserService {
-  implicit def apply[F[_]](implicit ev: UserService[F]): UserService[F] = ev
+  def apply[F[_]](implicit ev: UserService[F]): UserService[F] = ev
 
   def live[F[_]: Sync: UserRepository]: UserService[F] = new UserService[F] {
 

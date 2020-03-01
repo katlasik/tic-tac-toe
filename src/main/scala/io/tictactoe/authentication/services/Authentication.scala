@@ -25,7 +25,7 @@ object Authentication {
 
   type JWTToken = AugmentedJWT[HMACSHA256, TokenPayload]
 
-  implicit def apply[F[_]](implicit ev: Authentication[F]): Authentication[F] = ev
+  def apply[F[_]](implicit ev: Authentication[F]): Authentication[F] = ev
 
   def live[F[_]: PasswordHasher: AuthRepository: Sync: Logging]: F[Authentication[F]] =
     for {

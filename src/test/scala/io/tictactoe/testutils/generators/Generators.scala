@@ -2,7 +2,7 @@ package io.tictactoe.testutils.generators
 
 import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.services.Hash
-import io.tictactoe.values.{Email, UserId, Username}
+import io.tictactoe.values.{Email, No, UserId, Username}
 import org.scalacheck.Gen
 
 object Generators {
@@ -37,7 +37,7 @@ object Generators {
       hash <- hash()
       email <- email()
       username <- username()
-    } yield User(id, username, hash, email)
+    } yield User(id, username, hash, email, No)
 
   def users(from: Int = 200, to: Int = 1000): Gen[List[User]] = for {
     numberOfUsers <- Gen.choose(from, to)

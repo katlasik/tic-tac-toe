@@ -15,11 +15,11 @@ object InMemoryUserRepository {
   def inMemory: UserRepository[TestAppState] = new UserRepository[TestAppState] {
 
     override def all(): TestAppState[List[SimpleUser]] = StateT { data: TestAppData =>
-      IO.pure(data, data.users.map(_.to[SimpleUser]()))
+      IO.pure((data, data.users.map(_.to[SimpleUser]())))
     }
 
     override def getById(id: UserId): TestAppState[Option[DetailedUser]] =  StateT { data: TestAppData =>
-      IO.pure(data, data.users.find(_.id === id).map(_.to[DetailedUser]()))
+      IO.pure((data, data.users.find(_.id === id).map(_.to[DetailedUser]())))
     }
   }
 

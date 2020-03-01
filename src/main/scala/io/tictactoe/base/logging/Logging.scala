@@ -29,6 +29,6 @@ object Logging {
         }
   }
 
-  implicit def apply[F[_]]()(implicit ev: Logging[F]): Logging[F] = ev
+  def apply[F[_]]()(implicit ev: Logging[F]): Logging[F] = ev
 
 }

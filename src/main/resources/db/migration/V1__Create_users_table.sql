@@ -3,5 +3,6 @@ CREATE TABLE users (
   name VARCHAR NOT NULL UNIQUE,
   hash VARCHAR NOT NULL,
   email VARCHAR NOT NULL UNIQUE,
+  is_confirmed BOOLEAN NOT NULL,
   created_on TIMESTAMP DEFAULT NOW()
 );

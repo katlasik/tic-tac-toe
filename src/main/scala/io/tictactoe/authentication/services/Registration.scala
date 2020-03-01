@@ -5,10 +5,13 @@ import io.tictactoe.authentication.model.{RegistrationRequest, RegistrationResul
 import io.tictactoe.base.uuid.UUIDGenerator
 import cats.implicits._
 import io.tictactoe.authentication.errors.{EmailAlreadyExists, UsernameAlreadyExists}
+import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.repositories.AuthRepository
 import io.tictactoe.base.logging.Logging
 import io.tictactoe.base.validation.Validator._
-import io.tictactoe.values.UserId
+import io.tictactoe.calendar.Calendar
+import io.tictactoe.events.bus.EventBus
+import io.tictactoe.values.{No, UserId}
 
 trait Registration[F[_]] {
   def register(request: RegistrationRequest): F[RegistrationResult]
@@ -16,9 +19,9 @@ trait Registration[F[_]] {
 
 object Registration {
 
-  implicit def apply[F[_]](implicit ev: Registration[F]): Registration[F] = ev
+  def apply[F[_]](implicit ev: Registration[F]): Registration[F] = ev
 
-  def live[F[_]: PasswordHasher: UUIDGenerator: Sync: AuthRepository: Logging]: Registration[F] = new Registration[F] {
+  def live[F[_]: PasswordHasher: UUIDGenerator: Sync: AuthRepository: Logging: EventBus: Calendar]: Registration[F] = new Registration[F] {
     override def register(request: RegistrationRequest): F[RegistrationResult] =
       for {
         logger <- Logging[F].create[Registration[F]]
@@ -28,9 +31,10 @@ object Registration {
         usernameExists <- AuthRepository[F].existsByName(name)
         _ <- Sync[F].whenA(usernameExists)(Sync[F].raiseError(UsernameAlreadyExists))
         hash <- PasswordHasher[F].hash(password)
-        id <- UUIDGenerator[F].next().map(UserId(_))
-        _ <- AuthRepository[F].save(User(id, name, hash, email))
+        id <- UserId.next[F]
+        user <- AuthRepository[F].save(User(id, name, hash, email, No))
         _ <- logger.info(show"New user with id = $id was created.")
+        _ <- EventBus[F].publishF(UserRegisteredEvent.create[F](user))
       } yield RegistrationResult(id)
   }
 

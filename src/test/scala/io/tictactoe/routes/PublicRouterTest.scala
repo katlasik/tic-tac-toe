@@ -1,5 +1,6 @@
 package io.tictactoe.routes
 
+import java.time.Instant
 import java.util.UUID
 
 import io.tictactoe.authentication.model.{AuthResponse, AuthToken, Credentials, RegistrationRequest, RegistrationResult, User}
@@ -13,10 +14,11 @@ import io.circe.generic.auto._
 import io.tictactoe.authentication.services.Hash
 import io.tictactoe.error.ErrorView
 import io.tictactoe.testutils.generators.Generators
-import io.tictactoe.values.{Email, Password, UserId, Username}
+import io.tictactoe.values.{Email, EventId, EventTimestamp, No, Password, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
+import io.tictactoe.authentication.events.UserRegisteredEvent
 
 class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
 
@@ -24,10 +26,13 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
     import dsl._
 
-    forAll(Generators.user()) {user =>
+    forAll(Generators.user()) { user =>
+      val eventId = UUID.fromString("0000000-0000-0000-0000-000000000001")
+      val timestamp = Instant.parse("2020-03-01T14:42:13.775935Z")
 
       val inputData = TestAppData(
-        uuids = List(user.id.value)
+        uuids = List(user.id.value, eventId),
+        dates = List(timestamp)
       )
 
       val request = Request[TestAppState](
@@ -48,12 +53,12 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         show"New user with id = ${user.id} was created."
       )
 
+      outputData.events should contain(UserRegisteredEvent(EventId(eventId), EventTimestamp(timestamp), user.username, user.email))
+
       response.status.code shouldBe 200
 
       response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldBe RegistrationResult(user.id)
     }
-
-
 
   }
 
@@ -67,7 +72,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
           Username("user1"),
           Hash("userpass"),
-          Email("email@user.pl")
+          Email("email@user.pl"),
+          No
         )
       )
     )
@@ -117,7 +123,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
           Username("user"),
           Hash("userpass"),
-          Email("email@user.pl")
+          Email("email@user.pl"),
+          No
         )
       )
     )
@@ -154,7 +161,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
           Username("user"),
           Hash("userpass"),
-          Email("email@user.pl")
+          Email("email@user.pl"),
+          No
         )
       )
     )
@@ -164,11 +172,11 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       uri = uri"login"
     ).withEntity(Credentials(Email("email@user.pl"), Password("xxxxxx")))
 
-    val (outputData, Some(response)) = PublicRouter
+    val Some(response) = PublicRouter
       .routes[TestAppState]
       .run(request)
       .value
-      .run(inputData)
+      .runA(inputData)
       .unsafeRunSync()
 
     response.status.code shouldBe 401

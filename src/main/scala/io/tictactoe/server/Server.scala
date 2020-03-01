@@ -13,10 +13,13 @@ import org.http4s.server.middleware.Logger
 import org.http4s.implicits._
 import cats.implicits._
 import io.tictactoe.authentication.repositories.AuthRepository
-import io.tictactoe.authentication.services.{Authentication, PasswordHasher, Registration}
+import io.tictactoe.authentication.services.{Authentication, PasswordHasher, Registration, RegistrationEmail}
 import io.tictactoe.base.errors.ErrorTranslator
 import io.tictactoe.base.uuid.UUIDGenerator
+import io.tictactoe.calendar.Calendar
 import io.tictactoe.documentation.DocsGenerator
+import io.tictactoe.events.ApplicationEventHandler
+import io.tictactoe.events.bus.EventBus
 import io.tictactoe.users.repositories.UserRepository
 import io.tictactoe.users.services.UserService
 
@@ -33,12 +36,15 @@ object Server {
     implicit val uuidGenerator: UUIDGenerator[F] = UUIDGenerator.live[F]
     implicit val passwordHasher: PasswordHasher[F] = PasswordHasher.bcrypt[F]
     implicit val logging: Logging[F] = Logging.live[F]
+    implicit val calendar: Calendar[F] = Calendar.live[F]
 
     for {
       implicit0(configuration: Configuration[F]) <- Stream.eval(Configuration.load[F])
       implicit0(database: Database[F]) <- Stream.resource(Database.hikari[F])
       implicit0(authRepository: AuthRepository[F]) = AuthRepository.postgresql[F]
       implicit0(userRepository: UserRepository[F]) = UserRepository.postgresql[F]
+      implicit0(registrationEmail: RegistrationEmail[F]) <- Stream.eval(RegistrationEmail.live[F])
+      implicit0(eventBus: EventBus[F]) <- Stream.eval(EventBus.start(ApplicationEventHandler.live[F]))
       implicit0(registration: Registration[F]) = Registration.live[F]
       implicit0(authentication: Authentication[F]) <- Stream.eval(Authentication.live[F])
       implicit0(userService: UserService[F]) = UserService.live[F]

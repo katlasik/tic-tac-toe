@@ -1,5 +1,6 @@
 package io.tictactoe.values
 
+import cats.Show
 import cats.data.ValidatedNel
 import cats.implicits._
 import cats.kernel.Eq
@@ -14,6 +15,7 @@ object Email {
   private val EmailRegex = "[^@]+@[^@]+".r
 
   implicit val eq: Eq[Email] = Eq.fromUniversalEquals
+  implicit val show: Show[Email] = Show.show(_.value)
 
   implicit val decoder: Decoder[Email] = Decoder[String].emap(Email.fromString(_).leftMap(_.reduce.msg).toEither)
   implicit val encoder: Encoder[Email] = Encoder[String].contramap(_.value)

@@ -10,7 +10,7 @@ trait UUIDGenerator[F[_]] {
 
 object UUIDGenerator {
 
-  implicit def apply[F[_]](implicit ev: UUIDGenerator[F]): UUIDGenerator[F] = ev
+  def apply[F[_]](implicit ev: UUIDGenerator[F]): UUIDGenerator[F] = ev
 
   def live[F[_]: Sync]: UUIDGenerator[F] = () => Sync[F].delay(UUID.randomUUID())
 

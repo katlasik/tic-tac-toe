@@ -11,7 +11,7 @@ trait Configuration[F[_]] {
 
 object Configuration {
 
-  implicit def apply[F[_]]()(implicit ev: Configuration[F]): Configuration[F] = ev
+  def apply[F[_]]()(implicit ev: Configuration[F]): Configuration[F] = ev
 
   def load[F[_]: Sync]: F[Configuration[F]] =
     for {

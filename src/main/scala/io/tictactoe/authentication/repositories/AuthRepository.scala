@@ -22,7 +22,7 @@ trait AuthRepository[F[_]] {
 
 object AuthRepository {
 
-  implicit def apply[F[_]](implicit ev: AuthRepository[F]): AuthRepository[F] = ev
+  def apply[F[_]](implicit ev: AuthRepository[F]): AuthRepository[F] = ev
 
   def postgresql[F[_]: Sync: PasswordHasher: Database]: AuthRepository[F] = new AuthRepository[F] {
 
@@ -33,15 +33,15 @@ object AuthRepository {
       sql"SELECT 1 FROM users WHERE name = $username".query[Boolean].option.transact(Database[F].transactor()).map(_.isDefined)
 
     override def save(user: User): F[User] = user match {
-      case User(id, name, hash, email) =>
+      case User(id, name, hash, email, isConfirmed) =>
         for {
-          _ <- sql"INSERT INTO users(id, name, hash, email) VALUES ($id, $name, $hash, $email)".update.run
+          _ <- sql"INSERT INTO users(id, name, hash, email, is_confirmed) VALUES ($id, $name, $hash, $email, $isConfirmed)".update.run
             .transact(Database[F].transactor())
         } yield user
     }
 
     override def getByEmail(email: Email): F[Option[User]] =
-      sql"SELECT id, name, hash, email FROM users WHERE email = $email".query[User].option.transact(Database[F].transactor())
+      sql"SELECT id, name, hash, email, is_confirmed FROM users WHERE email = $email".query[User].option.transact(Database[F].transactor())
 
   }
 

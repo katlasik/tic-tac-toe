@@ -7,7 +7,7 @@ import io.tictactoe.authentication.services.Hash
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
-import io.tictactoe.values.{Email, Password, UserId, Username}
+import io.tictactoe.values.{Email, No, Password, UserId, Username}
 import org.http4s.{Header, Headers, Request}
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.implicits._
@@ -60,7 +60,7 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     val hash = Hash("password")
 
-    val user = User(userId, Username("user"), hash, email)
+    val user = User(userId, Username("user"), hash, email, No)
 
     forAll(Generators.users()) { users =>
       val allUsers = user :: users
@@ -96,7 +96,7 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
     import dsl._
 
     val user =
-      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")), Username("user"), Hash("password"), Email("email@gmail.com"))
+      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")), Username("user"), Hash("password"), Email("email@gmail.com"), No)
 
     val inputData = TestAppData(
       users = List(user)
@@ -128,10 +128,10 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
     import dsl._
 
     val user =
-      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")), Username("user"), Hash("password"), Email("email@gmail.com"))
+      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")), Username("user"), Hash("password"), Email("email@gmail.com"), No)
 
     val anotherUser =
-      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")), Username("user2"), Hash("password"), Email("email2@gmail.com"))
+      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")), Username("user2"), Hash("password"), Email("email2@gmail.com"), No)
 
     val inputData = TestAppData(
       users = List(

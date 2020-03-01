@@ -15,7 +15,7 @@ final case class Hash(value: String) extends AnyVal
 
 object PasswordHasher {
 
-  implicit def apply[F[_]](implicit ev: PasswordHasher[F]): PasswordHasher[F] = ev
+  def apply[F[_]](implicit ev: PasswordHasher[F]): PasswordHasher[F] = ev
 
   def bcrypt[F[_]: Sync]: PasswordHasher[F] = new PasswordHasher[F] {
     private val algorithm = BCrypt.syncPasswordHasher[F]
