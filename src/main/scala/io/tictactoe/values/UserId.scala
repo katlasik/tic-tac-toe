@@ -13,9 +13,10 @@ import cats.implicits._
 final case class UserId(value: UUID) extends AnyVal
 
 object UserId {
-  def next[F[_]: UUIDGenerator: Functor]: F[UserId] = for {
-    id <- UUIDGenerator[F].next()
-  } yield UserId(id)
+  def next[F[_]: UUIDGenerator: Functor]: F[UserId] =
+    for {
+      id <- UUIDGenerator[F].next()
+    } yield UserId(id)
 
   def fromString(value: String): UserId = UserId(UUID.fromString(value))
 

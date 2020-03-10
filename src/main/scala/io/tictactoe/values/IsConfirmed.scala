@@ -1,9 +1,11 @@
 package io.tictactoe.values
 
+import cats.Eq
 import doobie.util.meta.Meta
 import mouse.all._
+import cats.implicits._
 
-sealed trait IsConfirmed extends Product with Serializable{
+sealed trait IsConfirmed extends Product with Serializable {
   val value: Boolean
 }
 
@@ -17,6 +19,7 @@ case object No extends IsConfirmed {
 
 object IsConfirmed {
 
+  implicit val eq: Eq[IsConfirmed] = Eq.by(_.value)
   implicit val meta: Meta[IsConfirmed] = Meta[Boolean].timap(_.fold(Yes, No))(_.value)
 
 }

@@ -5,12 +5,17 @@ jobs:
       - image: hseeberger/scala-sbt:11.0.3_1.2.8_2.13.0
         environment:
           DATABASE_URL: postgres://tictactoe_user:tictactoe@0.0.0.0:5432/tictactoe
+          IT_TEST_REUSE_CONTAINERS: true
           IT_TEST_REUSE_DB: true
+          IT_TEST_MAIL_SMTP_PORT: 1025
+          IT_TEST_MAIL_REST_PORT: 8025
+          IT_TEST_DB_PORT: 5432
       - image: postgres:12
         environment:
           POSTGRES_DB: tictactoe
           POSTGRES_USER: tictactoe_user
           POSTGRES_PASSWORD: tictactoe
+      - image: mailhog/mailhog:v1.0.0
     steps:
       - checkout
       - restore_cache:

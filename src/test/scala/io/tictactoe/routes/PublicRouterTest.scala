@@ -3,7 +3,7 @@ package io.tictactoe.routes
 import java.time.Instant
 import java.util.UUID
 
-import io.tictactoe.authentication.model.{AuthResponse, AuthToken, Credentials, RegistrationRequest, RegistrationResult, User}
+import io.tictactoe.authentication.model.{AuthResponse, AuthToken, ConfirmationToken, Credentials, RegistrationRequest, RegistrationResult, User}
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
@@ -14,7 +14,7 @@ import io.circe.generic.auto._
 import io.tictactoe.authentication.services.Hash
 import io.tictactoe.error.ErrorView
 import io.tictactoe.testutils.generators.Generators
-import io.tictactoe.values.{Email, EventId, EventTimestamp, No, Password, UserId, Username}
+import io.tictactoe.values.{Email, EventId, EventTimestamp, No, Password, UserId, Username, Yes}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
@@ -32,7 +32,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
       val inputData = TestAppData(
         uuids = List(user.id.value, eventId),
-        dates = List(timestamp)
+        dates = List(timestamp),
+        confirmationTokens = List(user.confirmationToken.get)
       )
 
       val request = Request[TestAppState](
@@ -53,7 +54,9 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         show"New user with id = ${user.id} was created."
       )
 
-      outputData.events should contain(UserRegisteredEvent(EventId(eventId), EventTimestamp(timestamp), user.username, user.email))
+      outputData.events should contain(
+        UserRegisteredEvent(EventId(eventId), EventTimestamp(timestamp), user.id, user.username, user.email, user.confirmationToken.get)
+      )
 
       response.status.code shouldBe 200
 
@@ -73,7 +76,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Username("user1"),
           Hash("userpass"),
           Email("email@user.pl"),
-          No
+          No,
+          None
         )
       )
     )
@@ -124,7 +128,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
-          No
+          Yes,
+          None
         )
       )
     )
@@ -151,6 +156,45 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
   }
 
+  it should "reject login if user is unconfirmed" in new Fixture {
+
+    import dsl._
+
+    val inputData = TestAppData(
+      users = List(
+        User(
+          UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+          Username("user"),
+          Hash("userpass"),
+          Email("email@user.pl"),
+          No,
+          None
+        )
+      )
+    )
+
+    val request = Request[TestAppState](
+      method = POST,
+      uri = uri"login"
+    ).withEntity(Credentials(Email("email@user.pl"), Password("userpass")))
+
+    val (outputData, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    outputData.infoMessages shouldBe empty
+
+    response.status.code shouldBe 401
+
+    response.headers.get("Set-Auth-Token".ci) shouldBe None
+
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Account is not yet confirmed.")
+
+  }
+
   it should "reject unsuccessful login attempts" in new Fixture {
 
     import dsl._
@@ -162,7 +206,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
-          No
+          Yes,
+          None
         )
       )
     )
@@ -184,6 +229,52 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     response.headers.get("Set-Auth-Token".ci) shouldBe None
 
     response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Invalid credentials.")
+
+  }
+
+  it should "allow confirming users" in new Fixture {
+
+    import dsl._
+
+    val inputData = TestAppData(
+      users = List(
+        User(
+          UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+          Username("user"),
+          Hash("userpass"),
+          Email("email@user.pl"),
+          No,
+          ConfirmationToken("1").some
+        )
+      )
+    )
+
+    val request = Request[TestAppState](
+      method = GET,
+      uri = uri"registration?token=1&id=00000000-0000-0000-0000-000000000001"
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 303
+
+    response.headers.get("Location".ci).get.value shouldBe "http://localhost:8082"
+
+    data.users should contain(
+      User(
+        UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+        Username("user"),
+        Hash("userpass"),
+        Email("email@user.pl"),
+        Yes,
+        None
+      )
+    )
 
   }
 

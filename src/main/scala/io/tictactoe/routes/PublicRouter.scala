@@ -8,6 +8,7 @@ import cats.implicits._
 import io.tictactoe.authentication.model.{AuthResponse, AuthToken}
 import io.tictactoe.authentication.repositories.AuthRepository
 import io.tictactoe.base.logging.Logging
+import sttp.model.StatusCode
 
 import scala.util.chaining._
 
@@ -26,7 +27,16 @@ object PublicRouter {
             .mapErrors
       )
 
-    registerUser <+> login
+    val confirmRegistration = Endpoints.confirmRegistration.toRoutes{
+      case (token, id) =>
+        val result = for {
+        redirectLocation <- Registration[F].confirm(token, id)
+      } yield (StatusCode.SeeOther, redirectLocation)
+
+      result.mapErrors
+    }
+
+    registerUser <+> login <+> confirmRegistration
   }
 
 }

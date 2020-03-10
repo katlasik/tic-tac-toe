@@ -11,7 +11,8 @@ final case class EventId(value: UUID) extends AnyVal
 object EventId {
   implicit val eq: Eq[EventId] = Eq.fromUniversalEquals
 
-  def next[F[_]: UUIDGenerator: Functor]: F[EventId] = for {
-    id <- UUIDGenerator[F].next()
-  } yield EventId(id)
+  def next[F[_]: UUIDGenerator: Functor]: F[EventId] =
+    for {
+      id <- UUIDGenerator[F].next()
+    } yield EventId(id)
 }

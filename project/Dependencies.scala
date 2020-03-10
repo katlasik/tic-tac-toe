@@ -16,12 +16,14 @@ object Dependencies {
   val TSecVersion = "0.2.0"
   val HenkanVersion = "0.6.4"
   val FlywayVersion = "6.1.1"
+  val ScalateVersion = "1.9.5"
+  val JavaxMailVersion = "1.4.7"
 
   val ScalaTestVersion = "3.0.8"
   val ScalaCheckVersion = "1.14.3"
-
   val SttpVersion = "1.7.2"
   val ParallelCollectionsVersion = "0.2.0"
+
   val TestContainersScalaVersion = "0.33.0"
 
   lazy val dependencies = Seq(
@@ -34,8 +36,10 @@ object Dependencies {
     "io.circe" %% "circe-literal" % CirceVersion,
     "io.circe" %% "circe-generic-extras" % CirceVersion,
     "io.circe" %% "circe-parser" % CirceVersion,
+    "io.circe" %% "circe-optics" % CirceVersion,
     "io.github.jmcardon" %% "tsec-http4s" % TSecVersion,
     "com.github.pureconfig" %% "pureconfig" % PureConfigVersion,
+    "javax.mail" % "mail" % JavaxMailVersion,
     "io.chrisdavenport" %% "cats-time" % CatsTimeVersion,
     "ch.qos.logback" % "logback-classic" % LogbackVersion,
     "com.beachape" %% "enumeratum-circe" % EnumeratumCirceVersion,
@@ -47,6 +51,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % TapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % TapirVersion,
     "com.kailuowang" %% "henkan-convert" % HenkanVersion,
+    "org.scalatra.scalate" %% "scalate-core" % ScalateVersion,
     "com.github.pathikrit" %% "better-files" % BetterFilesVersion,
     "org.tpolecat" %% "doobie-core" % DoobieVersion,
     "org.tpolecat" %% "doobie-scalatest" % DoobieVersion,

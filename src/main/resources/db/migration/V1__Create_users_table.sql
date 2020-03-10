@@ -4,5 +4,6 @@ CREATE TABLE users (
   hash VARCHAR NOT NULL,
   email VARCHAR NOT NULL UNIQUE,
   is_confirmed BOOLEAN NOT NULL,
-  created_on TIMESTAMP DEFAULT NOW()
+  created_on TIMESTAMP DEFAULT NOW(),
+  confirmation_token VARCHAR
 );

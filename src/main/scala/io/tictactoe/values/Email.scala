@@ -7,6 +7,8 @@ import cats.kernel.Eq
 import io.circe.{Decoder, Encoder}
 import io.tictactoe.base.validation.ValidationError
 import mouse.all._
+import sttp.tapir.Codec
+import sttp.tapir.Codec.PlainCodec
 
 final case class Email(value: String) extends AnyVal
 
@@ -19,6 +21,8 @@ object Email {
 
   implicit val decoder: Decoder[Email] = Decoder[String].emap(Email.fromString(_).leftMap(_.reduce.msg).toEither)
   implicit val encoder: Encoder[Email] = Encoder[String].contramap(_.value)
+
+  implicit val codec: PlainCodec[Email] = Codec.stringPlainCodecUtf8.map(Email(_))(_.value)
 
   def fromString(value: String): ValidatedNel[ValidationError, Email] =
     EmailRegex

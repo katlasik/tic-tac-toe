@@ -12,5 +12,3 @@ object EventTimestamp {
   implicit val order: Order[EventTimestamp] = Order.by(_.value)
 
 }
-
-

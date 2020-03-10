@@ -6,10 +6,14 @@ import doobie.implicits._
 import doobie.postgres.implicits._
 import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.services.PasswordHasher
-import io.tictactoe.values.{Email, Username}
+import io.tictactoe.values.{Email, UserId, Username, Yes}
 import io.tictactoe.database.Database
 
 trait AuthRepository[F[_]] {
+  def confirm(user: User): F[User]
+
+  def getById(id: UserId): F[Option[User]]
+
   def getByEmail(email: Email): F[Option[User]]
 
   def existsByEmail(email: Email): F[Boolean]
@@ -33,16 +37,28 @@ object AuthRepository {
       sql"SELECT 1 FROM users WHERE name = $username".query[Boolean].option.transact(Database[F].transactor()).map(_.isDefined)
 
     override def save(user: User): F[User] = user match {
-      case User(id, name, hash, email, isConfirmed) =>
+      case User(id, name, hash, email, isConfirmed, confirmationToken) =>
         for {
-          _ <- sql"INSERT INTO users(id, name, hash, email, is_confirmed) VALUES ($id, $name, $hash, $email, $isConfirmed)".update.run
+          _ <- sql"INSERT INTO users(id, name, hash, email, is_confirmed, confirmation_token) VALUES ($id, $name, $hash, $email, $isConfirmed, $confirmationToken)".update.run
             .transact(Database[F].transactor())
         } yield user
     }
 
-    override def getByEmail(email: Email): F[Option[User]] =
-      sql"SELECT id, name, hash, email, is_confirmed FROM users WHERE email = $email".query[User].option.transact(Database[F].transactor())
+    override def confirm(user: User): F[User] =
+      sql"UPDATE users SET is_confirmed = true, confirmation_token = null WHERE id = ${user.id}".update.run
+        .transact(Database[F].transactor()) *> Sync[F].pure(user.copy(isConfirmed = Yes, confirmationToken = None))
 
+    override def getByEmail(email: Email): F[Option[User]] =
+      sql"SELECT id, name, hash, email, is_confirmed, confirmation_token FROM users WHERE email = $email"
+        .query[User]
+        .option
+        .transact(Database[F].transactor())
+
+    override def getById(id: UserId): F[Option[User]] =
+      sql"SELECT id, name, hash, email, is_confirmed, confirmation_token FROM users WHERE id = $id"
+        .query[User]
+        .option
+        .transact(Database[F].transactor())
   }
 
 }

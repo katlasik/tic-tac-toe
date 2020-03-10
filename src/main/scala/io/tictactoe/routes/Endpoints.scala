@@ -1,10 +1,11 @@
 package io.tictactoe.routes
 
-import io.tictactoe.authentication.model.{AuthResponse, AuthToken, Credentials, RegistrationRequest, RegistrationResult}
+import io.tictactoe.authentication.model.{AuthResponse, AuthToken, ConfirmationToken, Credentials, RegistrationRequest, RegistrationResult}
 import io.tictactoe.error.ErrorView
 import sttp.tapir.json.circe._
 import sttp.tapir._
 import io.circe.generic.auto._
+import io.tictactoe.base.model.RedirectLocation
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.UserId
 import sttp.model.StatusCode
@@ -19,6 +20,17 @@ object Endpoints {
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
     .out(jsonBody[RegistrationResult])
+
+  val confirmRegistration: Endpoint[(ConfirmationToken, UserId), (ErrorView, StatusCode), (StatusCode, RedirectLocation), Nothing] = endpoint
+    .description("Endpoint for confirming registration.")
+    .get
+    .in("registration")
+    .in(query[ConfirmationToken]("token"))
+    .in(query[UserId]("id"))
+    .out(statusCode)
+    .out(header[RedirectLocation]("Location"))
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
 
   val login: Endpoint[Credentials, (ErrorView, StatusCode), (AuthToken, AuthResponse), Nothing] = endpoint
     .description("Endpoint for login in.")
@@ -48,6 +60,6 @@ object Endpoints {
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
 
-  val all: List[Endpoint[_, _, _, _]] = List(registerUser, login, getUsers, getUser)
+  val all: List[Endpoint[_, _, _, _]] = List(registerUser, confirmRegistration, login, getUsers, getUser)
 
 }

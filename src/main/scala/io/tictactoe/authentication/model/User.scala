@@ -8,5 +8,6 @@ final case class User(
     username: Username,
     hash: Hash,
     email: Email,
-    isConfirmed: IsConfirmed
+    isConfirmed: IsConfirmed,
+    confirmationToken: Option[ConfirmationToken]
 )

@@ -7,7 +7,7 @@ import io.tictactoe.values.UserId
 
 trait UserService[F[_]] {
 
-  def all(): F[List[SimpleUser]]
+  def confirmedUsers(): F[List[SimpleUser]]
 
   def get(id: UserId): F[Option[DetailedUser]]
 
@@ -20,7 +20,7 @@ object UserService {
 
     override def get(id: UserId): F[Option[DetailedUser]] = UserRepository[F].getById(id)
 
-    override def all(): F[List[SimpleUser]] = UserRepository[F].all()
+    override def confirmedUsers(): F[List[SimpleUser]] = UserRepository[F].confirmedUsers()
 
   }
 }

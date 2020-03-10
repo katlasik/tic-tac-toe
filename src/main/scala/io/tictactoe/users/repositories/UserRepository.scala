@@ -10,7 +10,7 @@ import io.tictactoe.values.UserId
 
 trait UserRepository[F[_]] {
 
-  def all(): F[List[SimpleUser]]
+  def confirmedUsers(): F[List[SimpleUser]]
 
   def getById(id: UserId): F[Option[DetailedUser]]
 
@@ -24,8 +24,8 @@ object UserRepository {
     override def getById(id: UserId): F[Option[DetailedUser]] =
       sql"SELECT id, name, email FROM users WHERE id = $id".query[DetailedUser].option.transact(Database[F].transactor())
 
-    override def all(): F[List[SimpleUser]] =
-      sql"SELECT id, name FROM users".query[SimpleUser].to[List].transact(Database[F].transactor())
+    override def confirmedUsers(): F[List[SimpleUser]] =
+      sql"SELECT id, name FROM users WHERE is_confirmed = true".query[SimpleUser].to[List].transact(Database[F].transactor())
 
   }
 }

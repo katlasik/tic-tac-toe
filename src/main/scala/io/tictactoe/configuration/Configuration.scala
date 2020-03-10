@@ -1,5 +1,7 @@
 package io.tictactoe.configuration
 
+import java.nio.file.Path
+
 import cats.effect.Sync
 import pureconfig.ConfigSource
 import cats.implicits._
@@ -13,10 +15,14 @@ object Configuration {
 
   def apply[F[_]]()(implicit ev: Configuration[F]): Configuration[F] = ev
 
-  def load[F[_]: Sync]: F[Configuration[F]] =
+  def loadFromFile[F[_]: Sync](path: Path): F[Configuration[F]] = process(ConfigSource.file(path))
+
+  def load[F[_]: Sync]: F[Configuration[F]] = process(ConfigSource.default)
+
+  private def process[F[_]: Sync](source: ConfigSource): F[Configuration[F]] =
     for {
       c <- Sync[F].fromEither(
-        ConfigSource.default.load[ConfigurationProperties].leftMap(ConfigurationLoadingError)
+        source.load[ConfigurationProperties].leftMap(ConfigurationLoadingError)
       )
     } yield
       new Configuration[F] {

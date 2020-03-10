@@ -10,10 +10,11 @@ import tsec.mac.jca.HMACSHA256
 
 import scala.concurrent.duration._
 import io.circe.generic.auto._
-import io.tictactoe.authentication.errors.WrongCredentials
+import io.tictactoe.authentication.errors.{AccountNotConfirmed, WrongCredentials}
 import io.tictactoe.authentication.repositories.AuthRepository
 import tsec.jws.mac.JWTMac
 import io.tictactoe.base.utils.Syntax._
+import io.tictactoe.values.No
 
 trait Authentication[F[_]] {
   def authenticate(credentials: Credentials): F[JWTToken]
@@ -42,6 +43,7 @@ object Authentication {
         override def authenticate(credentials: Credentials): F[JWTToken] =
           for {
             user <- AuthRepository[F].getByEmail(credentials.email).throwIfEmpty(WrongCredentials)
+            _ <- Sync[F].whenA(user.isConfirmed === No)(Sync[F].raiseError(AccountNotConfirmed))
             authenticated <- PasswordHasher[F].check(credentials.password, user.hash)
             token <- if (authenticated) {
               logger.info(show"User with id = ${user.id} authenticated.") *> authenticator.create(TokenPayload.fromUser(user))

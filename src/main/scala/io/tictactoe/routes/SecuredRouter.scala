@@ -19,7 +19,7 @@ object SecuredRouter {
     val getUsers = Endpoints.getUsers.toRoutes(token => {
       val result = for {
         _ <- Authentication[F].verify(token)
-        result <- UserService[F].all()
+        result <- UserService[F].confirmedUsers()
       } yield result
 
       result.mapErrors
