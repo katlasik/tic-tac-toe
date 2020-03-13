@@ -4,12 +4,14 @@ import cats.effect.Sync
 import cats.implicits._
 import doobie.implicits._
 import doobie.postgres.implicits._
-import io.tictactoe.authentication.model.User
+import io.tictactoe.authentication.model.{ConfirmationToken, User}
 import io.tictactoe.authentication.services.PasswordHasher
 import io.tictactoe.values.{Email, UserId, Username, Yes}
 import io.tictactoe.database.Database
 
 trait AuthRepository[F[_]] {
+  def updateToken(userId: UserId, token: ConfirmationToken): F[Unit]
+
   def confirm(user: User): F[User]
 
   def getById(id: UserId): F[Option[User]]
@@ -59,6 +61,9 @@ object AuthRepository {
         .query[User]
         .option
         .transact(Database[F].transactor())
+
+    override def updateToken(userId: UserId, token: ConfirmationToken): F[Unit] =
+      sql"UPDATE users SET confirmation_token = $token WHERE id = $userId".update.run.transact(Database[F].transactor()).void
   }
 
 }

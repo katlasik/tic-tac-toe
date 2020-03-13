@@ -28,3 +28,5 @@ jobs:
       - run: sbt -mem 2048 coverage test it:test coverageReport
       - store_artifacts:
           path: target/scala-2.13/scoverage-report
+      - store_artifacts:
+          path: tic-tac-toe-swagger.yaml

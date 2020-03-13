@@ -7,7 +7,7 @@ import sttp.tapir._
 import io.circe.generic.auto._
 import io.tictactoe.base.model.RedirectLocation
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
-import io.tictactoe.values.UserId
+import io.tictactoe.values.{Email, UserId}
 import sttp.model.StatusCode
 
 object Endpoints {
@@ -25,10 +25,18 @@ object Endpoints {
     .description("Endpoint for confirming registration.")
     .get
     .in("registration")
-    .in(query[ConfirmationToken]("token"))
-    .in(query[UserId]("id"))
+    .in(query[ConfirmationToken]("token")).description("Random token.")
+    .in(query[UserId]("id")).description("Id of user confirming registration.")
     .out(statusCode)
     .out(header[RedirectLocation]("Location"))
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
+
+  val resendConfirmationEmail: Endpoint[Email, (ErrorView, StatusCode), Unit, Nothing] = endpoint
+    .description("Endpoint for requesting resending of registration email.")
+    .put
+    .in("registration")
+    .in(query[Email]("email")).description("Email of user, which requests resending of confirmation email.")
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
 
@@ -60,6 +68,6 @@ object Endpoints {
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
 
-  val all: List[Endpoint[_, _, _, _]] = List(registerUser, confirmRegistration, login, getUsers, getUser)
+  val all: List[Endpoint[_, _, _, _]] = List(registerUser, confirmRegistration, resendConfirmationEmail, login, getUsers, getUser)
 
 }

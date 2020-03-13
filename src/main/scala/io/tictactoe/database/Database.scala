@@ -30,7 +30,7 @@ object Database {
       )
     } yield
       new Database[F] {
-        override def transactor(): HikariTransactor[F] = hikari
+        override val transactor: HikariTransactor[F] = hikari
       }
 
 }

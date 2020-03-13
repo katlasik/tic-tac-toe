@@ -3,7 +3,16 @@ package io.tictactoe.routes
 import java.time.Instant
 import java.util.UUID
 
-import io.tictactoe.authentication.model.{AuthResponse, AuthToken, ConfirmationToken, Credentials, RegistrationRequest, RegistrationResult, User}
+import cats.data.NonEmptyList
+import io.tictactoe.authentication.model.{
+  AuthResponse,
+  AuthToken,
+  ConfirmationToken,
+  Credentials,
+  RegistrationRequest,
+  RegistrationResult,
+  User
+}
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
@@ -19,6 +28,8 @@ import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
 import io.tictactoe.authentication.events.UserRegisteredEvent
+import io.tictactoe.emails.EmailMessage
+import io.tictactoe.emails.services.values.{EmailMessageText, EmailMessageTitle}
 
 class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
 
@@ -275,6 +286,124 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         None
       )
     )
+
+  }
+
+  it should "allow sending requests for resending confirmation emails" in new Fixture {
+
+    import dsl._
+
+    val newToken = ConfirmationToken("2")
+    val id = UserId(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+    val username = Username("user")
+    val hash = Hash("userpass")
+    val email = Email("email@user.pl")
+
+    val inputData = TestAppData(
+      confirmationTokens = List(newToken),
+      users = List(
+        User(
+          id,
+          username,
+          hash,
+          email,
+          No,
+          ConfirmationToken("1").some
+        )
+      )
+    )
+
+    val request = Request[TestAppState](
+      method = PUT,
+      uri = uri"registration?email=email@user.pl"
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 200
+
+    data.users should contain(
+      User(
+        id,
+        username,
+        hash,
+        email,
+        No,
+        newToken.some
+      )
+    )
+
+    data.emails should contain(
+      EmailMessage(
+        NonEmptyList.one(email),
+        Email("no-reply@tictactoe.pl"),
+        EmailMessageText(
+          show"""Thanks for registering, $username!
+                |
+                |To confirm your account click on link below:
+                |http://localhost:8082/registration?token=$newToken&id=$id""".stripMargin
+        ),
+        EmailMessageTitle(show"Hello, $username")
+      )
+    )
+
+  }
+
+  it should "allow reject requests for resending confirmation emails if user is already confirmed" in new Fixture {
+
+    import dsl._
+
+    val newToken = ConfirmationToken("2")
+    val id = UserId(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+    val username = Username("user")
+    val hash = Hash("userpass")
+    val email = Email("email@user.pl")
+
+    val inputData = TestAppData(
+      confirmationTokens = List(newToken),
+      users = List(
+        User(
+          id,
+          username,
+          hash,
+          email,
+          Yes,
+          None
+        )
+      )
+    )
+
+    val request = Request[TestAppState](
+      method = PUT,
+      uri = uri"registration?email=email@user.pl"
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 404
+
+    data.users should contain(
+      User(
+        id,
+        username,
+        hash,
+        email,
+        Yes,
+        None
+      )
+    )
+
+    data.emails shouldBe empty
 
   }
 

@@ -36,7 +36,9 @@ object PublicRouter {
       result.mapErrors
     }
 
-    registerUser <+> login <+> confirmRegistration
+    val resendConfirmationEmail = Endpoints.resendConfirmationEmail.toRoutes(Registration[F].resendEmail(_).mapErrors)
+
+    registerUser <+> login <+> confirmRegistration <+> resendConfirmationEmail
   }
 
 }
