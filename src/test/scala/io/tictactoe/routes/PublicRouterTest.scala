@@ -4,15 +4,7 @@ import java.time.Instant
 import java.util.UUID
 
 import cats.data.NonEmptyList
-import io.tictactoe.authentication.model.{
-  AuthResponse,
-  AuthToken,
-  ConfirmationToken,
-  Credentials,
-  RegistrationRequest,
-  RegistrationResult,
-  User
-}
+import io.tictactoe.authentication.model.{AuthResponse, Credentials, RegistrationRequest, RegistrationResult, User}
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
@@ -28,6 +20,7 @@ import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
 import io.tictactoe.authentication.events.UserRegisteredEvent
+import io.tictactoe.authentication.values.{AuthToken, ConfirmationToken}
 import io.tictactoe.emails.EmailMessage
 import io.tictactoe.emails.services.values.{EmailMessageText, EmailMessageTitle}
 
@@ -83,7 +76,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val inputData = TestAppData(
       users = List(
         User(
-          UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+          UserId.fromString("00000000-0000-0000-0000-000000000001"),
           Username("user1"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -135,7 +128,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val inputData = TestAppData(
       users = List(
         User(
-          UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+          UserId.fromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -174,7 +167,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val inputData = TestAppData(
       users = List(
         User(
-          UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+          UserId.fromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -213,7 +206,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val inputData = TestAppData(
       users = List(
         User(
-          UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+          UserId.fromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -250,7 +243,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val inputData = TestAppData(
       users = List(
         User(
-          UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+          UserId.fromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -278,7 +271,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
     data.users should contain(
       User(
-        UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")),
+        UserId.fromString("00000000-0000-0000-0000-000000000001"),
         Username("user"),
         Hash("userpass"),
         Email("email@user.pl"),
@@ -294,7 +287,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     import dsl._
 
     val newToken = ConfirmationToken("2")
-    val id = UserId(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
@@ -338,6 +331,11 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       )
     )
 
+    data.infoMessages should contain allOf (
+      "Sending of new registration email requested by email@user.pl.",
+      "Sending registration confirmation email to email@user.pl."
+    )
+
     data.emails should contain(
       EmailMessage(
         NonEmptyList.one(email),
@@ -352,6 +350,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       )
     )
 
+    data.confirmationEmails should contain((id, newToken))
+
   }
 
   it should "allow reject requests for resending confirmation emails if user is already confirmed" in new Fixture {
@@ -359,7 +359,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     import dsl._
 
     val newToken = ConfirmationToken("2")
-    val id = UserId(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
@@ -404,6 +404,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     )
 
     data.emails shouldBe empty
+
+    data.confirmationEmails shouldBe empty
 
   }
 

@@ -5,8 +5,9 @@ import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s._
 import io.tictactoe.base.errors.ErrorMapper._
 import cats.implicits._
-import io.tictactoe.authentication.model.{AuthResponse, AuthToken}
+import io.tictactoe.authentication.model.AuthResponse
 import io.tictactoe.authentication.repositories.AuthRepository
+import io.tictactoe.authentication.values.AuthToken
 import io.tictactoe.base.logging.Logging
 import sttp.model.StatusCode
 

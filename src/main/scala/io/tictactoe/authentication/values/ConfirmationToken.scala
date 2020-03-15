@@ -1,4 +1,4 @@
-package io.tictactoe.authentication.model
+package io.tictactoe.authentication.values
 
 import cats.{Eq, Show}
 import sttp.tapir.Codec

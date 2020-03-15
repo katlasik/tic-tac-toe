@@ -1,7 +1,5 @@
 package io.tictactoe.routes
 
-import java.util.UUID
-
 import io.tictactoe.authentication.model.{Credentials, User}
 import io.tictactoe.authentication.services.Hash
 import io.tictactoe.testutils.{Fixture, TestAppData}
@@ -54,7 +52,7 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     import dsl._
 
-    val userId = UserId(UUID.fromString("00000000-0000-0000-0000-000000000001"))
+    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
 
     val email = Email("email@gmail.com")
 
@@ -96,7 +94,7 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
     import dsl._
 
     val user =
-      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")), Username("user"), Hash("password"), Email("email@gmail.com"), Yes, None)
+      User(UserId.fromString("00000000-0000-0000-0000-000000000001"), Username("user"), Hash("password"), Email("email@gmail.com"), Yes, None)
 
     val inputData = TestAppData(
       users = List(user)
@@ -128,10 +126,10 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
     import dsl._
 
     val user =
-      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000001")), Username("user"), Hash("password"), Email("email@gmail.com"), Yes, None)
+      User(UserId.fromString("00000000-0000-0000-0000-000000000001"), Username("user"), Hash("password"), Email("email@gmail.com"), Yes, None)
 
     val anotherUser =
-      User(UserId(UUID.fromString("00000000-0000-0000-0000-000000000002")), Username("user2"), Hash("password"), Email("email2@gmail.com"), Yes, None)
+      User(UserId.fromString("00000000-0000-0000-0000-000000000002"), Username("user2"), Hash("password"), Email("email2@gmail.com"), Yes, None)
 
     val inputData = TestAppData(
       users = List(

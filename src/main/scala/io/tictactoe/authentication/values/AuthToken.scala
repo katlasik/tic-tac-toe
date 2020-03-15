@@ -1,10 +1,10 @@
-package io.tictactoe.authentication.model
+package io.tictactoe.authentication.values
 
 import cats.Eq
+import io.circe.generic.extras.semiauto._
 import io.circe.{Decoder, Encoder}
 import shapeless.the
 import sttp.tapir.Codec.PlainCodec
-import io.circe.generic.extras.semiauto._
 
 final case class AuthToken(value: String) extends AnyVal
 

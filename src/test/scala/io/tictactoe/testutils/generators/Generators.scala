@@ -1,12 +1,13 @@
 package io.tictactoe.testutils.generators
 
 import io.tictactoe.authentication.events.UserRegisteredEvent
-import io.tictactoe.authentication.model.{ConfirmationToken, User}
+import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.services.{ConfirmationTokenGenerator, Hash}
 import io.tictactoe.values.{Email, EventId, EventTimestamp, No, UserId, Username, Yes}
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
+import io.tictactoe.authentication.values.ConfirmationToken
 
 object Generators {
 

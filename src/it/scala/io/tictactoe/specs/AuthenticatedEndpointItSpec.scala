@@ -1,7 +1,8 @@
 package io.tictactoe.specs
 
 import io.circe.generic.auto._
-import io.tictactoe.authentication.model.{AuthResponse, AuthToken}
+import io.tictactoe.authentication.model.AuthResponse
+import io.tictactoe.authentication.values.AuthToken
 import io.tictactoe.testutils.ItTest
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.UserId

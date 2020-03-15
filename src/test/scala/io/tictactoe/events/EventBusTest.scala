@@ -37,6 +37,8 @@ class EventBusTest extends FlatSpec with TableDrivenPropertyChecks with ScalaChe
         )
       )
 
+      outputData.confirmationEmails should contain((event.userId, event.confirmationToken))
+
     }
 
   }

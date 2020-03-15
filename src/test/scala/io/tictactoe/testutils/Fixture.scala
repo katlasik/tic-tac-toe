@@ -42,7 +42,7 @@ trait Fixture {
 
   lazy implicit val templateRenderer: TemplateRenderer[TestAppState] = TemplateRenderer.live[TestAppState].runA(emptyData).unsafeRunSync()
   lazy implicit val calendar: Calendar[TestAppState] = FixedCalendar.fixed
-  lazy implicit val registration: Registration[TestAppState] = Registration.live
+  lazy implicit val registration: Registration[TestAppState] = Registration.live.runA(emptyData).unsafeRunSync()
   lazy implicit val authentication: Authentication[TestAppState] = Authentication.live.runA(emptyData).unsafeRunSync()
   lazy implicit val userService: UserService[TestAppState] = UserService.live
   lazy implicit val registrationEmail: RegistrationEmail[TestAppState] = RegistrationEmail.live[TestAppState].runA(emptyData).unsafeRunSync()

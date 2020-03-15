@@ -18,6 +18,7 @@ object Dependencies {
   val FlywayVersion = "6.1.1"
   val ScalateVersion = "1.9.5"
   val JavaxMailVersion = "1.4.7"
+  val Fs2CronCoreVersion = "0.2.2"
 
   val ScalaTestVersion = "3.0.8"
   val ScalaCheckVersion = "1.14.3"
@@ -44,6 +45,7 @@ object Dependencies {
     "ch.qos.logback" % "logback-classic" % LogbackVersion,
     "com.beachape" %% "enumeratum-circe" % EnumeratumCirceVersion,
     "com.beachape" %% "enumeratum-doobie" % EnumeratumDoobieVersion,
+    "eu.timepit" %% "fs2-cron-core" % Fs2CronCoreVersion,
     "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
     "org.scalacheck" %% "scalacheck" % ScalaCheckVersion % Test,
     "com.softwaremill.sttp.tapir" %% "tapir-http4s-server" % TapirVersion,

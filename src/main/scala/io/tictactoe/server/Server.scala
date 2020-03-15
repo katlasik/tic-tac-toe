@@ -22,6 +22,8 @@ import io.tictactoe.documentation.DocsGenerator
 import io.tictactoe.emails.services.EmailSender
 import io.tictactoe.events.ApplicationEventHandler
 import io.tictactoe.events.bus.EventBus
+import io.tictactoe.scheduledtasks.ApplicationScheduler
+import io.tictactoe.scheduler.Scheduler
 import io.tictactoe.users.repositories.UserRepository
 import io.tictactoe.users.services.UserService
 
@@ -50,9 +52,11 @@ object Server {
       implicit0(registrationEmail: RegistrationEmail[F]) <- Stream.eval(RegistrationEmail.live[F])
       implicit0(eventBus: EventBus[F]) <- Stream.eval(EventBus.start(ApplicationEventHandler.live[F]))
       implicit0(confirmationTokenGenerator: ConfirmationTokenGenerator[F]) <- Stream.eval(ConfirmationTokenGenerator.live[F])
-      implicit0(registration: Registration[F]) = Registration.live[F]
+      implicit0(registration: Registration[F]) <- Stream.eval(Registration.live[F])
       implicit0(authentication: Authentication[F]) <- Stream.eval(Authentication.live[F])
       implicit0(userService: UserService[F]) = UserService.live[F]
+      implicit0(scheduler: Scheduler[F]) <- Stream.eval(Scheduler.live[F])
+      _<- Stream.eval(ApplicationScheduler.live[F].start())
       _ <- Stream.eval(Migrator.init[F].flatMap(_.migrate))
       _ <- Stream.eval(DocsGenerator.init[F].generate())
       server <- Stream.eval(configuration.access()).map(_.server)

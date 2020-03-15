@@ -1,13 +1,14 @@
 package io.tictactoe.authentication.events
 
 import cats.effect.Sync
-import io.tictactoe.authentication.model.{ConfirmationToken, User}
+import io.tictactoe.authentication.model.User
 import io.tictactoe.base.uuid.UUIDGenerator
 import io.tictactoe.calendar.Calendar
 import io.tictactoe.events.bus.Event
 import io.tictactoe.values.{Email, EventId, EventTimestamp, UserId, Username}
 import cats.implicits._
 import io.tictactoe.authentication.errors.ResourceNotFound
+import io.tictactoe.authentication.values.ConfirmationToken
 
 final case class UserRegisteredEvent(
     override val eventId: EventId,

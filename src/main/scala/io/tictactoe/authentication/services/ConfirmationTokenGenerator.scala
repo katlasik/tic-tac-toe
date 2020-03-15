@@ -3,8 +3,8 @@ package io.tictactoe.authentication.services
 import java.security.SecureRandom
 
 import cats.effect.Sync
-import io.tictactoe.authentication.model.ConfirmationToken
 import cats.implicits._
+import io.tictactoe.authentication.values.ConfirmationToken
 
 import scala.jdk.StreamConverters._
 
