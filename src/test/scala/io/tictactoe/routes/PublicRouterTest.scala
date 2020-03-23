@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.UUID
 
 import cats.data.NonEmptyList
-import io.tictactoe.authentication.model.{AuthResponse, Credentials, RegistrationRequest, RegistrationResult, User}
+import io.tictactoe.authentication.model.{AuthResponse, Credentials, PasswordChangeRequest, RegistrationRequest, RegistrationResult, User}
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
@@ -19,10 +19,11 @@ import io.tictactoe.values.{Email, EventId, EventTimestamp, No, Password, UserId
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
-import io.tictactoe.authentication.events.UserRegisteredEvent
-import io.tictactoe.authentication.values.{AuthToken, ConfirmationToken}
-import io.tictactoe.emails.EmailMessage
-import io.tictactoe.emails.services.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.authentication.events.{PasswordChangedEvent, UserRegisteredEvent}
+import io.tictactoe.authentication.values.AuthToken
+import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.emails.model._
+import io.tictactoe.emails.values.{EmailMessageText, EmailMessageTitle}
 
 class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
 
@@ -37,7 +38,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       val inputData = TestAppData(
         uuids = List(user.id.value, eventId),
         dates = List(timestamp),
-        confirmationTokens = List(user.confirmationToken.get)
+        tokens = List(user.registrationConfirmationToken.get)
       )
 
       val request = Request[TestAppState](
@@ -59,7 +60,14 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       )
 
       outputData.events should contain(
-        UserRegisteredEvent(EventId(eventId), EventTimestamp(timestamp), user.id, user.username, user.email, user.confirmationToken.get)
+        UserRegisteredEvent(
+          EventId(eventId),
+          EventTimestamp(timestamp),
+          user.id,
+          user.username,
+          user.email,
+          user.registrationConfirmationToken.get
+        )
       )
 
       response.status.code shouldBe 200
@@ -81,6 +89,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Hash("userpass"),
           Email("email@user.pl"),
           No,
+          None,
           None
         )
       )
@@ -133,6 +142,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Hash("userpass"),
           Email("email@user.pl"),
           Yes,
+          None,
           None
         )
       )
@@ -172,6 +182,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Hash("userpass"),
           Email("email@user.pl"),
           No,
+          None,
           None
         )
       )
@@ -211,6 +222,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Hash("userpass"),
           Email("email@user.pl"),
           Yes,
+          None,
           None
         )
       )
@@ -248,7 +260,8 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Hash("userpass"),
           Email("email@user.pl"),
           No,
-          ConfirmationToken("1").some
+          ConfirmationToken("1").some,
+          None
         )
       )
     )
@@ -276,6 +289,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         Hash("userpass"),
         Email("email@user.pl"),
         Yes,
+        None,
         None
       )
     )
@@ -287,21 +301,26 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     import dsl._
 
     val newToken = ConfirmationToken("2")
-    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
 
     val inputData = TestAppData(
-      confirmationTokens = List(newToken),
+      uuids = List(
+        UUID.fromString("00000000-0000-0000-0000-000000000002"),
+        UUID.fromString("00000000-0000-0000-0000-000000000003")
+      ),
+      tokens = List(newToken),
       users = List(
         User(
-          id,
+          userId,
           username,
           hash,
           email,
           No,
-          ConfirmationToken("1").some
+          ConfirmationToken("1").some,
+          None
         )
       )
     )
@@ -320,23 +339,12 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
     response.status.code shouldBe 200
 
-    data.users should contain(
-      User(
-        id,
-        username,
-        hash,
-        email,
-        No,
-        newToken.some
-      )
-    )
-
     data.infoMessages should contain allOf (
-      "Sending of new registration email requested by email@user.pl.",
+      "Sending of new registration confirmation email requested by email@user.pl.",
       "Sending registration confirmation email to email@user.pl."
     )
 
-    data.emails should contain(
+    data.sentEmails should contain(
       EmailMessage(
         NonEmptyList.one(email),
         Email("no-reply@tictactoe.pl"),
@@ -344,13 +352,13 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           show"""Thanks for registering, $username!
                 |
                 |To confirm your account click on link below:
-                |http://localhost:8082/registration?token=$newToken&id=$id""".stripMargin
+                |http://localhost:8082/registration?token=$newToken&id=$userId""".stripMargin
         ),
         EmailMessageTitle(show"Hello, $username")
       )
     )
 
-    data.confirmationEmails should contain((id, newToken))
+    data.missingEmails shouldBe empty
 
   }
 
@@ -365,7 +373,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val email = Email("email@user.pl")
 
     val inputData = TestAppData(
-      confirmationTokens = List(newToken),
+      tokens = List(newToken),
       users = List(
         User(
           id,
@@ -373,6 +381,7 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           hash,
           email,
           Yes,
+          None,
           None
         )
       )
@@ -392,20 +401,289 @@ class PublicRouterTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
     response.status.code shouldBe 404
 
-    data.users should contain(
-      User(
-        id,
-        username,
-        hash,
-        email,
-        Yes,
-        None
+    data.sentEmails shouldBe empty
+
+    data.missingEmails shouldBe empty
+
+  }
+
+  it should "allow sending requests to reset password" in new Fixture {
+
+    import dsl._
+
+    val newToken = ConfirmationToken("2")
+    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val username = Username("user")
+    val hash = Hash("userpass")
+    val email = Email("email@user.pl")
+
+    val inputData = TestAppData(
+      uuids = List(
+        UUID.fromString("00000000-0000-0000-0000-000000000002"),
+        UUID.fromString("00000000-0000-0000-0000-000000000003")
+      ),
+      tokens = List(newToken),
+      users = List(
+        User(
+          id,
+          username,
+          hash,
+          email,
+          Yes,
+          None,
+          None
+        )
       )
     )
 
-    data.emails shouldBe empty
+    val request = Request[TestAppState](
+      method = POST,
+      uri = uri"password?email=email@user.pl"
+    )
 
-    data.confirmationEmails shouldBe empty
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 200
+
+    val message = EmailMessage(
+      NonEmptyList.one(email),
+      Email("no-reply@tictactoe.pl"),
+      EmailMessageText(
+        show"""You have requested resetting your password.
+              |
+              |To reset your password visit link below:
+              |http://localhost:8082/newpassword?token=2&id=$id""".stripMargin
+      ),
+      EmailMessageTitle(show"Hello, $username")
+    )
+
+    data.infoMessages should contain allOf (
+      "Sending password change request email to email@user.pl.",
+      "Sending of password reset mail requested for user with id = 00000000-0000-0000-0000-000000000001 and email = email@user.pl."
+    )
+
+    data.sentEmails should contain(message)
+
+    data.missingEmails shouldBe empty
+
+  }
+
+  it should "ignore sending requests to reset password if user is not confirmed" in new Fixture {
+
+    import dsl._
+
+    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val username = Username("user")
+    val hash = Hash("userpass")
+    val email = Email("email@user.pl")
+
+    val inputData = TestAppData(
+      users = List(
+        User(
+          id,
+          username,
+          hash,
+          email,
+          No,
+          None,
+          None
+        )
+      )
+    )
+
+    val request = Request[TestAppState](
+      method = POST,
+      uri = uri"password?email=email@user.pl"
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 200
+
+    data.sentEmails shouldBe empty
+
+    data.missingEmails shouldBe empty
+
+    data.infoMessages should contain("No confirmed user with mail email@user.pl found in database, sending no email.")
+
+  }
+
+  it should "ignore sending requests to reset password if user doesn't exist" in new Fixture {
+
+    import dsl._
+
+    val inputData = TestAppData()
+
+    val request = Request[TestAppState](
+      method = POST,
+      uri = uri"password?email=wrong@user.pl"
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 200
+
+    data.sentEmails shouldBe empty
+
+    data.missingEmails shouldBe empty
+
+    data.infoMessages should contain("No confirmed user with mail wrong@user.pl found in database, sending no email.")
+
+  }
+
+  it should "allow changing password if token is correct" in new Fixture {
+
+    import dsl._
+
+    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val username = Username("user")
+    val hash = Hash("userpass")
+    val email = Email("email@user.pl")
+    val token = ConfirmationToken("1")
+    val eventId = UUID.fromString("00000000-0000-0000-0000-000000000002")
+
+    val eventTimestamp =
+      Instant.parse("2020-03-01T14:42:13.775935Z")
+
+    val inputData = TestAppData(
+      uuids = List(eventId),
+      dates = List(eventTimestamp),
+      users = List(
+        User(
+          userId,
+          username,
+          hash,
+          email,
+          No,
+          None,
+          token.some
+        )
+      )
+    )
+
+    val request = Request[TestAppState](
+      method = POST,
+      uri = uri"password/change"
+    ).withEntity(
+      PasswordChangeRequest(
+        userId,
+        token,
+        Password("newpass")
+      )
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 200
+
+    data.users.head.hash shouldBe Hash("newpass")
+
+    data.infoMessages should contain(show"Password of user with id $userId was changed.")
+
+    data.events should contain(PasswordChangedEvent(EventId(eventId), EventTimestamp(eventTimestamp), userId))
+
+  }
+
+  it should "reject changing password if token is correct" in new Fixture {
+
+    import dsl._
+
+    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val username = Username("user")
+    val hash = Hash("userpass")
+    val email = Email("email@user.pl")
+
+    val inputData = TestAppData(
+      users = List(
+        User(
+          userId,
+          username,
+          hash,
+          email,
+          No,
+          None,
+          ConfirmationToken("1").some
+        )
+      )
+    )
+
+    val request = Request[TestAppState](
+      method = POST,
+      uri = uri"password/change"
+    ).withEntity(
+      PasswordChangeRequest(
+        userId,
+        ConfirmationToken("2"),
+        Password("newpass")
+      )
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 400
+
+    data.users.head.hash shouldBe Hash("userpass")
+
+    data.infoMessages shouldBe empty
+
+    data.events shouldBe empty
+
+  }
+
+  it should "reject changing password if user doesn't exist" in new Fixture {
+
+    import dsl._
+
+    val inputData = TestAppData()
+
+    val request = Request[TestAppState](
+      method = POST,
+      uri = uri"password/change"
+    ).withEntity(
+      PasswordChangeRequest(
+        UserId.fromString("00000000-0000-0000-0000-000000000001"),
+        ConfirmationToken("1"),
+        Password("newpass")
+      )
+    )
+
+    val (data, Some(response)) = PublicRouter
+      .routes[TestAppState]
+      .run(request)
+      .value
+      .run(inputData)
+      .unsafeRunSync()
+
+    response.status.code shouldBe 400
+
+    data.infoMessages shouldBe empty
+
+    data.events shouldBe empty
 
   }
 

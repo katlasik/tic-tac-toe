@@ -21,11 +21,13 @@ object UserRepository {
 
   def postgresql[F[_]: Sync: PasswordHasher: Database]: UserRepository[F] = new UserRepository[F] {
 
+    val transactor = Database[F].transactor()
+
     override def getById(id: UserId): F[Option[DetailedUser]] =
-      sql"SELECT id, name, email FROM users WHERE id = $id".query[DetailedUser].option.transact(Database[F].transactor())
+      sql"SELECT id, name, email FROM users WHERE id = $id".query[DetailedUser].option.transact(transactor)
 
     override def confirmedUsers(): F[List[SimpleUser]] =
-      sql"SELECT id, name FROM users WHERE is_confirmed = true".query[SimpleUser].to[List].transact(Database[F].transactor())
+      sql"SELECT id, name FROM users WHERE is_confirmed = true".query[SimpleUser].to[List].transact(transactor)
 
   }
 }

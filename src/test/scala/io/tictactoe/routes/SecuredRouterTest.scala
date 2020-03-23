@@ -58,7 +58,7 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     val hash = Hash("password")
 
-    val user = User(userId, Username("user"), hash, email, Yes, None)
+    val user = User(userId, Username("user"), hash, email, Yes, None, None)
 
     forAll(Generators.users()) { users =>
       val allUsers = user :: users
@@ -94,7 +94,15 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
     import dsl._
 
     val user =
-      User(UserId.fromString("00000000-0000-0000-0000-000000000001"), Username("user"), Hash("password"), Email("email@gmail.com"), Yes, None)
+      User(
+        UserId.fromString("00000000-0000-0000-0000-000000000001"),
+        Username("user"),
+        Hash("password"),
+        Email("email@gmail.com"),
+        Yes,
+        None,
+        None
+      )
 
     val inputData = TestAppData(
       users = List(user)
@@ -126,10 +134,26 @@ class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
     import dsl._
 
     val user =
-      User(UserId.fromString("00000000-0000-0000-0000-000000000001"), Username("user"), Hash("password"), Email("email@gmail.com"), Yes, None)
+      User(
+        UserId.fromString("00000000-0000-0000-0000-000000000001"),
+        Username("user"),
+        Hash("password"),
+        Email("email@gmail.com"),
+        Yes,
+        None,
+        None
+      )
 
     val anotherUser =
-      User(UserId.fromString("00000000-0000-0000-0000-000000000002"), Username("user2"), Hash("password"), Email("email2@gmail.com"), Yes, None)
+      User(
+        UserId.fromString("00000000-0000-0000-0000-000000000002"),
+        Username("user2"),
+        Hash("password"),
+        Email("email2@gmail.com"),
+        Yes,
+        None,
+        None
+      )
 
     val inputData = TestAppData(
       users = List(

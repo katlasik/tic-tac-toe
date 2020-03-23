@@ -1,76 +1,64 @@
 package io.tictactoe.emails.services
 
-import javax.mail.{Authenticator, PasswordAuthentication, Session, Transport}
-import java.util.Properties
-
+import cats.data.NonEmptyList
 import cats.effect.Sync
-import io.tictactoe.emails.EmailMessage
-import javax.mail.Session
-import javax.mail.Authenticator
 import cats.implicits._
-import io.tictactoe.configuration.{Configuration, MailServer, Smtp}
-import javax.mail.Message.RecipientType
-import javax.mail.internet.MimeMessage
-import io.tictactoe.emails.utils.Syntax._
-
-import scala.util.chaining._
-import scala.jdk.CollectionConverters._
+import io.tictactoe.base.logging.Logging
+import io.tictactoe.configuration.Configuration
+import io.tictactoe.emails.model._
+import io.tictactoe.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.values.Email
 
 trait EmailSender[F[_]] {
   def send(email: EmailMessage): F[Unit]
+
+  def sendForSingleRecipient(email: Email, emailMessageText: EmailMessageText, emailMessageTitle: EmailMessageTitle): F[Unit]
+
+  def sendMissingEmails(): F[Unit]
 }
 
 object EmailSender {
 
   def apply[F[_]](implicit ev: EmailSender[F]): EmailSender[F] = ev
 
-  def live[F[_]: Sync: Configuration]: F[EmailSender[F]] = {
-
-    def prepareMessage(email: EmailMessage, session: Session): F[MimeMessage] =
-      for {
-        from <- email.from.toAddress()
-        to <- email.to.traverse(_.toAddress())
-      } yield {
-        val message = new MimeMessage(session)
-        message.addFrom(Array(from))
-        message.addRecipients(RecipientType.TO, to.toList.toArray)
-        message.setText(email.text.value)
-        message.setSubject(email.title.value)
-        message
-      }
-
-    def createAuthenticator(username: String, password: String): F[Authenticator] = Sync[F].delay(
-      new Authenticator {
-        override def getPasswordAuthentication: PasswordAuthentication =
-          new PasswordAuthentication(username, password)
-      }
-    )
-
-    def createProperties(host: String, port: Int): Properties =
-      new Properties(System.getProperties)
-        .tap(
-          _.putAll(
-            Map(
-              "mail.smtp.host" -> host,
-              "mail.smtp.port" -> port.toString
-            ).asJava
-          )
-        )
-
-    def createSession(): F[Session] =
-      for {
-        MailServer(username, password, Smtp(host, port)) <- Configuration[F].access().map(_.mail.server)
-        authenticator <- createAuthenticator(username, password)
-      } yield Session.getInstance(createProperties(host, port), authenticator)
+  def live[F[_]: Sync: Configuration: EmailRepository: Logging: EmailTransport]: F[EmailSender[F]] = {
 
     for {
-      session <- createSession()
+      logger <- Logging[F].create[EmailSender[F]]
     } yield
       new EmailSender[F] {
-        override def send(email: EmailMessage): F[Unit] =
+        override def sendMissingEmails(): F[Unit] =
           for {
-            message <- prepareMessage(email, session)
-            _ <- Sync[F].delay(Transport.send(message))
+            _ <- logger.info("Checking for unsent emails.")
+            emails <- EmailRepository[F].missingEmails()
+            _ <- Sync[F].whenA(emails.nonEmpty)(logger.info(s"Sending missing registration emails for ${emails.size} users."))
+            _ <- emails.traverse {
+              case MissingEmail(id, recipients, sender, text, title) =>
+                for {
+                  _ <- EmailTransport[F].send(EmailMessage(recipients, sender, text, title))
+                  _ <- EmailRepository[F].confirm(id)
+                } yield ()
+            }
+          } yield ()
+
+        override def send(message: EmailMessage): F[Unit] =
+          for {
+            id <- EmailRepository[F].save(message)
+            _ <- EmailTransport[F].send(message)
+            _ <- EmailRepository[F].confirm(id)
+          } yield ()
+
+        override def sendForSingleRecipient(email: Email, text: EmailMessageText, title: EmailMessageTitle): F[Unit] =
+          for {
+            configuration <- Configuration[F].access()
+            _ <- send(
+              EmailMessage(
+                NonEmptyList.one(email),
+                configuration.mail.noReplyAddress,
+                text,
+                title
+              )
+            )
           } yield ()
       }
   }

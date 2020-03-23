@@ -15,6 +15,8 @@ import org.scalatest.{Args, BeforeAndAfterAll, BeforeAndAfterEach, Status, Suite
 import org.testcontainers.containers.wait.strategy.{LogMessageWaitStrategy, Wait}
 import cats.implicits._
 import com.typesafe.config.ConfigFactory
+import io.circe.Json
+import io.circe.parser.parse
 import mouse.all._
 
 import scala.io.Source
@@ -140,6 +142,25 @@ trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach { self: Suite =>
 
     scripts.toList
       .foreach(f => Using(Source.fromFile(s"src/it/resources/scripts/$f"))(l => statement.execute(l.mkString)))
+  }
+
+  def getMails(expected: Int): List[String] = repeatUntil() {
+    val response = get(s"http://localhost:$mailRestPort/api/v2/messages").success.plain
+
+    parse(response).getOrElse(Json.Null).hcursor.downField("total").as[Int] match {
+      case Right(v) if v >= expected =>
+        Some(
+          parse(response)
+            .getOrElse(Json.Null)
+            .hcursor
+            .downField("items")
+            .values
+            .get
+            .map(_.hcursor.downField("Content").downField("Body").as[String].toOption.get)
+            .toList
+        )
+      case _ => None
+    }
   }
 
 }

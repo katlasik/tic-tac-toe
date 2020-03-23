@@ -3,16 +3,17 @@ package io.tictactoe.testutils
 import cats.effect.{ContextShift, IO}
 import io.tictactoe.authentication.model.Credentials
 import io.tictactoe.authentication.repositories.AuthRepository
-import io.tictactoe.authentication.services.{Authentication, ConfirmationTokenGenerator, PasswordHasher, Registration, RegistrationEmail}
+import io.tictactoe.authentication.services.{AuthEmail, Authentication, PasswordChanger, PasswordHasher, Registration}
 import io.tictactoe.base.logging.Logging
 import io.tictactoe.base.templates.TemplateRenderer
+import io.tictactoe.base.tokens.TokenGenerator
 import io.tictactoe.base.uuid.UUIDGenerator
 import io.tictactoe.calendar.Calendar
 import io.tictactoe.configuration.Configuration
-import io.tictactoe.emails.services.EmailSender
+import io.tictactoe.emails.services.{EmailRepository, EmailSender, EmailTransport}
 import io.tictactoe.events.bus.EventBus
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailSender, InMemoryEventBus, InMemoryUserRepository, MemoryLogging}
+import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailRepository, InMemoryEventBus, InMemoryUserRepository, MemoryLogging, MockedEmailTransport}
 import io.tictactoe.users.repositories.UserRepository
 import io.tictactoe.users.services.UserService
 import org.http4s.Uri
@@ -36,16 +37,18 @@ trait Fixture {
   lazy implicit val authRepository: AuthRepository[TestAppState] = InMemoryAuthRepository.inMemory
   lazy implicit val userRepository: UserRepository[TestAppState] = InMemoryUserRepository.inMemory
   lazy implicit val eventBus: EventBus[TestAppState] = InMemoryEventBus.inMemory
-  lazy implicit val confirmationTokenGenerator: ConfirmationTokenGenerator[TestAppState] = FixedConfirmationTokenGenerator.fixed
-  lazy implicit val emailSender: EmailSender[TestAppState] = InMemoryEmailSender.inMemory
+  lazy implicit val confirmationTokenGenerator: TokenGenerator[TestAppState] = FixedConfirmationTokenGenerator.fixed
+  lazy implicit val mockedEmailTransport: EmailTransport[TestAppState] = MockedEmailTransport.mocked
+  lazy implicit val emailRepository: EmailRepository[TestAppState] = InMemoryEmailRepository.inMemory
 
-
+  lazy implicit val emailSender: EmailSender[TestAppState] = EmailSender.live[TestAppState].runA(emptyData).unsafeRunSync()
+  lazy implicit val passwordChanger: PasswordChanger[TestAppState] = PasswordChanger.live[TestAppState].runA(emptyData).unsafeRunSync()
   lazy implicit val templateRenderer: TemplateRenderer[TestAppState] = TemplateRenderer.live[TestAppState].runA(emptyData).unsafeRunSync()
   lazy implicit val calendar: Calendar[TestAppState] = FixedCalendar.fixed
   lazy implicit val registration: Registration[TestAppState] = Registration.live.runA(emptyData).unsafeRunSync()
   lazy implicit val authentication: Authentication[TestAppState] = Authentication.live.runA(emptyData).unsafeRunSync()
   lazy implicit val userService: UserService[TestAppState] = UserService.live
-  lazy implicit val registrationEmail: RegistrationEmail[TestAppState] = RegistrationEmail.live[TestAppState].runA(emptyData).unsafeRunSync()
+  lazy implicit val registrationEmail: AuthEmail[TestAppState] = AuthEmail.live[TestAppState].runA(emptyData).unsafeRunSync()
 
   def authenticate(credentials: Credentials): TestAppState[String] = authentication.authenticate(credentials).map(_.jwt.toEncodedString)
 

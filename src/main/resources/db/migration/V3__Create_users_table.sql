@@ -2,7 +2,7 @@ CREATE TABLE users (
   id UUID PRIMARY KEY,
   name VARCHAR NOT NULL UNIQUE,
   hash VARCHAR NOT NULL,
-  email VARCHAR NOT NULL UNIQUE,
+  email EMAIL NOT NULL UNIQUE,
   is_confirmed BOOLEAN NOT NULL,
   created_on TIMESTAMP DEFAULT NOW(),
   confirmation_token VARCHAR,

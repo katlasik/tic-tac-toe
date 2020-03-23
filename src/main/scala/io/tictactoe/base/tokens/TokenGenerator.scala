@@ -1,29 +1,29 @@
-package io.tictactoe.authentication.services
+package io.tictactoe.base.tokens
 
 import java.security.SecureRandom
 
 import cats.effect.Sync
 import cats.implicits._
-import io.tictactoe.authentication.values.ConfirmationToken
+import io.tictactoe.base.tokens.values.ConfirmationToken
 
 import scala.jdk.StreamConverters._
 
-trait ConfirmationTokenGenerator[F[_]] {
+trait TokenGenerator[F[_]] {
   def generate: F[ConfirmationToken]
 }
 
-object ConfirmationTokenGenerator {
+object TokenGenerator {
 
   val TokenSize: Long = 28L
   val AllowedCharacters: Seq[Char] = ('0' to '9') ++ ('a' to 'z') ++ ('A' to 'Z')
 
-  def apply[F[_]](implicit ev: ConfirmationTokenGenerator[F]): ConfirmationTokenGenerator[F] = ev
+  def apply[F[_]](implicit ev: TokenGenerator[F]): TokenGenerator[F] = ev
 
-  def live[F[_]: Sync]: F[ConfirmationTokenGenerator[F]] =
+  def live[F[_]: Sync]: F[TokenGenerator[F]] =
     for {
       random <- Sync[F].delay(new SecureRandom)
     } yield
-      new ConfirmationTokenGenerator[F] {
+      new TokenGenerator[F] {
         override def generate: F[ConfirmationToken] =
           for {
             token <- Sync[F].delay(random.ints(TokenSize, 0, AllowedCharacters.size).toScala(List).map(AllowedCharacters(_)))

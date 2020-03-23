@@ -1,9 +1,11 @@
 package io.tictactoe.events
 
+import java.util.UUID
+
 import cats.data.NonEmptyList
 import cats.implicits._
-import io.tictactoe.emails.EmailMessage
-import io.tictactoe.emails.services.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.emails.model._
+import io.tictactoe.emails.values.{EmailMessageText, EmailMessageTitle}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.generators.Generators
 import io.tictactoe.testutils.{Fixture, TestAppData}
@@ -16,28 +18,35 @@ class EventBusTest extends FlatSpec with TableDrivenPropertyChecks with ScalaChe
 
   it should "send registration confirmation emails, when new user is registered" in new Fixture {
 
-    val inputData = TestAppData()
+    val inputData = TestAppData(
+      uuids = List(
+        UUID.fromString("00000000-0000-0000-0000-000000000002"),
+        UUID.fromString("00000000-0000-0000-0000-000000000003")
+      )
+    )
 
     forAll(Generators.userRegisteredEvent()) { event =>
       val outputData = ApplicationEventHandler.live[TestAppState].handle(event).runS(inputData).unsafeRunSync()
 
       outputData.infoMessages should contain(show"Sending registration confirmation email to ${event.email}.")
 
-      outputData.emails should contain(
-        EmailMessage(
-          NonEmptyList.one(event.email),
-          Email("no-reply@tictactoe.pl"),
-          EmailMessageText(
-            show"""Thanks for registering, ${event.username}!
-            |
-            |To confirm your account click on link below:
-            |http://localhost:8082/registration?token=${event.confirmationToken}&id=${event.userId}""".stripMargin
-          ),
-          EmailMessageTitle(show"Hello, ${event.username}")
-        )
+      val email = EmailMessage(
+        NonEmptyList.one(event.email),
+        Email("no-reply@tictactoe.pl"),
+        EmailMessageText(
+          show"""Thanks for registering, ${event.username}!
+                |
+                |To confirm your account click on link below:
+                |http://localhost:8082/registration?token=${event.confirmationToken}&id=${event.userId}""".stripMargin
+        ),
+        EmailMessageTitle(show"Hello, ${event.username}")
       )
 
-      outputData.confirmationEmails should contain((event.userId, event.confirmationToken))
+      outputData.sentEmails should contain(email)
+
+      outputData.savedEmails should contain(email)
+
+      outputData.missingEmails shouldBe empty
 
     }
 

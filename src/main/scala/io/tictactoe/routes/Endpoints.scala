@@ -1,12 +1,13 @@
 package io.tictactoe.routes
 
-import io.tictactoe.authentication.model.{AuthResponse, Credentials, RegistrationRequest, RegistrationResult}
+import io.tictactoe.authentication.model.{AuthResponse, Credentials, PasswordChangeRequest,RegistrationRequest, RegistrationResult}
 import io.tictactoe.error.ErrorView
 import sttp.tapir.json.circe._
 import sttp.tapir._
 import io.circe.generic.auto._
-import io.tictactoe.authentication.values.{AuthToken, ConfirmationToken}
+import io.tictactoe.authentication.values.AuthToken
 import io.tictactoe.base.model.RedirectLocation
+import io.tictactoe.base.tokens.values.ConfirmationToken
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.{Email, UserId}
 import sttp.model.StatusCode
@@ -22,22 +23,43 @@ object Endpoints {
     .errorOut(statusCode)
     .out(jsonBody[RegistrationResult])
 
-  val confirmRegistration: Endpoint[(ConfirmationToken, UserId), (ErrorView, StatusCode), (StatusCode, RedirectLocation), Nothing] = endpoint
-    .description("Endpoint for confirming registration.")
-    .get
-    .in("registration")
-    .in(query[ConfirmationToken]("token")).description("Random token.")
-    .in(query[UserId]("id")).description("Id of user confirming registration.")
-    .out(statusCode)
-    .out(header[RedirectLocation]("Location"))
-    .errorOut(jsonBody[ErrorView].description("Error message."))
-    .errorOut(statusCode)
+  val confirmRegistration: Endpoint[(ConfirmationToken, UserId), (ErrorView, StatusCode), (StatusCode, RedirectLocation), Nothing] =
+    endpoint
+      .description("Endpoint for confirming registration.")
+      .get
+      .in("registration")
+      .in(query[ConfirmationToken]("token"))
+      .description("Random token.")
+      .in(query[UserId]("id"))
+      .description("Id of user confirming registration.")
+      .out(statusCode)
+      .out(header[RedirectLocation]("Location"))
+      .errorOut(jsonBody[ErrorView].description("Error message."))
+      .errorOut(statusCode)
 
   val resendConfirmationEmail: Endpoint[Email, (ErrorView, StatusCode), Unit, Nothing] = endpoint
     .description("Endpoint for requesting resending of registration email.")
     .put
     .in("registration")
-    .in(query[Email]("email")).description("Email of user, which requests resending of confirmation email.")
+    .in(query[Email]("email"))
+    .description("Email of user, which requests resending of confirmation email.")
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
+
+  val requestPasswordChange: Endpoint[Email, (ErrorView, StatusCode), Unit, Nothing] = endpoint
+    .description("Endpoint for requesting sending of mail for token.")
+    .post
+    .in("password")
+    .in(query[Email]("email"))
+    .description("Email of user, which requests resending of confirmation email.")
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
+
+  val changePassword: Endpoint[PasswordChangeRequest, (ErrorView, StatusCode), Unit, Nothing] = endpoint
+    .description("Endpoint for requesting changing of password.")
+    .post
+    .in("password" / "change")
+    .in(jsonBody[PasswordChangeRequest])
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
 
@@ -69,6 +91,7 @@ object Endpoints {
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
 
-  val all: List[Endpoint[_, _, _, _]] = List(registerUser, confirmRegistration, resendConfirmationEmail, login, getUsers, getUser)
+  val all: List[Endpoint[_, _, _, _]] =
+    List(registerUser, confirmRegistration, resendConfirmationEmail, requestPasswordChange, login, getUsers, getUser, changePassword)
 
 }

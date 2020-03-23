@@ -4,8 +4,6 @@ import io.tictactoe.authentication.model.AuthResponse
 import io.tictactoe.testutils.ItTest
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
 import io.circe.generic.auto._
-import io.circe._
-import io.circe.parser._
 
 class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
@@ -37,14 +35,7 @@ class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers 
 
       And("the registration confirmation email is sent")
 
-      val confirmationUrl = repeatUntil() {
-        val response = get(s"http://localhost:$mailRestPort/api/v2/messages").success.plain
-
-        val body =
-          parse(response).getOrElse(Json.Null).hcursor.downField("items").downArray.downField("Content").downField("Body").as[String]
-
-        body.toOption.flatMap(UrlRegex.findFirstIn)
-      }
+      val confirmationUrl = UrlRegex.findFirstIn(getMails(1).head).get
 
       When("the user uses confirmation link")
       get(confirmationUrl)

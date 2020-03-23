@@ -7,9 +7,10 @@ import cats.implicits._
 import io.tictactoe.authentication.errors.{EmailAlreadyExists, IllegalConfirmationToken, ResourceNotFound, UsernameAlreadyExists}
 import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.repositories.AuthRepository
-import io.tictactoe.authentication.values.ConfirmationToken
 import io.tictactoe.base.logging.Logging
 import io.tictactoe.base.model.RedirectLocation
+import io.tictactoe.base.tokens.TokenGenerator
+import io.tictactoe.base.tokens.values.ConfirmationToken
 import io.tictactoe.base.validation.Validator._
 import io.tictactoe.calendar.Calendar
 import io.tictactoe.configuration.Configuration
@@ -29,7 +30,7 @@ object Registration {
 
   def apply[F[_]](implicit ev: Registration[F]): Registration[F] = ev
 
-  def live[F[_]: RegistrationEmail: Configuration: PasswordHasher: UUIDGenerator: Sync: AuthRepository: Logging: EventBus: Calendar: ConfirmationTokenGenerator]
+  def live[F[_]: AuthEmail: Configuration: PasswordHasher: UUIDGenerator: Sync: AuthRepository: Logging: EventBus: Calendar: TokenGenerator]
       : F[Registration[F]] =
     for {
       logger <- Logging[F].create[Registration[F]]
@@ -44,8 +45,8 @@ object Registration {
             _ <- Sync[F].whenA(usernameExists)(Sync[F].raiseError(UsernameAlreadyExists))
             hash <- PasswordHasher[F].hash(password)
             id <- UserId.next[F]
-            token <- ConfirmationTokenGenerator[F].generate
-            user <- AuthRepository[F].save(User(id, name, hash, email, No, Some(token)))
+            token <- TokenGenerator[F].generate
+            user <- AuthRepository[F].save(User(id, name, hash, email, No, Some(token), None))
             _ <- logger.info(show"New user with id = $id was created.")
             _ <- EventBus[F].publishF(UserRegisteredEvent.create[F](user))
           } yield RegistrationResult(id)
@@ -54,20 +55,24 @@ object Registration {
           for {
             maybeUser <- AuthRepository[F].getById(id)
             result <- maybeUser match {
-              case Some(user) if user.confirmationToken.contains(token) =>
-                AuthRepository[F].confirm(user) *> Configuration[F].access().map(_.registration.confirmationRedirect)
+              case Some(user) if user.registrationConfirmationToken.contains(token) =>
+                for {
+                  _ <- AuthRepository[F].confirm(user)
+                  redirectUrl <- Configuration[F].access().map(_.registration.confirmationRedirect)
+                  _ <- logger.info(show"User with id = ${user.id} confirmed account. Redirectring to $redirectUrl.")
+                } yield redirectUrl
               case _ => Sync[F].raiseError(IllegalConfirmationToken)
             }
           } yield result
 
         override def resendEmail(email: Email): F[Unit] =
           for {
-            _ <- logger.info(show"Sending of new registration email requested by $email.")
+            _ <- logger.info(show"Sending of new registration confirmation email requested by $email.")
             user <- AuthRepository[F].getByEmail(email).throwIfEmpty(ResourceNotFound)
             _ <- Sync[F].whenA(user.isConfirmed === Yes)(Sync[F].raiseError(ResourceNotFound))
-            token <- ConfirmationTokenGenerator[F].generate
-            _ <- AuthRepository[F].updateToken(user.id, token)
-            _ <- RegistrationEmail[F].send(email, user.username, user.id, token)
+            token <- TokenGenerator[F].generate
+            _ <- AuthRepository[F].updateRegistrationConfirmationToken(user.id, token)
+            _ <- AuthEmail[F].sendRegistrationConfirmation(email, user.username, user.id, token)
           } yield ()
       }
 

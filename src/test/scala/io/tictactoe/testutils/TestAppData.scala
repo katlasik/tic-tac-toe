@@ -6,21 +6,21 @@ import java.util.UUID
 import cats.data.StateT
 import cats.effect.IO
 import io.tictactoe.authentication.model.User
-import io.tictactoe.authentication.values.ConfirmationToken
-import io.tictactoe.emails.EmailMessage
+import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.emails.model.{EmailMessage, MissingEmail}
 import io.tictactoe.events.bus.Event
-import io.tictactoe.values.UserId
 
 final case class TestAppData(
-    uuids: List[UUID] = Nil,
-    infoMessages: List[String] = Nil,
-    errorMessages: List[String] = Nil,
-    users: List[User] = Nil,
-    dates: List[Instant] = Nil,
-    events: List[Event] = Nil,
-    confirmationTokens: List[ConfirmationToken] = Nil,
-    emails: List[EmailMessage] = Nil,
-    confirmationEmails: List[(UserId, ConfirmationToken)] = Nil
+                              uuids: List[UUID] = Nil,
+                              infoMessages: List[String] = Nil,
+                              errorMessages: List[String] = Nil,
+                              users: List[User] = Nil,
+                              dates: List[Instant] = Nil,
+                              events: List[Event] = Nil,
+                              tokens: List[ConfirmationToken] = Nil,
+                              sentEmails: List[EmailMessage] = Nil,
+                              savedEmails: List[EmailMessage] = Nil,
+                              missingEmails: List[MissingEmail] = Nil
 )
 
 object TestAppData {

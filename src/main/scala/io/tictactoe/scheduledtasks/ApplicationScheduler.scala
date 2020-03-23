@@ -1,7 +1,8 @@
 package io.tictactoe.scheduledtasks
 
-import io.tictactoe.authentication.services.RegistrationEmail
-import io.tictactoe.scheduledtasks.tasks.SendMissingRegistrationMails
+import cats.effect.Sync
+import io.tictactoe.emails.services.EmailSender
+import io.tictactoe.scheduledtasks.tasks.SendMissingMails
 import io.tictactoe.scheduler.{ScheduledTask, Scheduler}
 
 trait ApplicationScheduler[F[_]] {
@@ -12,11 +13,11 @@ trait ApplicationScheduler[F[_]] {
 
 object ApplicationScheduler {
 
-  def tasks[F[_]: Scheduler: RegistrationEmail]: List[ScheduledTask[F]] = List(
-    new SendMissingRegistrationMails[F]
+  def tasks[F[_]: Scheduler: EmailSender: Sync]: List[ScheduledTask[F]] = List(
+    new SendMissingMails[F]
   )
 
-  def live[F[_]: Scheduler: RegistrationEmail]: ApplicationScheduler[F] =
+  def live[F[_]: Scheduler: EmailSender: Sync]: ApplicationScheduler[F] =
     () => Scheduler[F].schedule(tasks)
 
 }

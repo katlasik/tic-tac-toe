@@ -1,6 +1,6 @@
 package io.tictactoe.routes
 import cats.effect.{ContextShift, Sync}
-import io.tictactoe.authentication.services.{Authentication, Registration}
+import io.tictactoe.authentication.services.{Authentication, PasswordChanger, Registration}
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s._
 import io.tictactoe.base.errors.ErrorMapper._
@@ -15,7 +15,7 @@ import scala.util.chaining._
 
 object PublicRouter {
 
-  def routes[F[_]: Sync: ContextShift: Registration: Authentication: AuthRepository: Logging]: HttpRoutes[F] = {
+  def routes[F[_]: Sync: ContextShift: Registration: Authentication: AuthRepository: Logging: PasswordChanger]: HttpRoutes[F] = {
 
     val registerUser = Endpoints.registerUser.toRoutes(request => Registration[F].register(request).mapErrors)
 
@@ -39,7 +39,11 @@ object PublicRouter {
 
     val resendConfirmationEmail = Endpoints.resendConfirmationEmail.toRoutes(Registration[F].resendEmail(_).mapErrors)
 
-    registerUser <+> login <+> confirmRegistration <+> resendConfirmationEmail
+    val requestPasswordChange = Endpoints.requestPasswordChange.toRoutes(PasswordChanger[F].request(_).mapErrors)
+
+    val changePassword = Endpoints.changePassword.toRoutes(PasswordChanger[F].changePassword(_).mapErrors)
+
+    registerUser <+> login <+> confirmRegistration <+> resendConfirmationEmail <+> requestPasswordChange <+> changePassword
   }
 
 }

@@ -1,15 +1,34 @@
 package io.tictactoe.testutils.generators
 
+import cats.data.NonEmptyList
 import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.model.User
-import io.tictactoe.authentication.services.{ConfirmationTokenGenerator, Hash}
+import io.tictactoe.authentication.services.Hash
 import io.tictactoe.values.{Email, EventId, EventTimestamp, No, UserId, Username, Yes}
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
-import io.tictactoe.authentication.values.ConfirmationToken
+import io.tictactoe.base.tokens.TokenGenerator
+import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.emails.model.MissingEmail
+import io.tictactoe.emails.values.{EmailMessageText, EmailMessageTitle, MailId}
 
 object Generators {
+
+  def missingEmail(): Gen[MissingEmail] =
+    for {
+      sender <- email()
+      recipients <- emails(1, 10)
+      id <- mailId()
+      title <- Gen.alphaNumStr
+      text <- Gen.alphaNumStr
+    } yield MissingEmail(id, NonEmptyList.fromListUnsafe(recipients), sender, EmailMessageText(text), EmailMessageTitle(title))
+
+  def missingEmails(from: Int = 10, to: Int = 20): Gen[List[MissingEmail]] =
+    for {
+      numberOfEmails <- Gen.choose(from, to)
+      emails <- Gen.listOfN(numberOfEmails, Generators.missingEmail())
+    } yield emails
 
   def email(): Gen[Email] =
     for {
@@ -18,6 +37,12 @@ object Generators {
       address <- Gen.listOfN(addressSize, Gen.alphaChar).map(_.mkString)
       domain <- Gen.listOfN(domainSize, Gen.alphaChar).map(_.mkString)
     } yield Email.fromString(address + "@" + domain).toOption.get
+
+  def emails(from: Int = 200, to: Int = 1000): Gen[List[Email]] =
+    for {
+      numberOfEmails <- Gen.choose(from, to)
+      emails <- Gen.listOfN(numberOfEmails, Generators.email())
+    } yield emails
 
   def hash(): Gen[Hash] =
     for {
@@ -29,6 +54,11 @@ object Generators {
     for {
       id <- Gen.uuid
     } yield UserId(id)
+
+  def mailId(): Gen[MailId] =
+    for {
+      id <- Gen.uuid
+    } yield MailId(id)
 
   def eventId(): Gen[EventId] =
     for {
@@ -43,7 +73,7 @@ object Generators {
 
   def confirmationToken(): Gen[ConfirmationToken] =
     for {
-      token <- Gen.listOfN(ConfirmationTokenGenerator.TokenSize.toInt, Gen.oneOf(ConfirmationTokenGenerator.AllowedCharacters))
+      token <- Gen.listOfN(TokenGenerator.TokenSize.toInt, Gen.oneOf(TokenGenerator.AllowedCharacters))
     } yield ConfirmationToken(token.mkString)
 
   def user(confirmed: Boolean = false): Gen[User] =
@@ -53,7 +83,7 @@ object Generators {
       email <- email()
       username <- username()
       confirmationToken <- confirmationToken()
-    } yield User(id, username, hash, email, confirmed.fold(Yes, No), confirmed.fold(none, confirmationToken.some))
+    } yield User(id, username, hash, email, confirmed.fold(Yes, No), confirmed.fold(none, confirmationToken.some), None)
 
   def users(from: Int = 200, to: Int = 1000): Gen[List[User]] =
     for {

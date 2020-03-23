@@ -8,7 +8,7 @@ import io.tictactoe.events.bus.Event
 import io.tictactoe.values.{Email, EventId, EventTimestamp, UserId, Username}
 import cats.implicits._
 import io.tictactoe.authentication.errors.ResourceNotFound
-import io.tictactoe.authentication.values.ConfirmationToken
+import io.tictactoe.base.tokens.values.ConfirmationToken
 
 final case class UserRegisteredEvent(
     override val eventId: EventId,
@@ -25,7 +25,7 @@ object UserRegisteredEvent {
     for {
       timestamp <- Calendar[F].now()
       id <- EventId.next[F]
-      result <- user.confirmationToken match {
+      result <- user.registrationConfirmationToken match {
         case Some(token) => Sync[F].pure(UserRegisteredEvent(id, EventTimestamp(timestamp), user.id, user.username, user.email, token))
         case _ => Sync[F].raiseError(ResourceNotFound)
       }
