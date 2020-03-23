@@ -20,10 +20,8 @@ object MailId {
 
   def fromString(value: String): MailId = MailId(UUID.fromString(value))
 
-  implicit  val eq: Eq[MailId] = Eq.by(_.value)
+  implicit val eq: Eq[MailId] = Eq.by(_.value)
 
   implicit val encoder: Encoder[MailId] = deriveUnwrappedEncoder
   implicit val decoder: Decoder[MailId] = deriveUnwrappedDecoder
 }
-
-

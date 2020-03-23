@@ -1,6 +1,6 @@
 package io.tictactoe.routes
 
-import io.tictactoe.authentication.model.{AuthResponse, Credentials, PasswordChangeRequest,RegistrationRequest, RegistrationResult}
+import io.tictactoe.authentication.model.{AuthResponse, Credentials, PasswordChangeRequest, RegistrationRequest, RegistrationResult}
 import io.tictactoe.error.ErrorView
 import sttp.tapir.json.circe._
 import sttp.tapir._

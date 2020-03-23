@@ -20,7 +20,7 @@ object Scheduler {
   def live[F[_]: Sync: Timer: Logging: Concurrent]: F[Scheduler[F]] = {
 
     def awakingStream(task: ScheduledTask[F]): Stream[F, Unit] = task match {
-      case c: CronScheduledTask[F] => Stream.fromEither[F](Cron.parse(c.cronExpression)).flatMap(cron => awakeEveryCron(cron))
+      case c: CronScheduledTask[F]     => Stream.fromEither[F](Cron.parse(c.cronExpression)).flatMap(cron => awakeEveryCron(cron))
       case d: DurationSchedulerTask[F] => Stream.awakeEvery[F](d.interval).as(())
     }
 

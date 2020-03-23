@@ -67,16 +67,17 @@ object EmailTransport {
     for {
       session <- createSession()
       logger <- Logging[F].create[EmailTransport[F]]
-    } yield new EmailTransport[F] {
+    } yield
+      new EmailTransport[F] {
 
-      override def send(email: EmailMessage): F[Unit] =
-        for {
-          message <- prepareMessage(email, session)
-          _ <- Sync[F].delay(Transport.send(message))
-          _ <- logger.info(s"Email sent to ${email.recipients.mkString_(", ")}.")
-        } yield ()
+        override def send(email: EmailMessage): F[Unit] =
+          for {
+            message <- prepareMessage(email, session)
+            _ <- Sync[F].delay(Transport.send(message))
+            _ <- logger.info(s"Email sent to ${email.recipients.mkString_(", ")}.")
+          } yield ()
 
-    }
+      }
   }
 
 }

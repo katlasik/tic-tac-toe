@@ -28,13 +28,13 @@ object PublicRouter {
             .mapErrors
       )
 
-    val confirmRegistration = Endpoints.confirmRegistration.toRoutes{
+    val confirmRegistration = Endpoints.confirmRegistration.toRoutes {
       case (token, id) =>
         val result = for {
-        redirectLocation <- Registration[F].confirm(token, id)
-      } yield (StatusCode.SeeOther, redirectLocation)
+          redirectLocation <- Registration[F].confirm(token, id)
+        } yield (StatusCode.SeeOther, redirectLocation)
 
-      result.mapErrors
+        result.mapErrors
     }
 
     val resendConfirmationEmail = Endpoints.resendConfirmationEmail.toRoutes(Registration[F].resendEmail(_).mapErrors)

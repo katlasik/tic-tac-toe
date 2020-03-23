@@ -2,15 +2,14 @@ package io.tictactoe.scheduler
 
 import scala.concurrent.duration.FiniteDuration
 
-
 trait ScheduledTask[F[_]] {
   def executedTask: F[Unit]
 }
 
-trait CronScheduledTask[F[_]] extends ScheduledTask[F]{
+trait CronScheduledTask[F[_]] extends ScheduledTask[F] {
   val cronExpression: String
 }
 
-trait DurationSchedulerTask[F[_]] extends ScheduledTask[F]{
+trait DurationSchedulerTask[F[_]] extends ScheduledTask[F] {
   val interval: FiniteDuration
 }

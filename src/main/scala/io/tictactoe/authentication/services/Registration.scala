@@ -31,7 +31,7 @@ object Registration {
   def apply[F[_]](implicit ev: Registration[F]): Registration[F] = ev
 
   def live[F[_]: AuthEmail: Configuration: PasswordHasher: UUIDGenerator: Sync: AuthRepository: Logging: EventBus: Calendar: TokenGenerator]
-      : F[Registration[F]] =
+    : F[Registration[F]] =
     for {
       logger <- Logging[F].create[Registration[F]]
     } yield

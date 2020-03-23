@@ -27,7 +27,7 @@ object UserRegisteredEvent {
       id <- EventId.next[F]
       result <- user.registrationConfirmationToken match {
         case Some(token) => Sync[F].pure(UserRegisteredEvent(id, EventTimestamp(timestamp), user.id, user.username, user.email, token))
-        case _ => Sync[F].raiseError(ResourceNotFound)
+        case _           => Sync[F].raiseError(ResourceNotFound)
       }
     } yield result
 

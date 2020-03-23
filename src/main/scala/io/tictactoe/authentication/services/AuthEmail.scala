@@ -47,7 +47,6 @@ object AuthEmail {
             _ <- EmailSender[F].sendForSingleRecipient(email, text.toEmailText, title.toEmailTitle)
           } yield mailId
 
-
         override def sendRegistrationConfirmation(email: Email, username: Username, userId: UserId, token: ConfirmationToken): F[Unit] =
           for {
             _ <- logger.info(show"Sending registration confirmation email to $email.")

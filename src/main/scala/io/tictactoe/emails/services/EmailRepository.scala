@@ -24,7 +24,7 @@ trait EmailRepository[F[_]] {
 object EmailRepository {
 
   implicit val put: Put[NonEmptyList[Email]] = Put[Array[String]].contramap(_.toList.map(_.value).toArray)
-  implicit val get: Get[NonEmptyList[Email]] = Get[String].map{
+  implicit val get: Get[NonEmptyList[Email]] = Get[String].map {
     case s"{$emails}" => NonEmptyList.fromListUnsafe(emails.split(",").map(e => Email(e.trim)).toList)
   }
 

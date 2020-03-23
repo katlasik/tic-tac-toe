@@ -27,7 +27,7 @@ object PasswordChanger {
   def apply[F[_]](implicit ev: PasswordChanger[F]): PasswordChanger[F] = ev
 
   def live[F[_]: Sync: AuthRepository: TokenGenerator: AuthEmail: Logging: PasswordHasher: EventBus: Calendar: UUIDGenerator]
-      : F[PasswordChanger[F]] =
+    : F[PasswordChanger[F]] =
     for {
       logger <- Logging[F].create[PasswordChanger[F]]
     } yield

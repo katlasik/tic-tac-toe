@@ -30,7 +30,8 @@ import io.tictactoe.users.services.UserService
 
 object Server {
 
-  def app[F[_]: PasswordChanger: ContextShift: Sync: ConcurrentEffect: Registration: Authentication: UserService: AuthRepository: Logging]: HttpApp[F] = {
+  def app[F[_]: PasswordChanger: ContextShift: Sync: ConcurrentEffect: Registration: Authentication: UserService: AuthRepository: Logging]
+    : HttpApp[F] = {
     val httpApp = (PublicRouter.routes[F] <+> SecuredRouter.routes[F]).orNotFound.map(ErrorTranslator.handle)
 
     Logger.httpApp(logHeaders = false, logBody = true)(httpApp)
@@ -60,7 +61,7 @@ object Server {
       implicit0(userService: UserService[F]) = UserService.live[F]
       implicit0(scheduler: Scheduler[F]) <- Stream.eval(Scheduler.live[F])
       implicit0(passwordChanger: PasswordChanger[F]) <- Stream.eval(PasswordChanger.live[F])
-      _<- Stream.eval(ApplicationScheduler.live[F].start())
+      _ <- Stream.eval(ApplicationScheduler.live[F].start())
       _ <- Stream.eval(Migrator.init[F].flatMap(_.migrate))
       _ <- Stream.eval(DocsGenerator.init[F].generate())
       server <- Stream.eval(configuration.access()).map(_.server)
