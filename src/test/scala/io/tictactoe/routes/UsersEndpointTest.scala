@@ -17,7 +17,7 @@ import henkan.convert.Syntax._
 import io.tictactoe.error.ErrorView
 import cats.implicits._
 
-class SecuredRouterTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   it should "disallow getting all players if user is unauthenticated" in new Fixture {
 
