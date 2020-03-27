@@ -15,4 +15,5 @@
     <appender-ref ref="STDOUT" />
     <appender-ref ref="FILE" />
   </root>
+  <logger name="org.fusesource.scalate.util" level="OFF"/>
 </configuration>

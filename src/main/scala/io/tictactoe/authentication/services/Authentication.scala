@@ -44,12 +44,11 @@ object Authentication {
           for {
             user <- AuthRepository[F].getByEmail(credentials.email).throwIfEmpty(WrongCredentials)
             _ <- Sync[F].whenA(user.isConfirmed === No)(Sync[F].raiseError(AccountNotConfirmed))
-            authenticated <- PasswordHasher[F].check(credentials.password, user.hash)
-            token <- if (authenticated) {
-              logger.info(show"User with id = ${user.id} authenticated.") *> authenticator.create(TokenPayload.fromUser(user))
-            } else {
-              Sync[F].raiseError(WrongCredentials) <* logger.info(show"Unsuccessful login attempt for user with id = ${user.id}.")
-            }
+            token <- Sync[F].ifM(PasswordHasher[F].check(credentials.password, user.hash))(
+              authenticator.create(TokenPayload.fromUser(user)),
+              logger.info(show"Unsuccessful login attempt for user with id = ${user.id}.") >> Sync[F].raiseError(WrongCredentials)
+            )
+            _ <- logger.info(show"User with id = ${user.id} authenticated.")
           } yield token
 
         def verify(token: String): F[TokenPayload] =

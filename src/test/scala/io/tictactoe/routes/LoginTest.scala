@@ -133,8 +133,6 @@ class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckD
 
     response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Invalid credentials.")
 
-
-
   }
 
 }

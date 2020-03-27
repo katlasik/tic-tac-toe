@@ -11,10 +11,13 @@
       <pattern>[%thread] %highlight(%-5level) %cyan(%logger{15}) - %msg %n</pattern>
     </encoder>
   </appender>
-  <root level="ERROR">
-    <appender-ref ref="STDOUT" />
+  <root level="INFO">
     <appender-ref ref="FILE" />
   </root>
+  <root level="ERROR">
+    <appender-ref ref="STDOUT" />
+  </root>
+  <logger name="org.fusesource.scalate.util" level="OFF"/>
   <logger name="org.http4s.blaze.channel.nio1" level="OFF" />
   <logger name="org.http4s.server.blaze" level="OFF" />
 </configuration>
