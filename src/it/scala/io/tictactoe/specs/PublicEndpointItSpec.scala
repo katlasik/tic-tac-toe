@@ -90,9 +90,13 @@ class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers 
            |}""".stripMargin
       val authenticationResponse = post(baseUrl("login"), loginPayload)
 
-      Then("he is logged in")
+      Then("received email notification")
+      getMails(3) should contain("Your password has been successfully changed.")
+
+      And("he is logged in")
       authenticationResponse.headers("Set-Auth-Token") should not be empty
       authenticationResponse.success.json[AuthResponse].token.value should not be empty
+
 
     }
 

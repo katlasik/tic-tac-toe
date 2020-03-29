@@ -35,7 +35,7 @@ class AuthenticatedEndpointItSpec extends FeatureSpec with GivenWhenThen with Ma
         Map("Authorization" -> s"Bearer $token")
       )
 
-      result.success.json[DetailedUser].id shouldBe UserId.fromString("7e9f3585-c1e3-4a71-b724-f5fdac912d32")
+      result.success.json[DetailedUser].id shouldBe UserId.unsafeFromString("7e9f3585-c1e3-4a71-b724-f5fdac912d32")
 
     }
 

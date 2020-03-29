@@ -18,7 +18,7 @@ object MailId {
       id <- UUIDGenerator[F].next()
     } yield MailId(id)
 
-  def fromString(value: String): MailId = MailId(UUID.fromString(value))
+  def unsafeFromString(value: String): MailId = MailId(UUID.fromString(value))
 
   implicit val eq: Eq[MailId] = Eq.by(_.value)
 

@@ -9,6 +9,8 @@ final case class EventTimestamp(value: Instant) extends AnyVal
 
 object EventTimestamp {
 
+  def unsafeFromString(str: String): EventTimestamp = EventTimestamp(Instant.parse(str))
+
   implicit val order: Order[EventTimestamp] = Order.by(_.value)
 
 }

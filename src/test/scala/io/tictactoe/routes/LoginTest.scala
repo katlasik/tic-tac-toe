@@ -24,7 +24,7 @@ class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckD
     val inputData = TestAppData(
       users = List(
         User(
-          UserId.fromString("00000000-0000-0000-0000-000000000001"),
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -64,7 +64,7 @@ class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckD
     val inputData = TestAppData(
       users = List(
         User(
-          UserId.fromString("00000000-0000-0000-0000-000000000001"),
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -104,7 +104,7 @@ class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckD
     val inputData = TestAppData(
       users = List(
         User(
-          UserId.fromString("00000000-0000-0000-0000-000000000001"),
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),

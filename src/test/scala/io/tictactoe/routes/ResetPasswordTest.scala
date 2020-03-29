@@ -29,7 +29,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
     import dsl._
 
     val newToken = ConfirmationToken("2")
-    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val id = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
@@ -76,7 +76,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
               |To reset your password visit link below:
               |http://localhost:8082/newpassword?token=2&id=$id""".stripMargin
       ),
-      EmailMessageTitle(show"Hello, $username")
+      EmailMessageTitle(show"Hello, $username!")
     )
 
     data.infoMessages should contain allOf (
@@ -94,7 +94,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
 
     import dsl._
 
-    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val id = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
@@ -167,7 +167,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
 
     import dsl._
 
-    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
@@ -225,7 +225,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
 
     import dsl._
 
-    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
@@ -283,7 +283,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
       uri = uri"password/change"
     ).withEntity(
       PasswordChangeRequest(
-        UserId.fromString("00000000-0000-0000-0000-000000000001"),
+        UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
         ConfirmationToken("1"),
         Password("newpass")
       )

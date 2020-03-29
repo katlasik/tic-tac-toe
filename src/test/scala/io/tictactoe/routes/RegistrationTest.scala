@@ -83,7 +83,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val inputData = TestAppData(
       users = List(
         User(
-          UserId.fromString("00000000-0000-0000-0000-000000000001"),
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
           Username("user1"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -136,7 +136,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     val inputData = TestAppData(
       users = List(
         User(
-          UserId.fromString("00000000-0000-0000-0000-000000000001"),
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
@@ -165,7 +165,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
     data.users should contain(
       User(
-        UserId.fromString("00000000-0000-0000-0000-000000000001"),
+        UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
         Username("user"),
         Hash("userpass"),
         Email("email@user.pl"),
@@ -182,7 +182,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     import dsl._
 
     val newToken = ConfirmationToken("2")
-    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")
@@ -235,7 +235,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
                 |To confirm your account click on link below:
                 |http://localhost:8082/registration?token=$newToken&id=$userId""".stripMargin
         ),
-        EmailMessageTitle(show"Hello, $username")
+        EmailMessageTitle(show"Hello, $username!")
       )
     )
 
@@ -248,7 +248,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     import dsl._
 
     val newToken = ConfirmationToken("2")
-    val id = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val id = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
     val email = Email("email@user.pl")

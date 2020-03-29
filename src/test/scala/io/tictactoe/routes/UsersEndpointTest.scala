@@ -52,7 +52,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     import dsl._
 
-    val userId = UserId.fromString("00000000-0000-0000-0000-000000000001")
+    val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
 
     val email = Email("email@gmail.com")
 
@@ -95,7 +95,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     val user =
       User(
-        UserId.fromString("00000000-0000-0000-0000-000000000001"),
+        UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
         Username("user"),
         Hash("password"),
         Email("email@gmail.com"),
@@ -135,7 +135,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     val user =
       User(
-        UserId.fromString("00000000-0000-0000-0000-000000000001"),
+        UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
         Username("user"),
         Hash("password"),
         Email("email@gmail.com"),
@@ -146,7 +146,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     val anotherUser =
       User(
-        UserId.fromString("00000000-0000-0000-0000-000000000002"),
+        UserId.unsafeFromString("00000000-0000-0000-0000-000000000002"),
         Username("user2"),
         Hash("password"),
         Email("email2@gmail.com"),

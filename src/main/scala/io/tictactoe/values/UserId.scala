@@ -18,7 +18,7 @@ object UserId {
       id <- UUIDGenerator[F].next()
     } yield UserId(id)
 
-  def fromString(value: String): UserId = UserId(UUID.fromString(value))
+  def unsafeFromString(value: String): UserId = UserId(UUID.fromString(value))
 
   implicit val eq: Eq[UserId] = Eq.fromUniversalEquals
   implicit val show: Show[UserId] = Show.show(_.value.toString)
