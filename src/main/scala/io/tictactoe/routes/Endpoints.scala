@@ -6,8 +6,8 @@ import sttp.tapir.json.circe._
 import sttp.tapir._
 import io.circe.generic.auto._
 import io.tictactoe.authentication.values.AuthToken
-import io.tictactoe.base.model.RedirectLocation
-import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.model.RedirectLocation
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.{Email, UserId}
 import sttp.model.StatusCode

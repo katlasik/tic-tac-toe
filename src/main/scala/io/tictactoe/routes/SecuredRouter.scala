@@ -4,12 +4,12 @@ import cats.effect.{ContextShift, Sync}
 import io.tictactoe.authentication.services.{Authentication, Registration}
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s._
-import io.tictactoe.base.utils.Syntax._
-import io.tictactoe.base.errors.ErrorMapper._
+import io.tictactoe.infrastructure.utils.Syntax._
+import io.tictactoe.infrastructure.errors.ErrorMapper._
 import cats.implicits._
 import io.tictactoe.authentication.errors.ResourceNotFound
 import io.tictactoe.authorization.Authorized._
-import io.tictactoe.base.logging.Logging
+import io.tictactoe.infrastructure.logging.Logging
 import io.tictactoe.users.services.UserService
 
 object SecuredRouter {

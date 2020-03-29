@@ -2,8 +2,8 @@ package io.tictactoe.testutils.mocks
 
 import cats.data.StateT
 import cats.effect.IO
-import io.tictactoe.base.tokens.TokenGenerator
-import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.tokens.TokenGenerator
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 

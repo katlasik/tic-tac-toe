@@ -3,8 +3,8 @@ package io.tictactoe.database
 import cats.effect.{Async, Blocker, ContextShift, Resource, Sync}
 import doobie.hikari.HikariTransactor
 import doobie.util.ExecutionContexts
-import io.tictactoe.configuration.Configuration
 import cats.implicits._
+import io.tictactoe.infrastructure.configuration.Configuration
 
 trait Database[F[_]] {
   def transactor(): HikariTransactor[F]

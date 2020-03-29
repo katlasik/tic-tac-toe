@@ -1,7 +1,7 @@
 package io.tictactoe.scheduledtasks.tasks
 
 import io.tictactoe.emails.services.EmailSender
-import io.tictactoe.scheduler.DurationSchedulerTask
+import io.tictactoe.infrastructure.scheduler.DurationSchedulerTask
 
 import scala.concurrent.duration._
 import scala.concurrent.duration.FiniteDuration

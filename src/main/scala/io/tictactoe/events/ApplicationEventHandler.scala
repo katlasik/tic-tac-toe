@@ -2,7 +2,8 @@ package io.tictactoe.events
 
 import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.services.AuthEmail
-import io.tictactoe.events.bus.{Event, EventHandler}
+import io.tictactoe.infrastructure.events.EventHandler
+import io.tictactoe.infrastructure.events.model.Event
 
 class ApplicationEventHandler[F[_]: AuthEmail] extends EventHandler[F] {
   override def handle(event: Event): F[Unit] = event match {
@@ -11,7 +12,5 @@ class ApplicationEventHandler[F[_]: AuthEmail] extends EventHandler[F] {
 }
 
 object ApplicationEventHandler {
-
   def live[F[_]: AuthEmail]: ApplicationEventHandler[F] = new ApplicationEventHandler[F]
-
 }

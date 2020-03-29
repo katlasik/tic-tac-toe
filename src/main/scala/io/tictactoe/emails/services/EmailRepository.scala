@@ -2,15 +2,16 @@ package io.tictactoe.emails.services
 
 import cats.data.NonEmptyList
 import cats.effect.Sync
-import io.tictactoe.base.uuid.UUIDGenerator
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
 import io.tictactoe.database.Database
-import io.tictactoe.emails.model.{EmailMessage, MissingEmail}
+import io.tictactoe.emails.model.MissingEmail
 import io.tictactoe.emails.values.MailId
 import cats.implicits._
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import doobie.postgres.implicits._
 import doobie.util.{Get, Put}
+import io.tictactoe.infrastructure.emails.model.EmailMessage
 import io.tictactoe.values.Email
 
 trait EmailRepository[F[_]] {

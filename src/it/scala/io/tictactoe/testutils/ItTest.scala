@@ -9,7 +9,7 @@ import cats.effect.IO
 import com.dimafeng.testcontainers.GenericContainer
 import com.softwaremill.sttp.{HttpURLConnectionBackend, Id, SttpBackend, Uri, sttp}
 import io.tictactoe.EntryPoint
-import io.tictactoe.configuration.{Configuration, ConfigurationProperties}
+import io.tictactoe.configuration.ConfigurationProperties
 import io.tictactoe.database.{DatabaseConfig, DbUrlParser}
 import org.scalatest.{Args, BeforeAndAfterAll, BeforeAndAfterEach, Status, Suite}
 import org.testcontainers.containers.wait.strategy.{LogMessageWaitStrategy, Wait}
@@ -17,6 +17,7 @@ import cats.implicits._
 import com.typesafe.config.ConfigFactory
 import io.circe.Json
 import io.circe.parser.parse
+import io.tictactoe.infrastructure.configuration.Configuration
 import mouse.all._
 
 import scala.io.Source
@@ -144,7 +145,7 @@ trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach { self: Suite =>
       .foreach(f => Using(Source.fromFile(s"src/it/resources/scripts/$f"))(l => statement.execute(l.mkString)))
   }
 
-  def getMails(expected: Int): List[String] = repeatUntil() {
+  def getMails(expected: Int): List[String] = repeatUntil(failureMsg = "Confirmation mail message not received in required time.") {
     val response = get(s"http://localhost:$mailRestPort/api/v2/messages").success.plain
 
     parse(response).getOrElse(Json.Null).hcursor.downField("total").as[Int] match {

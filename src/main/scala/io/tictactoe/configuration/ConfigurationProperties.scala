@@ -1,6 +1,6 @@
 package io.tictactoe.configuration
 
-import io.tictactoe.base.model.RedirectLocation
+import io.tictactoe.infrastructure.model.RedirectLocation
 import io.tictactoe.values.Email
 
 final case class Db(databaseUrl: String, driver: String)

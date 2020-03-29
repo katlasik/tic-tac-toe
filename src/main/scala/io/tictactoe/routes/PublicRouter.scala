@@ -3,12 +3,12 @@ import cats.effect.{ContextShift, Sync}
 import io.tictactoe.authentication.services.{Authentication, PasswordChanger, Registration}
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s._
-import io.tictactoe.base.errors.ErrorMapper._
+import io.tictactoe.infrastructure.errors.ErrorMapper._
 import cats.implicits._
 import io.tictactoe.authentication.model.AuthResponse
 import io.tictactoe.authentication.repositories.AuthRepository
 import io.tictactoe.authentication.values.AuthToken
-import io.tictactoe.base.logging.Logging
+import io.tictactoe.infrastructure.logging.Logging
 import sttp.model.StatusCode
 
 import scala.util.chaining._

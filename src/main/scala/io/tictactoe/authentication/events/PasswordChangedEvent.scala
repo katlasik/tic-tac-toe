@@ -1,9 +1,9 @@
 package io.tictactoe.authentication.events
 
 import cats.effect.Sync
-import io.tictactoe.base.uuid.UUIDGenerator
-import io.tictactoe.calendar.Calendar
-import io.tictactoe.events.bus.Event
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
+import io.tictactoe.infrastructure.calendar.Calendar
+import io.tictactoe.infrastructure.events.model.Event
 import io.tictactoe.values._
 import cats.implicits._
 

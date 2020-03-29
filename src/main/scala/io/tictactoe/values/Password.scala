@@ -4,7 +4,7 @@ import cats.Eq
 import cats.data.ValidatedNel
 import cats.implicits._
 import io.circe.{Decoder, Encoder}
-import io.tictactoe.base.validation.ValidationError
+import io.tictactoe.infrastructure.validation.ValidationError
 import mouse.all._
 
 final case class Password(value: String) extends AnyVal

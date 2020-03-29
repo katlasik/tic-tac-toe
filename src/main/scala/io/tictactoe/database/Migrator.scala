@@ -2,9 +2,9 @@ package io.tictactoe.database
 
 import cats.effect.Sync
 import cats.implicits._
-import io.tictactoe.configuration.Configuration
+import io.tictactoe.infrastructure.configuration.Configuration
 import org.flywaydb.core.Flyway
-import io.tictactoe.base.logging.Logging
+import io.tictactoe.infrastructure.logging.Logging
 
 trait Migrator[F[_]] {
   def migrate: F[Unit]

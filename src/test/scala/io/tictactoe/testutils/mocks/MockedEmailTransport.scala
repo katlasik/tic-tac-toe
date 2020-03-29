@@ -2,8 +2,8 @@ package io.tictactoe.testutils.mocks
 
 import cats.data.StateT
 import cats.effect.IO
-import io.tictactoe.emails.model.EmailMessage
-import io.tictactoe.emails.services.EmailTransport
+import io.tictactoe.infrastructure.emails.EmailTransport
+import io.tictactoe.infrastructure.emails.model.EmailMessage
 import io.tictactoe.testutils.TestAppData.TestAppState
 
 object MockedEmailTransport {

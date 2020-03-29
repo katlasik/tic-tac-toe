@@ -3,10 +3,12 @@ package io.tictactoe.emails.services
 import cats.data.NonEmptyList
 import cats.effect.Sync
 import cats.implicits._
-import io.tictactoe.base.logging.Logging
-import io.tictactoe.configuration.Configuration
+import io.tictactoe.infrastructure.logging.Logging
 import io.tictactoe.emails.model._
-import io.tictactoe.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.infrastructure.configuration.Configuration
+import io.tictactoe.infrastructure.emails.{EmailTransport, model}
+import io.tictactoe.infrastructure.emails.model.EmailMessage
+import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
 import io.tictactoe.values.Email
 
 trait EmailSender[F[_]] {
@@ -35,7 +37,7 @@ object EmailSender {
             _ <- emails.traverse {
               case MissingEmail(id, recipients, sender, text, title) =>
                 for {
-                  _ <- EmailTransport[F].send(EmailMessage(recipients, sender, text, title))
+                  _ <- EmailTransport[F].send(model.EmailMessage(recipients, sender, text, title))
                   _ <- EmailRepository[F].confirm(id)
                 } yield ()
             }
@@ -52,7 +54,7 @@ object EmailSender {
           for {
             configuration <- Configuration[F].access()
             _ <- send(
-              EmailMessage(
+              model.EmailMessage(
                 NonEmptyList.one(email),
                 configuration.mail.noReplyAddress,
                 text,

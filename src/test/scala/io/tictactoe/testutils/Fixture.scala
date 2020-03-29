@@ -4,14 +4,15 @@ import cats.effect.{ContextShift, IO}
 import io.tictactoe.authentication.model.Credentials
 import io.tictactoe.authentication.repositories.AuthRepository
 import io.tictactoe.authentication.services.{AuthEmail, Authentication, PasswordChanger, PasswordHasher, Registration}
-import io.tictactoe.base.logging.Logging
-import io.tictactoe.base.templates.TemplateRenderer
-import io.tictactoe.base.tokens.TokenGenerator
-import io.tictactoe.base.uuid.UUIDGenerator
-import io.tictactoe.calendar.Calendar
-import io.tictactoe.configuration.Configuration
-import io.tictactoe.emails.services.{EmailRepository, EmailSender, EmailTransport}
-import io.tictactoe.events.bus.EventBus
+import io.tictactoe.infrastructure.events.EventBus
+import io.tictactoe.infrastructure.logging.Logging
+import io.tictactoe.infrastructure.templates.TemplateRenderer
+import io.tictactoe.infrastructure.tokens.TokenGenerator
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
+import io.tictactoe.infrastructure.calendar.Calendar
+import io.tictactoe.emails.services.{EmailRepository, EmailSender}
+import io.tictactoe.infrastructure.configuration.Configuration
+import io.tictactoe.infrastructure.emails.EmailTransport
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailRepository, InMemoryEventBus, InMemoryUserRepository, MemoryLogging, MockedEmailTransport}
 import io.tictactoe.users.repositories.UserRepository

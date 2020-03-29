@@ -7,7 +7,7 @@ import cats.implicits._
 import cats.kernel.Eq
 import io.circe.generic.extras.semiauto._
 import io.circe.{Decoder, Encoder}
-import io.tictactoe.base.uuid.UUIDGenerator
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
 
 final case class MailId(value: UUID) extends AnyVal
 

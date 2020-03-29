@@ -2,7 +2,8 @@ package io.tictactoe.testutils.mocks
 
 import cats.data.StateT
 import cats.effect.IO
-import io.tictactoe.events.bus.{Event, EventBus}
+import io.tictactoe.infrastructure.events.EventBus
+import io.tictactoe.infrastructure.events.model.Event
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 

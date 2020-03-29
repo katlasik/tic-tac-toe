@@ -1,20 +1,19 @@
 package io.tictactoe.authentication.services
 
 import cats.effect.Sync
-import io.tictactoe.base.logging.Logging
+import io.tictactoe.infrastructure.logging.Logging
 import io.tictactoe.values.{Email, UserId, Username}
 import cats.implicits._
 import io.tictactoe.authentication.repositories.AuthRepository
 import io.tictactoe.authentication.templates.{PasswordResetMailTemplateData, RegistrationMailTemplateData}
-import io.tictactoe.base.templates.TemplateRenderer
-import io.tictactoe.base.templates.model.{RenderedTemplate, TemplateData}
-import io.tictactoe.base.tokens.values.ConfirmationToken
-import io.tictactoe.base.uuid.UUIDGenerator
-import io.tictactoe.configuration.Configuration
+import io.tictactoe.infrastructure.templates.TemplateRenderer
+import io.tictactoe.infrastructure.templates.model.{RenderedTemplate, TemplateData}
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
 import io.tictactoe.emails.services.EmailSender
 import io.tictactoe.emails.values.MailId
-import io.tictactoe.emails.values.EmailMessageText._
-import io.tictactoe.emails.values.EmailMessageTitle._
+import io.tictactoe.infrastructure.configuration.Configuration
+import io.tictactoe.infrastructure.emails.utils.Syntax._
 
 trait AuthEmail[F[_]] {
   def sendRegistrationConfirmation(email: Email, username: Username, id: UserId, token: ConfirmationToken): F[Unit]

@@ -5,7 +5,7 @@ import cats.data.ValidatedNel
 import cats.implicits._
 import cats.kernel.Eq
 import io.circe.{Decoder, Encoder}
-import io.tictactoe.base.validation.ValidationError
+import io.tictactoe.infrastructure.validation.ValidationError
 import mouse.all._
 import sttp.tapir.Codec
 import sttp.tapir.Codec.PlainCodec

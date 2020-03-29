@@ -6,9 +6,10 @@ import java.util.UUID
 import cats.data.StateT
 import cats.effect.IO
 import io.tictactoe.authentication.model.User
-import io.tictactoe.base.tokens.values.ConfirmationToken
-import io.tictactoe.emails.model.{EmailMessage, MissingEmail}
-import io.tictactoe.events.bus.Event
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
+import io.tictactoe.emails.model.MissingEmail
+import io.tictactoe.infrastructure.emails.model.EmailMessage
+import io.tictactoe.infrastructure.events.model.Event
 
 final case class TestAppData(
     uuids: List[UUID] = Nil,

@@ -7,7 +7,7 @@ import doobie.implicits._
 import doobie.postgres.implicits._
 import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.services.{Hash, PasswordHasher}
-import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.values.{Email, UserId, Username, Yes}
 import io.tictactoe.database.Database
 

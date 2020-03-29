@@ -4,7 +4,7 @@ import cats.effect.Sync
 import cats.implicits._
 import io.tictactoe.authentication.model.{Credentials, TokenPayload}
 import io.tictactoe.authentication.services.Authentication.JWTToken
-import io.tictactoe.base.logging.Logging
+import io.tictactoe.infrastructure.logging.Logging
 import tsec.authentication.{AugmentedJWT, JWTAuthenticator}
 import tsec.mac.jca.HMACSHA256
 
@@ -13,7 +13,7 @@ import io.circe.generic.auto._
 import io.tictactoe.authentication.errors.{AccountNotConfirmed, WrongCredentials}
 import io.tictactoe.authentication.repositories.AuthRepository
 import tsec.jws.mac.JWTMac
-import io.tictactoe.base.utils.Syntax._
+import io.tictactoe.infrastructure.utils.Syntax._
 import io.tictactoe.values.No
 
 trait Authentication[F[_]] {

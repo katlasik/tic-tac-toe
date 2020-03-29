@@ -8,10 +8,11 @@ import io.tictactoe.values.{Email, EventId, EventTimestamp, No, UserId, Username
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
-import io.tictactoe.base.tokens.TokenGenerator
-import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.tokens.TokenGenerator
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.emails.model.MissingEmail
-import io.tictactoe.emails.values.{EmailMessageText, EmailMessageTitle, MailId}
+import io.tictactoe.emails.values.MailId
+import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
 
 object Generators {
 

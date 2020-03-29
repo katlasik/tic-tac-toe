@@ -3,9 +3,8 @@ package io.tictactoe.server
 import cats.Parallel
 import cats.effect.{ConcurrentEffect, ContextShift, Sync, Timer}
 import fs2.Stream
-import io.tictactoe.configuration.Configuration
 import io.tictactoe.database.{Database, Migrator}
-import io.tictactoe.base.logging.Logging
+import io.tictactoe.infrastructure.logging.Logging
 import io.tictactoe.routes.{PublicRouter, SecuredRouter}
 import org.http4s.HttpApp
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -14,17 +13,19 @@ import org.http4s.implicits._
 import cats.implicits._
 import io.tictactoe.authentication.repositories.AuthRepository
 import io.tictactoe.authentication.services.{AuthEmail, Authentication, PasswordChanger, PasswordHasher, Registration}
-import io.tictactoe.base.errors.ErrorTranslator
-import io.tictactoe.base.templates.TemplateRenderer
-import io.tictactoe.base.tokens.TokenGenerator
-import io.tictactoe.base.uuid.UUIDGenerator
-import io.tictactoe.calendar.Calendar
+import io.tictactoe.infrastructure.errors.ErrorTranslator
+import io.tictactoe.infrastructure.events.EventBus
+import io.tictactoe.infrastructure.templates.TemplateRenderer
+import io.tictactoe.infrastructure.tokens.TokenGenerator
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
+import io.tictactoe.infrastructure.calendar.Calendar
 import io.tictactoe.documentation.DocsGenerator
-import io.tictactoe.emails.services.{EmailRepository, EmailSender, EmailTransport}
-import io.tictactoe.events.ApplicationEventHandler
-import io.tictactoe.events.bus.EventBus
+import io.tictactoe.emails.services.{EmailRepository, EmailSender}
 import io.tictactoe.scheduledtasks.ApplicationScheduler
-import io.tictactoe.scheduler.Scheduler
+import io.tictactoe.infrastructure.scheduler.Scheduler
+import io.tictactoe.events.ApplicationEventHandler
+import io.tictactoe.infrastructure.configuration.Configuration
+import io.tictactoe.infrastructure.emails.EmailTransport
 import io.tictactoe.users.repositories.UserRepository
 import io.tictactoe.users.services.UserService
 

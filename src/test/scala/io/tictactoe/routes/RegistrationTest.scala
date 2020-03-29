@@ -20,9 +20,9 @@ import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
 import io.tictactoe.authentication.events.UserRegisteredEvent
-import io.tictactoe.base.tokens.values.ConfirmationToken
-import io.tictactoe.emails.model._
-import io.tictactoe.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.emails.model.EmailMessage
+import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
 
 class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
 

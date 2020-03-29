@@ -5,8 +5,9 @@ import sttp.tapir.docs.openapi._
 import sttp.tapir.openapi.circe.yaml._
 import cats.implicits._
 import better.files._
-import io.tictactoe.base.logging.Logging
-import io.tictactoe.configuration.{Configuration, ConfigurationProperties}
+import io.tictactoe.infrastructure.logging.Logging
+import io.tictactoe.configuration.ConfigurationProperties
+import io.tictactoe.infrastructure.configuration.Configuration
 import io.tictactoe.routes.Endpoints
 
 trait DocsGenerator[F[_]] {

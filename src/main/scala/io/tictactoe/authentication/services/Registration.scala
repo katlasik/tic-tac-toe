@@ -2,21 +2,21 @@ package io.tictactoe.authentication.services
 
 import cats.effect.Sync
 import io.tictactoe.authentication.model.{RegistrationRequest, RegistrationResult, User, ValidatedRegistrationRequest}
-import io.tictactoe.base.uuid.UUIDGenerator
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
 import cats.implicits._
 import io.tictactoe.authentication.errors.{EmailAlreadyExists, IllegalConfirmationToken, ResourceNotFound, UsernameAlreadyExists}
 import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.repositories.AuthRepository
-import io.tictactoe.base.logging.Logging
-import io.tictactoe.base.model.RedirectLocation
-import io.tictactoe.base.tokens.TokenGenerator
-import io.tictactoe.base.tokens.values.ConfirmationToken
-import io.tictactoe.base.validation.Validator._
-import io.tictactoe.calendar.Calendar
-import io.tictactoe.configuration.Configuration
-import io.tictactoe.events.bus.EventBus
+import io.tictactoe.infrastructure.events.EventBus
+import io.tictactoe.infrastructure.logging.Logging
+import io.tictactoe.infrastructure.model.RedirectLocation
+import io.tictactoe.infrastructure.tokens.TokenGenerator
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.validation.Validator._
+import io.tictactoe.infrastructure.calendar.Calendar
+import io.tictactoe.infrastructure.configuration.Configuration
 import io.tictactoe.values.{Email, No, UserId, Yes}
-import io.tictactoe.base.utils.Syntax._
+import io.tictactoe.infrastructure.utils.Syntax._
 
 trait Registration[F[_]] {
   def register(request: RegistrationRequest): F[RegistrationResult]

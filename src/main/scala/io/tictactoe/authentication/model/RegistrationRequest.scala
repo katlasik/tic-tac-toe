@@ -1,7 +1,7 @@
 package io.tictactoe.authentication.model
 
 import cats.effect.Sync
-import io.tictactoe.base.validation.Validator
+import io.tictactoe.infrastructure.validation.Validator
 import cats.implicits._
 import io.tictactoe.values.{Email, Password, Username}
 

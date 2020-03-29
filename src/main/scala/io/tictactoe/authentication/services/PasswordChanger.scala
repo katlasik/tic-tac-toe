@@ -7,12 +7,12 @@ import cats.implicits._
 import io.tictactoe.authentication.errors.IllegalConfirmationToken
 import io.tictactoe.authentication.events.PasswordChangedEvent
 import io.tictactoe.authentication.model.{PasswordChangeRequest, User}
-import io.tictactoe.base.logging.Logging
-import io.tictactoe.base.tokens.TokenGenerator
-import io.tictactoe.base.utils.Syntax._
-import io.tictactoe.base.uuid.UUIDGenerator
-import io.tictactoe.calendar.Calendar
-import io.tictactoe.events.bus.EventBus
+import io.tictactoe.infrastructure.events.EventBus
+import io.tictactoe.infrastructure.logging.Logging
+import io.tictactoe.infrastructure.tokens.TokenGenerator
+import io.tictactoe.infrastructure.utils.Syntax._
+import io.tictactoe.infrastructure.uuid.UUIDGenerator
+import io.tictactoe.infrastructure.calendar.Calendar
 
 trait PasswordChanger[F[_]] {
 

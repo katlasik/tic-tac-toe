@@ -7,7 +7,7 @@ import io.tictactoe.authentication.errors.ResourceNotFound
 import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.repositories.AuthRepository
 import io.tictactoe.authentication.services.Hash
-import io.tictactoe.base.tokens.values.ConfirmationToken
+import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.values.{Email, UserId, Username, Yes}
