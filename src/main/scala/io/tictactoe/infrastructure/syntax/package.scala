@@ -1,9 +1,9 @@
-package io.tictactoe.infrastructure.utils
+package io.tictactoe.infrastructure
 
 import cats.effect.Sync
 import cats.implicits._
 
-object Syntax {
+package object syntax {
 
   implicit class OptionFSyntax[F[_]: Sync, A](v: F[Option[A]]) {
     def throwIfEmpty[E <: Throwable](throwable: E): F[A] = throwIfEmptyFilter(throwable)(_ => true)

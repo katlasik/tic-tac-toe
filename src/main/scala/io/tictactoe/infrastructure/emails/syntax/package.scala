@@ -1,4 +1,4 @@
-package io.tictactoe.infrastructure.emails.utils
+package io.tictactoe.infrastructure.emails
 
 import cats.effect.Sync
 import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
@@ -6,7 +6,7 @@ import io.tictactoe.values.Email
 import javax.mail.Address
 import javax.mail.internet.InternetAddress
 
-object Syntax {
+package object syntax {
 
   implicit class EmailExtension(email: Email) {
     def toAddress[F[_]: Sync](): F[Address] = Sync[F].delay(new InternetAddress(email.value))

@@ -11,7 +11,7 @@ import io.tictactoe.infrastructure.templates.model.{RenderedTemplate, TemplateDa
 import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.emails.services.EmailSender
 import io.tictactoe.infrastructure.configuration.Configuration
-import io.tictactoe.infrastructure.emails.utils.Syntax._
+import io.tictactoe.infrastructure.emails.syntax._
 
 trait AuthEmail[F[_]] {
   def sendRegistrationConfirmation(email: Email, username: Username, id: UserId, token: ConfirmationToken): F[Unit]

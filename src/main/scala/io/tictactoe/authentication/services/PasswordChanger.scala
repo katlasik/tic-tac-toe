@@ -10,7 +10,7 @@ import io.tictactoe.authentication.model.{PasswordChangeRequest, User}
 import io.tictactoe.infrastructure.events.EventBus
 import io.tictactoe.infrastructure.logging.Logging
 import io.tictactoe.infrastructure.tokens.TokenGenerator
-import io.tictactoe.infrastructure.utils.Syntax._
+import io.tictactoe.infrastructure.syntax._
 import io.tictactoe.infrastructure.uuid.UUIDGenerator
 import io.tictactoe.infrastructure.calendar.Calendar
 

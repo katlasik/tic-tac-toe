@@ -7,7 +7,7 @@ import io.tictactoe.authentication.services.AuthEmail
 import io.tictactoe.error.IllegalApplicationState
 import io.tictactoe.infrastructure.events.EventHandler
 import io.tictactoe.infrastructure.events.model.Event
-import io.tictactoe.infrastructure.utils.Syntax._
+import io.tictactoe.infrastructure.syntax._
 import cats.implicits._
 
 class ApplicationEventHandler[F[_]: AuthEmail: AuthRepository: Sync] extends EventHandler[F] {

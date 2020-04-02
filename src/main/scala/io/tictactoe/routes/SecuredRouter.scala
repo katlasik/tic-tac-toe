@@ -4,7 +4,7 @@ import cats.effect.{ContextShift, Sync}
 import io.tictactoe.authentication.services.{Authentication, Registration}
 import org.http4s.HttpRoutes
 import sttp.tapir.server.http4s._
-import io.tictactoe.infrastructure.utils.Syntax._
+import io.tictactoe.infrastructure.syntax._
 import io.tictactoe.infrastructure.errors.ErrorMapper._
 import cats.implicits._
 import io.tictactoe.authentication.errors.ResourceNotFound

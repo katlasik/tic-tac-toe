@@ -6,7 +6,7 @@ import cats.effect.Sync
 import cats.implicits._
 import io.tictactoe.configuration.{MailServer, Smtp}
 import io.tictactoe.emails.services.EmailRepository
-import io.tictactoe.infrastructure.emails.utils.Syntax._
+import io.tictactoe.infrastructure.emails.syntax._
 import io.tictactoe.infrastructure.configuration.Configuration
 import io.tictactoe.infrastructure.emails.model.EmailMessage
 import io.tictactoe.infrastructure.logging.Logging

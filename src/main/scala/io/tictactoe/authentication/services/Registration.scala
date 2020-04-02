@@ -16,7 +16,7 @@ import io.tictactoe.infrastructure.validation.Validator._
 import io.tictactoe.infrastructure.calendar.Calendar
 import io.tictactoe.infrastructure.configuration.Configuration
 import io.tictactoe.values.{Email, No, UserId, Yes}
-import io.tictactoe.infrastructure.utils.Syntax._
+import io.tictactoe.infrastructure.syntax._
 
 trait Registration[F[_]] {
   def register(request: RegistrationRequest): F[RegistrationResult]
@@ -39,10 +39,8 @@ object Registration {
         override def register(request: RegistrationRequest): F[RegistrationResult] =
           for {
             ValidatedRegistrationRequest(name, password, email) <- request.validate[F]
-            emailExists <- AuthRepository[F].existsByEmail(email)
-            _ <- Sync[F].whenA(emailExists)(Sync[F].raiseError(EmailAlreadyExists))
-            usernameExists <- AuthRepository[F].existsByName(name)
-            _ <- Sync[F].whenA(usernameExists)(Sync[F].raiseError(UsernameAlreadyExists))
+            _ <- AuthRepository[F].existsByEmail(email).ensure(EmailAlreadyExists)(exists => !exists)
+            _ <- AuthRepository[F].existsByName(name).ensure(UsernameAlreadyExists)(exists => !exists)
             hash <- PasswordHasher[F].hash(password)
             id <- UserId.next[F]
             token <- TokenGenerator[F].generate
