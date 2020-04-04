@@ -69,7 +69,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
 
     val message = EmailMessage(
       NonEmptyList.one(email),
-      Email("no-reply@tictactoe.pl"),
+      Email("no-reply@tictactoe.io"),
       EmailMessageText(
         show"""You have requested resetting your password.
               |

@@ -31,7 +31,7 @@ object EmailSender {
       new EmailSender[F] {
         override def sendMissingEmails(): F[Unit] =
           for {
-            _ <- logger.info("Checking for unsent emails.")
+            _ <- logger.info("Running check for unsent emails.")
             emails <- EmailRepository[F].missingEmails()
             _ <- Sync[F].whenA(emails.nonEmpty)(logger.info(s"Sending missing registration emails for ${emails.size} users."))
             _ <- emails.traverse {

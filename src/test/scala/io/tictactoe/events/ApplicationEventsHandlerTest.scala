@@ -35,7 +35,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with TableDrivenPropertyChec
 
       val email = EmailMessage(
         NonEmptyList.one(event.email),
-        Email("no-reply@tictactoe.pl"),
+        Email("no-reply@tictactoe.io"),
         EmailMessageText(
           show"""Thanks for registering, ${event.username}!
                 |
@@ -86,7 +86,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with TableDrivenPropertyChec
 
     val emailMessage = EmailMessage(
       NonEmptyList.one(email),
-      Email("no-reply@tictactoe.pl"),
+      Email("no-reply@tictactoe.io"),
       EmailMessageText("Your password has been successfully changed."),
       EmailMessageTitle(show"Hello, user1!")
     )

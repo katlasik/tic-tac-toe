@@ -1,8 +1,8 @@
-package io.tictactoe.scheduledtasks
+package io.tictactoe.scheduler
 
 import cats.effect.Sync
 import io.tictactoe.emails.services.EmailSender
-import io.tictactoe.scheduledtasks.tasks.SendMissingMails
+import io.tictactoe.scheduler.tasks.SendMissingMails
 import io.tictactoe.infrastructure.scheduler.{ScheduledTask, Scheduler}
 
 trait ApplicationScheduler[F[_]] {

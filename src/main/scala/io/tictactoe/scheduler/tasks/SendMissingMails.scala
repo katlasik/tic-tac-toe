@@ -1,4 +1,4 @@
-package io.tictactoe.scheduledtasks.tasks
+package io.tictactoe.scheduler.tasks
 
 import io.tictactoe.emails.services.EmailSender
 import io.tictactoe.infrastructure.scheduler.DurationSchedulerTask

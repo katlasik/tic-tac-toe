@@ -228,7 +228,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     data.sentEmails should contain(
       EmailMessage(
         NonEmptyList.one(email),
-        Email("no-reply@tictactoe.pl"),
+        Email("no-reply@tictactoe.io"),
         EmailMessageText(
           show"""Thanks for registering, $username!
                 |

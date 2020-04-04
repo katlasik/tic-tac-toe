@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+  database:
+    image: postgres:12
+    restart: always
+    ports:
+      - "6432:5432"
+    volumes:
+      - "../src/main/resources/db/init:/docker-entrypoint-initdb.d"
+  mail:
+    image: mailhog/mailhog
+    restart: always
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+  nginx:
+    image: nginx
+    restart: always
+    network_mode: "host"
+    volumes:
+    - "../nginx/nginx.conf:/etc/nginx/nginx.conf"

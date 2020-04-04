@@ -1,6 +1,6 @@
-package io.tictactoe.scheduledtasks
+package io.tictactoe.scheduler
 
-import io.tictactoe.scheduledtasks.tasks.SendMissingMails
+import io.tictactoe.scheduler.tasks.SendMissingMails
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.generators.Generators
@@ -20,7 +20,7 @@ class ApplicationSchedulerTest extends FlatSpec with ScalaCheckDrivenPropertyChe
       val outputData = new SendMissingMails[TestAppState].executedTask.runS(inputData).unsafeRunSync()
 
       outputData.infoMessages contains allOf(
-        "Checking for unsent emails.",
+        "Running check for unsent emails.",
         s"Sending missing registration emails for ${emails.size} users.",
         emails.map(e => show"Mail sent to ${e.recipients.mkString_(", ")}."): _*
       )

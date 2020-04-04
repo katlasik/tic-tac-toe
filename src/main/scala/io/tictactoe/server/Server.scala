@@ -21,7 +21,7 @@ import io.tictactoe.infrastructure.uuid.UUIDGenerator
 import io.tictactoe.infrastructure.calendar.Calendar
 import io.tictactoe.documentation.DocsGenerator
 import io.tictactoe.emails.services.{EmailRepository, EmailSender}
-import io.tictactoe.scheduledtasks.ApplicationScheduler
+import io.tictactoe.scheduler.ApplicationScheduler
 import io.tictactoe.infrastructure.scheduler.Scheduler
 import io.tictactoe.events.ApplicationEventHandler
 import io.tictactoe.infrastructure.configuration.Configuration
