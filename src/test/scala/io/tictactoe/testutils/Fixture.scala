@@ -11,10 +11,13 @@ import io.tictactoe.infrastructure.tokens.TokenGenerator
 import io.tictactoe.infrastructure.uuid.UUIDGenerator
 import io.tictactoe.infrastructure.calendar.Calendar
 import io.tictactoe.emails.services.{EmailRepository, EmailSender}
+import io.tictactoe.game.infrastructure.emails.InvitationEmail
+import io.tictactoe.game.infrastructure.repositories.InvitationRepository
+import io.tictactoe.game.services.GameInvitationService
 import io.tictactoe.infrastructure.configuration.Configuration
 import io.tictactoe.infrastructure.emails.EmailTransport
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailRepository, InMemoryEventBus, InMemoryUserRepository, MemoryLogging, MockedEmailTransport}
+import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailRepository, InMemoryEventBus, InMemoryInvitationRepository, InMemoryUserRepository, MemoryLogging, MockedEmailTransport}
 import io.tictactoe.users.repositories.UserRepository
 import io.tictactoe.users.services.UserService
 import org.http4s.Uri
@@ -41,6 +44,7 @@ trait Fixture {
   lazy implicit val confirmationTokenGenerator: TokenGenerator[TestAppState] = FixedConfirmationTokenGenerator.fixed
   lazy implicit val mockedEmailTransport: EmailTransport[TestAppState] = MockedEmailTransport.mocked
   lazy implicit val emailRepository: EmailRepository[TestAppState] = InMemoryEmailRepository.inMemory
+  lazy implicit val invitationRepository: InvitationRepository[TestAppState] = InMemoryInvitationRepository.inMemory
 
   lazy implicit val emailSender: EmailSender[TestAppState] = EmailSender.live[TestAppState].runA(emptyData).unsafeRunSync()
   lazy implicit val passwordChanger: PasswordChanger[TestAppState] = PasswordChanger.live[TestAppState].runA(emptyData).unsafeRunSync()
@@ -50,6 +54,8 @@ trait Fixture {
   lazy implicit val authentication: Authentication[TestAppState] = Authentication.live.runA(emptyData).unsafeRunSync()
   lazy implicit val userService: UserService[TestAppState] = UserService.live
   lazy implicit val registrationEmail: AuthEmail[TestAppState] = AuthEmail.live[TestAppState].runA(emptyData).unsafeRunSync()
+  lazy implicit val invitationEmail: InvitationEmail[TestAppState] = InvitationEmail.live[TestAppState].runA(emptyData).unsafeRunSync()
+  lazy implicit val gameInvitationService: GameInvitationService[TestAppState] = GameInvitationService.live[TestAppState].runA(emptyData).unsafeRunSync()
 
   def authenticate(credentials: Credentials): TestAppState[String] = authentication.authenticate(credentials).map(_.jwt.toEncodedString)
 

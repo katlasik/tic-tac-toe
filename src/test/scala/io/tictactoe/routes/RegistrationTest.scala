@@ -15,7 +15,7 @@ import io.circe.generic.auto._
 import io.tictactoe.authentication.services.Hash
 import io.tictactoe.error.ErrorView
 import io.tictactoe.testutils.generators.Generators
-import io.tictactoe.values.{Email, EventId, EventTimestamp, No, UserId, Username, Yes}
+import io.tictactoe.values.{Email, EventId, EventTimestamp, Unconfirmed, UserId, Username, Confirmed}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
@@ -87,7 +87,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Username("user1"),
           Hash("userpass"),
           Email("email@user.pl"),
-          No,
+          Unconfirmed,
           None,
           None
         )
@@ -140,7 +140,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
-          No,
+          Unconfirmed,
           ConfirmationToken("1").some,
           None
         )
@@ -169,7 +169,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         Username("user"),
         Hash("userpass"),
         Email("email@user.pl"),
-        Yes,
+        Confirmed,
         None,
         None
       )
@@ -199,7 +199,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           username,
           hash,
           email,
-          No,
+          Unconfirmed,
           ConfirmationToken("1").some,
           None
         )
@@ -261,7 +261,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           username,
           hash,
           email,
-          Yes,
+          Confirmed,
           None,
           None
         )

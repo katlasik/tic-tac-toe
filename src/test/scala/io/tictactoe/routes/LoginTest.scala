@@ -5,17 +5,16 @@ import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.TableDrivenPropertyChecks
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
 import io.tictactoe.authentication.services.Hash
 import io.tictactoe.error.ErrorView
-import io.tictactoe.values.{Email, No, Password, UserId, Username, Yes}
+import io.tictactoe.values.{Email, Unconfirmed, Password, UserId, Username, Confirmed}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import io.tictactoe.authentication.values.AuthToken
 
-class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
+class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   it should "allow login in as user" in new Fixture {
 
@@ -28,7 +27,7 @@ class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckD
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
-          Yes,
+          Confirmed,
           None,
           None
         )
@@ -68,7 +67,7 @@ class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckD
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
-          No,
+          Unconfirmed,
           None,
           None
         )
@@ -108,7 +107,7 @@ class LoginTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckD
           Username("user"),
           Hash("userpass"),
           Email("email@user.pl"),
-          Yes,
+          Confirmed,
           None,
           None
         )

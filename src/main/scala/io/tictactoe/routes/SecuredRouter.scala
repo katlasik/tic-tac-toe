@@ -9,12 +9,14 @@ import io.tictactoe.infrastructure.errors.ErrorMapper._
 import cats.implicits._
 import io.tictactoe.authentication.errors.ResourceNotFound
 import io.tictactoe.authorization.Authorized._
+import io.tictactoe.game.model.InvitationResult
+import io.tictactoe.game.services.GameInvitationService
 import io.tictactoe.infrastructure.logging.Logging
 import io.tictactoe.users.services.UserService
 
 object SecuredRouter {
 
-  def routes[F[_]: Sync: ContextShift: Registration: Authentication: UserService: Logging]: HttpRoutes[F] = {
+  def routes[F[_]: Sync: ContextShift: Registration: Authentication: UserService: Logging: GameInvitationService]: HttpRoutes[F] = {
 
     val getUsers = Endpoints.getUsers.toRoutes(token => {
       val result = for {
@@ -36,7 +38,27 @@ object SecuredRouter {
         result.mapErrors
     }
 
-    getUsers <+> getUser
+    val invitationByEmail = Endpoints.inviteByEmail.toRoutes {
+      case (token, request) =>
+        val result = for {
+          user <- Authentication[F].verify(token)
+          invitation <- GameInvitationService[F].inviteByEmail(user.id, request.email)
+        } yield InvitationResult(invitation.id, invitation.guestId)
+
+        result.mapErrors
+    }
+
+    val userInvitation = Endpoints.inviteUser.toRoutes {
+      case (token, request) =>
+        val result = for {
+          user <- Authentication[F].verify(token)
+          invitation <- GameInvitationService[F].inviteById(user.id, request.userId)
+        } yield InvitationResult(invitation.id, invitation.guestId)
+
+        result.mapErrors
+    }
+
+    getUsers <+> getUser <+> invitationByEmail <+> userInvitation
   }
 
 }

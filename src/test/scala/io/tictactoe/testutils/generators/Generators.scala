@@ -4,7 +4,7 @@ import cats.data.NonEmptyList
 import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.services.Hash
-import io.tictactoe.values.{Email, EventId, EventTimestamp, No, UserId, Username, Yes}
+import io.tictactoe.values.{Email, EventId, EventTimestamp, Unconfirmed, UserId, Username, Confirmed}
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
@@ -84,7 +84,7 @@ object Generators {
       email <- email()
       username <- username()
       confirmationToken <- confirmationToken()
-    } yield User(id, username, hash, email, confirmed.fold(Yes, No), confirmed.fold(none, confirmationToken.some), None)
+    } yield User(id, username, hash, email, confirmed.fold(Confirmed, Unconfirmed), confirmed.fold(none, confirmationToken.some), None)
 
   def users(from: Int = 200, to: Int = 1000): Gen[List[User]] =
     for {

@@ -6,6 +6,7 @@ import sttp.tapir.json.circe._
 import sttp.tapir._
 import io.circe.generic.auto._
 import io.tictactoe.authentication.values.AuthToken
+import io.tictactoe.game.model.{EmailInvitationRequest, InvitationResult, UserInvitationRequest}
 import io.tictactoe.infrastructure.model.RedirectLocation
 import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
@@ -88,6 +89,26 @@ object Endpoints {
     .in("users" / path[UserId].name("id").description("The id of the user."))
     .in(auth.bearer)
     .out(jsonBody[DetailedUser].description("Details of single user."))
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
+
+  val inviteByEmail: Endpoint[(String, EmailInvitationRequest), (ErrorView, StatusCode), InvitationResult, Nothing] = endpoint
+    .description("Endpoint for inviting unregistered users by email.")
+    .post
+    .in("games" / "invitation")
+    .in(auth.bearer)
+    .in(jsonBody[EmailInvitationRequest])
+    .out(jsonBody[InvitationResult].description("Details of invitation."))
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
+
+  val inviteUser: Endpoint[(String, UserInvitationRequest), (ErrorView, StatusCode), InvitationResult, Nothing] = endpoint
+    .description("Endpoint for inviting other players.")
+    .post
+    .in("games")
+    .in(auth.bearer)
+    .in(jsonBody[UserInvitationRequest])
+    .out(jsonBody[InvitationResult].description("Details of invitation."))
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
 

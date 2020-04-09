@@ -7,7 +7,7 @@ import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.users.repositories.UserRepository
-import io.tictactoe.values.{UserId, Yes}
+import io.tictactoe.values.{Confirmed, Email, UserId}
 import henkan.convert.Syntax._
 
 object InMemoryUserRepository {
@@ -15,12 +15,17 @@ object InMemoryUserRepository {
   def inMemory: UserRepository[TestAppState] = new UserRepository[TestAppState] {
 
     override def confirmedUsers(): TestAppState[List[SimpleUser]] = StateT { data: TestAppData =>
-      IO.pure((data, data.users.filter(_.isConfirmed === Yes).map(_.to[SimpleUser]())))
+      IO.pure((data, data.users.filter(_.isConfirmed === Confirmed).map(_.to[SimpleUser]())))
     }
 
     override def getById(id: UserId): TestAppState[Option[DetailedUser]] =  StateT { data: TestAppData =>
       IO.pure((data, data.users.find(_.id === id).map(_.to[DetailedUser]())))
     }
+
+    override def getByEmail(email: Email): TestAppState[Option[DetailedUser]] =  StateT { data: TestAppData =>
+      IO.pure((data, data.users.find(_.email === email).map(_.to[DetailedUser]())))
+    }
+
   }
 
 }

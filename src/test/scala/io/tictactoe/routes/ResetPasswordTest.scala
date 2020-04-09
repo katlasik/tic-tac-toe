@@ -9,11 +9,10 @@ import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
-import org.scalatest.prop.TableDrivenPropertyChecks
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
 import io.tictactoe.authentication.services.Hash
-import io.tictactoe.values.{Email, EventId, EventTimestamp, No, Password, UserId, Username, Yes}
+import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Password, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
@@ -22,10 +21,9 @@ import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.infrastructure.emails.model.EmailMessage
 import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
 
-class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
+class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   it should "allow sending requests to reset password" in new Fixture {
-
     import dsl._
 
     val newToken = ConfirmationToken("2")
@@ -46,7 +44,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
           username,
           hash,
           email,
-          Yes,
+          Confirmed,
           None,
           None
         )
@@ -106,7 +104,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
           username,
           hash,
           email,
-          No,
+          Unconfirmed,
           None,
           None
         )
@@ -186,7 +184,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
           username,
           hash,
           email,
-          No,
+          Unconfirmed,
           None,
           token.some
         )
@@ -237,7 +235,7 @@ class ResetPasswordTest  extends FlatSpec with TableDrivenPropertyChecks with Sc
           username,
           hash,
           email,
-          No,
+          Unconfirmed,
           None,
           ConfirmationToken("1").some
         )

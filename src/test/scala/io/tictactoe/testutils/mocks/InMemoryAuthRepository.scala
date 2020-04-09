@@ -10,7 +10,7 @@ import io.tictactoe.authentication.services.Hash
 import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.values.{Email, UserId, Username, Yes}
+import io.tictactoe.values.{Email, UserId, Username, Confirmed}
 
 object InMemoryAuthRepository {
 
@@ -36,7 +36,7 @@ object InMemoryAuthRepository {
     }
 
     override def confirm(user: User): TestAppState[User] = StateT { data: TestAppData =>
-      val confirmed = user.copy(isConfirmed = Yes, registrationConfirmationToken = None)
+      val confirmed = user.copy(isConfirmed = Confirmed, registrationConfirmationToken = None)
       IO.pure((data.copy(users = confirmed :: data.users.filter(_.id =!= confirmed.id)), confirmed))
     }
 

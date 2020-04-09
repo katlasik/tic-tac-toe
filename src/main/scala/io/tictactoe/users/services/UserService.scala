@@ -3,9 +3,10 @@ package io.tictactoe.users.services
 import cats.effect.Sync
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.users.repositories.UserRepository
-import io.tictactoe.values.UserId
+import io.tictactoe.values.{Email, UserId}
 
 trait UserService[F[_]] {
+  def getByEmail(email: Email): F[Option[DetailedUser]]
 
   def confirmedUsers(): F[List[SimpleUser]]
 
@@ -22,5 +23,6 @@ object UserService {
 
     override def confirmedUsers(): F[List[SimpleUser]] = UserRepository[F].confirmedUsers()
 
+    override def getByEmail(email: Email): F[Option[DetailedUser]] = UserRepository[F].getByEmail(email)
   }
 }

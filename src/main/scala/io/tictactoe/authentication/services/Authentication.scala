@@ -14,7 +14,7 @@ import io.tictactoe.authentication.errors.{AccountNotConfirmed, WrongCredentials
 import io.tictactoe.authentication.repositories.AuthRepository
 import tsec.jws.mac.JWTMac
 import io.tictactoe.infrastructure.syntax._
-import io.tictactoe.values.Yes
+import io.tictactoe.values.Confirmed
 
 trait Authentication[F[_]] {
   def authenticate(credentials: Credentials): F[JWTToken]
@@ -45,7 +45,7 @@ object Authentication {
             user <- AuthRepository[F]
               .getByEmail(credentials.email)
               .throwIfEmpty(WrongCredentials)
-              .ensure(AccountNotConfirmed)(_.isConfirmed === Yes)
+              .ensure(AccountNotConfirmed)(_.isConfirmed === Confirmed)
             token <- Sync[F].ifM(PasswordHasher[F].check(credentials.password, user.hash))(
               authenticator.create(TokenPayload.fromUser(user)),
               logger.info(show"Unsuccessful login attempt for user with id = ${user.id}.") >> Sync[F].raiseError(WrongCredentials)

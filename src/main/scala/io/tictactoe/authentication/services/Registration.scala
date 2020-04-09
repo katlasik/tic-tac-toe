@@ -15,7 +15,7 @@ import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.infrastructure.validation.Validator._
 import io.tictactoe.infrastructure.calendar.Calendar
 import io.tictactoe.infrastructure.configuration.Configuration
-import io.tictactoe.values.{Email, No, UserId, Yes}
+import io.tictactoe.values.{Email, Unconfirmed, UserId, Confirmed}
 import io.tictactoe.infrastructure.syntax._
 
 trait Registration[F[_]] {
@@ -44,7 +44,7 @@ object Registration {
             hash <- PasswordHasher[F].hash(password)
             id <- UserId.next[F]
             token <- TokenGenerator[F].generate
-            user <- AuthRepository[F].save(User(id, name, hash, email, No, Some(token), None))
+            user <- AuthRepository[F].save(User(id, name, hash, email, Unconfirmed, Some(token), None))
             _ <- logger.info(show"New user with id = $id was created.")
             _ <- EventBus[F].publishF(UserRegisteredEvent.create[F](user))
           } yield RegistrationResult(id)
@@ -67,7 +67,7 @@ object Registration {
           for {
             _ <- logger.info(show"Sending of new registration confirmation email requested by $email.")
             user <- AuthRepository[F].getByEmail(email).throwIfEmpty(ResourceNotFound)
-            _ <- Sync[F].whenA(user.isConfirmed === Yes)(Sync[F].raiseError(ResourceNotFound))
+            _ <- Sync[F].whenA(user.isConfirmed === Confirmed)(Sync[F].raiseError(ResourceNotFound))
             token <- TokenGenerator[F].generate
             _ <- AuthRepository[F].updateRegistrationConfirmationToken(user.id, token)
             _ <- AuthEmail[F].sendRegistrationConfirmation(email, user.username, user.id, token)

@@ -5,7 +5,7 @@ import io.tictactoe.authentication.services.Hash
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
-import io.tictactoe.values.{Email, Password, UserId, Username, Yes}
+import io.tictactoe.values.{Email, Password, UserId, Username, Confirmed}
 import org.http4s.{Header, Headers, Request}
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.implicits._
@@ -58,7 +58,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
 
     val hash = Hash("password")
 
-    val user = User(userId, Username("user"), hash, email, Yes, None, None)
+    val user = User(userId, Username("user"), hash, email, Confirmed, None, None)
 
     forAll(Generators.users()) { users =>
       val allUsers = user :: users
@@ -99,7 +99,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
         Username("user"),
         Hash("password"),
         Email("email@gmail.com"),
-        Yes,
+        Confirmed,
         None,
         None
       )
@@ -139,7 +139,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
         Username("user"),
         Hash("password"),
         Email("email@gmail.com"),
-        Yes,
+        Confirmed,
         None,
         None
       )
@@ -150,7 +150,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
         Username("user2"),
         Hash("password"),
         Email("email2@gmail.com"),
-        Yes,
+        Confirmed,
         None,
         None
       )

@@ -24,6 +24,9 @@ import io.tictactoe.emails.services.{EmailRepository, EmailSender}
 import io.tictactoe.scheduler.ApplicationScheduler
 import io.tictactoe.infrastructure.scheduler.Scheduler
 import io.tictactoe.events.ApplicationEventHandler
+import io.tictactoe.game.infrastructure.emails.InvitationEmail
+import io.tictactoe.game.infrastructure.repositories.InvitationRepository
+import io.tictactoe.game.services.GameInvitationService
 import io.tictactoe.infrastructure.configuration.Configuration
 import io.tictactoe.infrastructure.emails.EmailTransport
 import io.tictactoe.users.repositories.UserRepository
@@ -31,7 +34,7 @@ import io.tictactoe.users.services.UserService
 
 object Server {
 
-  def app[F[_]: PasswordChanger: ContextShift: Sync: ConcurrentEffect: Registration: Authentication: UserService: AuthRepository: Logging]
+  def app[F[_]: PasswordChanger: GameInvitationService: ContextShift: Sync: ConcurrentEffect: Registration: Authentication: UserService: AuthRepository: Logging]
     : HttpApp[F] = {
     val httpApp = (PublicRouter.routes[F] <+> SecuredRouter.routes[F]).orNotFound.map(ErrorTranslator.handle)
 
@@ -52,14 +55,17 @@ object Server {
       implicit0(userRepository: UserRepository[F]) = UserRepository.postgresql[F]
       implicit0(emailRepository: EmailRepository[F]) = EmailRepository.postgresql[F]
       implicit0(emailTransport: EmailTransport[F]) <- Stream.eval(EmailTransport.create[F])
-      implicit0(emailSender: EmailSender[F]) <- Stream.eval(EmailSender.live[F])
       implicit0(templateRenderer: TemplateRenderer[F]) <- Stream.eval(TemplateRenderer.live[F])
+      implicit0(emailSender: EmailSender[F]) <- Stream.eval(EmailSender.live[F])
       implicit0(registrationEmail: AuthEmail[F]) <- Stream.eval(AuthEmail.live[F])
       implicit0(eventBus: EventBus[F]) <- Stream.eval(EventBus.start(ApplicationEventHandler.live[F]))
       implicit0(confirmationTokenGenerator: TokenGenerator[F]) <- Stream.eval(TokenGenerator.live[F])
       implicit0(registration: Registration[F]) <- Stream.eval(Registration.live[F])
       implicit0(authentication: Authentication[F]) <- Stream.eval(Authentication.live[F])
       implicit0(userService: UserService[F]) = UserService.live[F]
+      implicit0(invitationEmail: InvitationEmail[F]) <- Stream.eval(InvitationEmail.live[F])
+      implicit0(invitationRepository: InvitationRepository[F]) = InvitationRepository.postgresql[F]
+      implicit0(gameService: GameInvitationService[F]) <- Stream.eval(GameInvitationService.live[F])
       implicit0(scheduler: Scheduler[F]) <- Stream.eval(Scheduler.live[F])
       implicit0(passwordChanger: PasswordChanger[F]) <- Stream.eval(PasswordChanger.live[F])
       _ <- Stream.eval(ApplicationScheduler.live[F].start())

@@ -19,6 +19,7 @@ object Dependencies {
   val ScalateVersion = "1.9.5"
   val JavaxMailVersion = "1.4.7"
   val Fs2CronCoreVersion = "0.2.2"
+  val ShapelessVersion = "2.3.3"
 
   val ScalaTestVersion = "3.0.8"
   val ScalaCheckVersion = "1.14.3"
@@ -55,6 +56,7 @@ object Dependencies {
     "com.kailuowang" %% "henkan-convert" % HenkanVersion,
     "org.scalatra.scalate" %% "scalate-core" % ScalateVersion,
     "com.github.pathikrit" %% "better-files" % BetterFilesVersion,
+    "com.chuusai" %% "shapeless" % ShapelessVersion,
     "org.tpolecat" %% "doobie-core" % DoobieVersion,
     "org.tpolecat" %% "doobie-scalatest" % DoobieVersion,
     "org.tpolecat" %% "doobie-hikari" % DoobieVersion,

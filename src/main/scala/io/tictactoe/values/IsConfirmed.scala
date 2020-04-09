@@ -9,17 +9,17 @@ sealed trait IsConfirmed extends Product with Serializable {
   val value: Boolean
 }
 
-case object Yes extends IsConfirmed {
+case object Confirmed extends IsConfirmed {
   val value = true
 }
 
-case object No extends IsConfirmed {
+case object Unconfirmed extends IsConfirmed {
   val value = false
 }
 
 object IsConfirmed {
 
   implicit val eq: Eq[IsConfirmed] = Eq.by(_.value)
-  implicit val meta: Meta[IsConfirmed] = Meta[Boolean].timap(_.fold(Yes, No))(_.value)
+  implicit val meta: Meta[IsConfirmed] = Meta[Boolean].timap(_.fold(Confirmed, Unconfirmed))(_.value)
 
 }

@@ -5,6 +5,7 @@ import io.tictactoe.error.ErrorView
 import cats.implicits._
 import io.tictactoe.authentication.errors.{AccountNotConfirmed, ResourceNotFound, WrongCredentials}
 import io.tictactoe.authorization.errors.AccessForbidden
+import io.tictactoe.game.errors.{InviteSelfError, UserAlreadyExistsError}
 import io.tictactoe.infrastructure.logging.Logging
 import io.tictactoe.infrastructure.validation.ValidationError
 import sttp.model.StatusCode
@@ -17,12 +18,14 @@ object ErrorMapper {
       for {
         logger <- Logging[F].create[ErrorMapper.type]
         value <- f.attemptT.leftSemiflatMap {
-          case e: MacVerificationError => Sync[F].pure((ErrorView.fromThrowable(e), StatusCode.Unauthorized))
-          case WrongCredentials        => Sync[F].pure((ErrorView.fromThrowable(WrongCredentials), StatusCode.Unauthorized))
-          case AccountNotConfirmed     => Sync[F].pure((ErrorView.fromThrowable(AccountNotConfirmed), StatusCode.Unauthorized))
-          case e: ValidationError      => Sync[F].pure((ErrorView.fromThrowable(e), StatusCode.BadRequest))
-          case AccessForbidden         => Sync[F].pure((ErrorView("Access to resource is forbidden!"), StatusCode.Forbidden))
-          case ResourceNotFound        => Sync[F].pure((ErrorView("Can't find resource."), StatusCode.NotFound))
+          case e: MacVerificationError   => Sync[F].pure((ErrorView.fromThrowable(e), StatusCode.Unauthorized))
+          case WrongCredentials          => Sync[F].pure((ErrorView.fromThrowable(WrongCredentials), StatusCode.Unauthorized))
+          case AccountNotConfirmed       => Sync[F].pure((ErrorView.fromThrowable(AccountNotConfirmed), StatusCode.Unauthorized))
+          case e: ValidationError        => Sync[F].pure((ErrorView.fromThrowable(e), StatusCode.BadRequest))
+          case AccessForbidden           => Sync[F].pure((ErrorView("Access to resource is forbidden!"), StatusCode.Forbidden))
+          case ResourceNotFound          => Sync[F].pure((ErrorView("Can't find resource."), StatusCode.NotFound))
+          case e: UserAlreadyExistsError => Sync[F].pure((ErrorView.fromThrowable(e), StatusCode.BadRequest))
+          case InviteSelfError           => Sync[F].pure((ErrorView.fromThrowable(InviteSelfError), StatusCode.BadRequest))
           case e =>
             logger.error("Uncaught error!", e) *> Sync[F].pure((ErrorView("Internal server error!"), StatusCode.InternalServerError))
         }.value

@@ -2,7 +2,7 @@ package io.tictactoe.authentication.services
 
 import cats.effect.Sync
 import io.tictactoe.authentication.repositories.AuthRepository
-import io.tictactoe.values.{Email, Yes}
+import io.tictactoe.values.{Email, Confirmed}
 import cats.implicits._
 import io.tictactoe.authentication.errors.IllegalConfirmationToken
 import io.tictactoe.authentication.events.PasswordChangedEvent
@@ -37,7 +37,7 @@ object PasswordChanger {
           for {
             user <- AuthRepository[F].getByEmail(email)
             _ <- user match {
-              case Some(User(id, username, _, _, Yes, _, _)) =>
+              case Some(User(id, username, _, _, Confirmed, _, _)) =>
                 for {
                   token <- TokenGenerator[F].generate
                   _ <- logger.info(show"Sending of password reset mail requested for user with id = $id and email = $email.")

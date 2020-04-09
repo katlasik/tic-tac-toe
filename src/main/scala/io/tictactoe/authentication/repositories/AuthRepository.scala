@@ -8,7 +8,7 @@ import doobie.postgres.implicits._
 import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.services.{Hash, PasswordHasher}
 import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
-import io.tictactoe.values.{Email, UserId, Username, Yes}
+import io.tictactoe.values.{Email, UserId, Username, Confirmed}
 import io.tictactoe.database.Database
 
 trait AuthRepository[F[_]] {
@@ -56,7 +56,7 @@ object AuthRepository {
 
     override def confirm(user: User): F[User] =
       sql"UPDATE users SET is_confirmed = true, confirmation_token = null WHERE id = ${user.id}".update.run
-        .transact(transactor) *> Sync[F].pure(user.copy(isConfirmed = Yes, registrationConfirmationToken = None))
+        .transact(transactor) *> Sync[F].pure(user.copy(isConfirmed = Confirmed, registrationConfirmationToken = None))
 
     override def getByEmail(email: Email): F[Option[User]] =
       sql"SELECT id, name, hash, email, is_confirmed, updated_on, password_reset_token FROM users WHERE email = $email"

@@ -12,12 +12,11 @@ import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessage
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.generators.Generators
 import io.tictactoe.testutils.{Fixture, TestAppData}
-import io.tictactoe.values.{Email, EventId, EventTimestamp, No, UserId, Username}
-import org.scalatest.prop.TableDrivenPropertyChecks
+import io.tictactoe.values.{Email, EventId, EventTimestamp, Unconfirmed, UserId, Username}
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class ApplicationEventsHandlerTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
+class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   it should "send registration confirmation emails, when new user is registered" in new Fixture {
 
@@ -69,7 +68,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with TableDrivenPropertyChec
           Username("user1"),
           Hash("userpass"),
           email,
-          No,
+          Unconfirmed,
           None,
           None
         )
