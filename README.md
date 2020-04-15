@@ -44,7 +44,7 @@ To run integration tests you'd need docker installed (for test-containers).
 
 To bootstrap database you can use script [Initialize_database.sql](src/main/resources/db/init/Initialize_database.sql).
 
-On every startup of the application [migrations](src/main/resources/db/migration) are ran by flyway.
+On every startup of the application flyway runs [migrations](src/main/resources/db/migration).
 
 ## Documentation
 
