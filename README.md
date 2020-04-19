@@ -1,5 +1,6 @@
 # Tic-tac-toe
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/09ae4e37f6d84eafa1e887590b87263c)](https://app.codacy.com/manual/katlasik/tic-tac-toe?utm_source=github.com&utm_medium=referral&utm_content=katlasik/tic-tac-toe&utm_campaign=Badge_Grade_Dashboard)
 [![CircleCI](https://circleci.com/gh/katlasik/tic-tac-toe.svg?style=svg)](https://circleci.com/gh/katlasik/tic-tac-toe)
 
 An implementation of simple service, that allows playing game of tic-tac-toe. It uses popular FP techniques as tagless-final.
