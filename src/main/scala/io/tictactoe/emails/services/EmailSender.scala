@@ -36,7 +36,7 @@ object EmailSender {
           for {
             _ <- logger.info("Running check for unsent emails.")
             emails <- EmailRepository[F].missingEmails()
-            _ <- Sync[F].whenA(emails.nonEmpty)(logger.info(s"Sending missing registration emails for ${emails.size} users."))
+            _ <- logger.info(s"Sending missing registration emails for ${emails.size} users.").whenA(emails.nonEmpty)
             _ <- emails.traverse {
               case MissingEmail(id, recipients, sender, text, title) =>
                 for {

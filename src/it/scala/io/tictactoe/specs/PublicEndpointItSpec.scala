@@ -35,7 +35,7 @@ class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers 
 
       And("the registration confirmation email is sent")
 
-      val confirmationUrl = UrlRegex.findFirstIn(getMails(1).head).get
+      val (confirmationUrl, _) = getFirstMailMatching(UrlRegex.findFirstIn(_))
 
       When("the user uses confirmation link")
       get(confirmationUrl)
@@ -68,9 +68,8 @@ class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers 
       post(baseUrl(s"password?email=$email"))
 
       Then("the user receives token on mail")
-      val mail = getMails(1).head
-      val token = TokenRegex.findFirstIn(mail).get
-      val id = IdRegex.findFirstIn(mail).get
+      val (token, _) = getFirstMailMatching(TokenRegex.findFirstIn(_))
+      val (id, _) = getFirstMailMatching(IdRegex.findFirstIn(_))
 
       When("the user uses token to change password")
       val passwordChangePayload =
@@ -91,7 +90,7 @@ class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers 
       val authenticationResponse = post(baseUrl("login"), loginPayload)
 
       Then("received email notification")
-      getMails(3) should contain("Your password has been successfully changed.")
+      getFirstMailContaining("Your password has been successfully changed.")
 
       And("he is logged in")
       authenticationResponse.headers("Set-Auth-Token") should not be empty

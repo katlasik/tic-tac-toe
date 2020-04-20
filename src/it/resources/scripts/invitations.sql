@@ -1,0 +1,2 @@
+INSERT INTO public.users (id, name, hash, email, is_confirmed, created_on) VALUES ('063be141-817d-4363-b59d-271b8392df1f', 'user201', '$2a$10$jzDrUtRZRIHEDROUsZCLRupweMGxxtRssnKuyXKhZn1hKpOXPOfV6', 'user201@email.com', true, '2020-04-19 14:21:06.780984');
+INSERT INTO public.users (id, name, hash, email, is_confirmed, created_on) VALUES ('e007f6cd-f5d7-428a-9914-2a8439c9b95c', 'user200', '$2a$10$3lGNOQaebm.VofMCIu.8GOGGS.PmmevnmccjxUEBMPzUJPv2sdJXO', 'user200@email.com', true, '2020-04-19 14:21:16.795206');

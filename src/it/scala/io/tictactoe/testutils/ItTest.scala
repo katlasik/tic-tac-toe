@@ -19,6 +19,7 @@ import io.circe.Json
 import io.circe.parser.parse
 import io.tictactoe.infrastructure.configuration.Configuration
 import mouse.all._
+import scala.util.chaining._
 
 import scala.io.Source
 import scala.util.{Try, Using}
@@ -141,27 +142,41 @@ trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach { self: Suite =>
 
     val statement = connection(dbPort).createStatement()
 
-    scripts.toList
-      .foreach(f => Using(Source.fromFile(s"src/it/resources/scripts/$f"))(l => statement.execute(l.mkString)))
+    scripts.foreach(f => Using(Source.fromFile(s"src/it/resources/scripts/$f"))(l => statement.execute(l.mkString)))
   }
 
-  def getMails(expected: Int): List[String] = repeatUntil(failureMsg = "Confirmation mail message not received in required time.") {
-    val response = get(s"http://localhost:$mailRestPort/api/v2/messages").success.plain
+  def getFirstMailContaining(expected: String): (String, String) = getFirstMailMatching(s => Option.when(s.contains(expected))(s))
 
-    parse(response).getOrElse(Json.Null).hcursor.downField("total").as[Int] match {
-      case Right(v) if v >= expected =>
-        Some(
-          parse(response)
-            .getOrElse(Json.Null)
-            .hcursor
-            .downField("items")
-            .values
-            .get
-            .map(_.hcursor.downField("Content").downField("Body").as[String].toOption.get)
-            .toList
+  def getFirstMailMatching(extractor: String => Option[String]): (String, String) =
+    repeatUntil(failureMsg = "Confirmation mail message not received in required time.") {
+      val response = get(s"http://localhost:$mailRestPort/api/v2/messages").success.plain
+
+      parse(response)
+        .getOrElse(Json.Null)
+        .hcursor
+        .downField("items")
+        .values
+        .get
+        .flatMap(
+          _.hcursor
+            .downField("Content")
+            .pipe(
+              cursor =>
+                cursor
+                  .downField("Body")
+                  .as[String]
+                  .toOption
+                  .lazyZip(
+                    cursor.downField("Headers").downField("To").as[List[String]].toOption.flatMap(_.headOption)
+                  )
+            )
         )
-      case _ => None
+        .toList
+        .flatMap {
+          case (body, to) => extractor(body).map((_, to))
+        }
+        .headOption
+
     }
-  }
 
 }

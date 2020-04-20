@@ -12,4 +12,14 @@ package object syntax {
       v.flatMap(o => Sync[F].fromOption(o.filter(predicate), throwable))
   }
 
+  implicit class ThrowableSyntax[F[_]: Sync](throwable: Throwable) {
+    def throwWhenM(f: F[Boolean]): F[Unit] =
+      for {
+        result <- f
+        _ <- Sync[F].raiseError(throwable).whenA(result)
+      } yield ()
+
+    def throwWhen[A](condition: Boolean): F[Unit] = Sync[F].raiseError(throwable).whenA(condition)
+  }
+
 }

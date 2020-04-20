@@ -9,7 +9,8 @@ object Dependencies {
   val LogbackVersion = "1.2.3"
   val EnumeratumCirceVersion = "1.5.22"
   val EnumeratumDoobieVersion = "1.5.17"
-  val TapirVersion = "0.12.11"
+  val EnumeratumCatsVersion = "1.5.16"
+  val TapirVersion = "0.12.27"
   val BetterFilesVersion = "3.8.0"
   val CatsTimeVersion = "0.3.0"
   val DoobieVersion = "0.8.8"
@@ -20,6 +21,7 @@ object Dependencies {
   val JavaxMailVersion = "1.4.7"
   val Fs2CronCoreVersion = "0.2.2"
   val ShapelessVersion = "2.3.3"
+  val QuickLensVersion = "1.5.0"
 
   val ScalaTestVersion = "3.0.8"
   val ScalaCheckVersion = "1.14.3"
@@ -44,6 +46,7 @@ object Dependencies {
     "javax.mail" % "mail" % JavaxMailVersion,
     "io.chrisdavenport" %% "cats-time" % CatsTimeVersion,
     "ch.qos.logback" % "logback-classic" % LogbackVersion,
+    "com.beachape" %% "enumeratum-cats" % EnumeratumCatsVersion,
     "com.beachape" %% "enumeratum-circe" % EnumeratumCirceVersion,
     "com.beachape" %% "enumeratum-doobie" % EnumeratumDoobieVersion,
     "eu.timepit" %% "fs2-cron-core" % Fs2CronCoreVersion,
@@ -53,6 +56,8 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % TapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % TapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % TapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-enumeratum" % TapirVersion,
+    "com.softwaremill.quicklens" %% "quicklens" % QuickLensVersion,
     "com.kailuowang" %% "henkan-convert" % HenkanVersion,
     "org.scalatra.scalate" %% "scalate-core" % ScalateVersion,
     "com.github.pathikrit" %% "better-files" % BetterFilesVersion,

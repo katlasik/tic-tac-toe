@@ -7,11 +7,13 @@ import sttp.tapir._
 import io.circe.generic.auto._
 import io.tictactoe.authentication.values.AuthToken
 import io.tictactoe.game.model.{EmailInvitationRequest, InvitationResult, UserInvitationRequest}
+import io.tictactoe.game.values.GameId
 import io.tictactoe.infrastructure.model.RedirectLocation
 import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.{Email, UserId}
 import sttp.model.StatusCode
+import sttp.tapir.codec.enumeratum._
 
 object Endpoints {
 
@@ -32,7 +34,7 @@ object Endpoints {
       .in(query[ConfirmationToken]("token"))
       .description("Random token.")
       .in(query[UserId]("id"))
-      .description("Id of user confirming registration.")
+      .description("The id of user confirming registration.")
       .out(statusCode)
       .out(header[RedirectLocation]("Location"))
       .errorOut(jsonBody[ErrorView].description("Error message."))
@@ -112,7 +114,33 @@ object Endpoints {
     .errorOut(jsonBody[ErrorView].description("Error message."))
     .errorOut(statusCode)
 
+  val acceptInvitation: Endpoint[(GameId, String), (ErrorView, StatusCode), InvitationResult, Nothing] = endpoint
+    .description("Endpoint for accepting other players' invitations.")
+    .put
+    .in("games" / path[GameId])
+    .in(auth.bearer)
+    .out(jsonBody[InvitationResult].description("Details of invitation."))
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
+
+  val rejectInvitation: Endpoint[(GameId, String), (ErrorView, StatusCode), InvitationResult, Nothing] = endpoint
+    .description("Endpoint for cancelling player's own invitations/rejecting other players' invitations.")
+    .delete
+    .in("games" / path[GameId])
+    .in(auth.bearer)
+    .out(jsonBody[InvitationResult].description("Details of invitation."))
+    .errorOut(jsonBody[ErrorView].description("Error message."))
+    .errorOut(statusCode)
+
   val all: List[Endpoint[_, _, _, _]] =
-    List(registerUser, confirmRegistration, resendConfirmationEmail, requestPasswordChange, login, getUsers, getUser, changePassword)
+    List(registerUser,
+         confirmRegistration,
+         resendConfirmationEmail,
+         requestPasswordChange,
+         login,
+         getUsers,
+         getUser,
+         changePassword,
+         acceptInvitation)
 
 }

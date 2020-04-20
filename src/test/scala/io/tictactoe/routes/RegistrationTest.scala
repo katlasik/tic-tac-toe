@@ -1,6 +1,6 @@
 package io.tictactoe.routes
 
-import java.time.Instant
+import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 
 import cats.data.NonEmptyList
@@ -13,16 +13,19 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
 import io.tictactoe.authentication.services.Hash
-import io.tictactoe.error.ErrorView
 import io.tictactoe.testutils.generators.Generators
-import io.tictactoe.values.{Email, EventId, EventTimestamp, Unconfirmed, UserId, Username, Confirmed}
+import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
 import io.tictactoe.authentication.events.UserRegisteredEvent
+import io.tictactoe.error.ErrorView
+import io.tictactoe.game.model.GameInvitation
+import io.tictactoe.game.values.GameId
 import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.infrastructure.emails.model.EmailMessage
 import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
+import org.scalacheck.Gen
 
 class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
 
@@ -36,14 +39,14 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
       val inputData = TestAppData(
         uuids = List(user.id.value, eventId),
-        dates = List(timestamp),
+        instants = List(timestamp),
         tokens = List(user.registrationConfirmationToken.get)
       )
 
       val request = Request[TestAppState](
         method = POST,
         uri = uri"registration"
-      ).withEntity(RegistrationRequest(user.username.value, user.hash.value, user.email.value))
+      ).withEntity(RegistrationRequest(user.username.value, user.hash.value, user.email.value, none, none))
 
       val (outputData, Some(response)) = PublicRouter
         .routes[TestAppState]
@@ -65,7 +68,164 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
           user.id,
           user.username,
           user.email,
-          user.registrationConfirmationToken.get
+          user.registrationConfirmationToken,
+          Unconfirmed
+        )
+      )
+
+      response.status.code shouldBe 200
+
+      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldBe RegistrationResult(user.id)
+    }
+
+  }
+
+  it should "allow registering new players from invitation" in new Fixture {
+
+    import dsl._
+
+    val gen: Gen[(User, ConfirmationToken, GameId)] =  for {
+      user <- Generators.user(true)
+      token <- Generators.confirmationToken()
+      gameId <- Generators.id[GameId]
+    } yield (user, token, gameId)
+
+    forAll(gen) { case (user, token, gameId) =>
+      val eventId = UUID.fromString("0000000-0000-0000-0000-000000000001")
+      val timestamp = Instant.parse("2020-03-01T14:42:13.775935Z")
+      val ownerId =  UserId.unsafeFromString("0000000-0000-0000-0000-000000000010")
+
+      val inputData = TestAppData(
+        uuids = List(user.id.value, eventId),
+        instants = List(timestamp),
+        dates = List(LocalDateTime.parse("2019-09-09T10:33:33")),
+        users = List(
+          User(
+            ownerId,
+            Username("owner"),
+            Hash("userpass"),
+            Email("user@email.com"),
+            Confirmed,
+            none,
+            none
+          )
+        ),
+        invitations = List(
+          GameInvitation.withEmail(
+            gameId,
+            ownerId,
+            user.email,
+            token
+          )
+        )
+      )
+
+      val request = Request[TestAppState](
+        method = POST,
+        uri = uri"registration"
+      ).withEntity(RegistrationRequest(user.username.value, user.hash.value, user.email.value, token.some, gameId.some))
+
+      val (outputData, Some(response)) = PublicRouter
+        .routes[TestAppState]
+        .run(request)
+        .value
+        .run(inputData)
+        .unsafeRunSync()
+
+      outputData.users should contain(user)
+
+      outputData.infoMessages should contain(
+        show"New user with id = ${user.id} was created."
+      )
+
+      outputData.events should contain(
+        UserRegisteredEvent(
+          EventId(eventId),
+          EventTimestamp(timestamp),
+          user.id,
+          user.username,
+          user.email,
+          none,
+          Confirmed
+        )
+      )
+
+      response.status.code shouldBe 200
+
+      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldBe RegistrationResult(user.id)
+    }
+
+  }
+
+
+  it should "register new players from invitation as unconfirmed if token or gameId is incorrect" in new Fixture {
+
+    import dsl._
+
+    val gen: Gen[(User, ConfirmationToken, GameId)] = for {
+      user <- Generators.user()
+      token <- Generators.confirmationToken()
+      gameId <- Generators.id[GameId]
+    } yield (user, token, gameId)
+
+    forAll(gen) { case (user, token, gameId) =>
+      val eventId = UUID.fromString("0000000-0000-0000-0000-000000000001")
+      val timestamp = Instant.parse("2020-03-01T14:42:13.775935Z")
+      val ownerId =  UserId.unsafeFromString("0000000-0000-0000-0000-000000000010")
+
+      val inputData = TestAppData(
+        uuids = List(user.id.value, eventId),
+        tokens = List(user.registrationConfirmationToken.get),
+        dates = List(LocalDateTime.parse("2019-09-09T10:33:33")),
+        instants = List(timestamp),
+        users = List(
+          User(
+            ownerId,
+            Username("owner"),
+            Hash("userpass"),
+            Email("user@email.com"),
+            Confirmed,
+            none,
+            none
+          )
+        ),
+        invitations = List(
+          GameInvitation.withEmail(
+            gameId,
+            ownerId,
+            user.email,
+            token
+          )
+        )
+      )
+
+      val request = Request[TestAppState](
+        method = POST,
+        uri = uri"registration"
+      ).withEntity(RegistrationRequest(user.username.value, user.hash.value, user.email.value, ConfirmationToken("illegal").some, gameId.some))
+
+      val (outputData, Some(response)) = PublicRouter
+        .routes[TestAppState]
+        .run(request)
+        .value
+        .run(inputData)
+        .unsafeRunSync()
+
+      outputData.users should contain(user)
+
+      outputData.infoMessages should contain(
+        show"New user with id = ${user.id} was created."
+      )
+
+      outputData.events should contain(
+        UserRegisteredEvent(
+          EventId(eventId),
+          EventTimestamp(timestamp),
+          user.id,
+          user.username,
+          user.email,
+          user.registrationConfirmationToken,
+          Unconfirmed
         )
       )
 
@@ -96,12 +256,32 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
     val cases = Table(
       ("request", "error message"),
-      (RegistrationRequest("user2", "userpass", "email@user.pl"), "Email already exists."),
-      (RegistrationRequest("user1", "userpass", "email1@user.pl"), "Username already exists."),
-      (RegistrationRequest("u", "userpass", "email1@user.pl"), "Username length must be at least 2."),
-      (RegistrationRequest("**user", "userpass", "email1@user.pl"), "Username has illegal characters."),
-      (RegistrationRequest("user", "userpass", "email1"), "Email has wrong format."),
-      (RegistrationRequest("user", "u", "email1@user.pl"), "Password needs to have at least 6 characters.")
+      (RegistrationRequest("user2", "userpass", "email@user.pl", none, none), "Email already exists."),
+      (RegistrationRequest("user1", "userpass", "email1@user.pl", none, none), "Username already exists."),
+      (RegistrationRequest("u", "userpass", "email1@user.pl", none, none), "Username length must be at least 2."),
+      (RegistrationRequest("**user", "userpass", "email1@user.pl", none, none), "Username has illegal characters."),
+      (RegistrationRequest("user", "userpass", "email1@", none, none), "Email has wrong format."),
+      (RegistrationRequest("user", "u", "email1@user.pl", none, none), "Password needs to have at least 6 characters."),
+      (
+        RegistrationRequest(
+          "user",
+          "userpass",
+          "email1@user.pl",
+          none,
+          GameId.unsafeFromString("00000000-0000-0000-0000-000000000001").some
+        ),
+        "Both invitationToken and gameId have to be provided or neither."
+      ),
+      (
+        RegistrationRequest(
+          "user",
+          "userpass",
+          "email1@user.pl",
+          ConfirmationToken("token").some,
+          none
+        ),
+        "Both invitationToken and gameId have to be provided or neither."
+      )
     )
 
     forAll(cases) { (requestEntity: RegistrationRequest, errorMessage: String) =>

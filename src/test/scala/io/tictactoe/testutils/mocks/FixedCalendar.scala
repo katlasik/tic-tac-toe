@@ -9,7 +9,11 @@ import io.tictactoe.testutils.TestAppData.TestAppState
 object FixedCalendar {
 
   def fixed: Calendar[TestAppState] = () => StateT { data: TestAppData =>
-    IO.pure((data.copy(dates = data.dates.tail), data.dates.head))
+    data.instants match {
+      case head :: instantsTail => IO.pure((data.copy(instants = instantsTail), head))
+      case _ =>IO.raiseError(new IllegalArgumentException("The instants list is empty!"))
+    }
+
   }
 
 }

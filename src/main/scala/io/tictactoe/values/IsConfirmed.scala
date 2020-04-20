@@ -7,6 +7,9 @@ import cats.implicits._
 
 sealed trait IsConfirmed extends Product with Serializable {
   val value: Boolean
+
+  def fold[B](ifNotConfirmed: => B)(ifConfirmed: => B): B =
+    if (value) ifConfirmed else ifNotConfirmed
 }
 
 case object Confirmed extends IsConfirmed {

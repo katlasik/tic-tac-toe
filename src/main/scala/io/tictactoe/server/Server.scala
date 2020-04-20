@@ -58,14 +58,14 @@ object Server {
       implicit0(templateRenderer: TemplateRenderer[F]) <- Stream.eval(TemplateRenderer.live[F])
       implicit0(emailSender: EmailSender[F]) <- Stream.eval(EmailSender.live[F])
       implicit0(registrationEmail: AuthEmail[F]) <- Stream.eval(AuthEmail.live[F])
-      implicit0(eventBus: EventBus[F]) <- Stream.eval(EventBus.start(ApplicationEventHandler.live[F]))
+      implicit0(eventBus: EventBus[F]) <- Stream.eval(ApplicationEventHandler.live[F].flatMap(EventBus.start(_)))
       implicit0(confirmationTokenGenerator: TokenGenerator[F]) <- Stream.eval(TokenGenerator.live[F])
-      implicit0(registration: Registration[F]) <- Stream.eval(Registration.live[F])
       implicit0(authentication: Authentication[F]) <- Stream.eval(Authentication.live[F])
       implicit0(userService: UserService[F]) = UserService.live[F]
       implicit0(invitationEmail: InvitationEmail[F]) <- Stream.eval(InvitationEmail.live[F])
       implicit0(invitationRepository: InvitationRepository[F]) = InvitationRepository.postgresql[F]
-      implicit0(gameService: GameInvitationService[F]) <- Stream.eval(GameInvitationService.live[F])
+      implicit0(gameInvitationService: GameInvitationService[F]) <- Stream.eval(GameInvitationService.live[F])
+      implicit0(registration: Registration[F]) <- Stream.eval(Registration.live[F])
       implicit0(scheduler: Scheduler[F]) <- Stream.eval(Scheduler.live[F])
       implicit0(passwordChanger: PasswordChanger[F]) <- Stream.eval(PasswordChanger.live[F])
       _ <- Stream.eval(ApplicationScheduler.live[F].start())

@@ -1,6 +1,6 @@
 package io.tictactoe.testutils
 
-import java.time.Instant
+import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 
 import cats.data.StateT
@@ -17,7 +17,8 @@ final case class TestAppData(
     infoMessages: List[String] = Nil,
     errorMessages: List[String] = Nil,
     users: List[User] = Nil,
-    dates: List[Instant] = Nil,
+    instants: List[Instant] = Nil,
+    dates: List[LocalDateTime] = Nil,
     events: List[Event] = Nil,
     tokens: List[ConfirmationToken] = Nil,
     sentEmails: List[EmailMessage] = Nil,

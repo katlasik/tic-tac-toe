@@ -2,23 +2,16 @@ package io.tictactoe.game.values
 
 import java.util.UUID
 
-import cats.{Eq, Functor, Show}
+import cats.{Eq, Show}
 import io.circe.{Decoder, Encoder}
-import io.tictactoe.infrastructure.uuid.UUIDGenerator
-import shapeless.the
+import io.tictactoe.infrastructure.uuid.Id
 import sttp.tapir.Codec.PlainCodec
 import io.circe.generic.extras.semiauto._
-import cats.implicits._
+import shapeless.the
 
 final case class GameId(value: UUID) extends AnyVal
 
-object GameId {
-  def next[F[_]: UUIDGenerator: Functor]: F[GameId] =
-    for {
-      id <- UUIDGenerator[F].next()
-    } yield GameId(id)
-
-  def unsafeFromString(value: String): GameId = GameId(UUID.fromString(value))
+object GameId extends Id[GameId] {
 
   implicit val eq: Eq[GameId] = Eq.fromUniversalEquals
   implicit val show: Show[GameId] = Show.show(_.value.toString)

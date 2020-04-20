@@ -37,7 +37,7 @@ object EmailRepository {
     override def save(email: EmailMessage): F[MailId] = email match {
       case EmailMessage(recipients, sender, text, title) =>
         for {
-          id <- MailId.next
+          id <- MailId.next[F]
           _ <- sql"INSERT INTO emails(id, recipients, sender, text, title) VALUES ($id, $recipients, $sender,$text, $title) ".update.run
             .transact(transactor)
         } yield id

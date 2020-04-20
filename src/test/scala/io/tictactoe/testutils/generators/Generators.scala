@@ -1,10 +1,12 @@
 package io.tictactoe.testutils.generators
 
+import java.util.UUID
+
 import cats.data.NonEmptyList
 import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.model.User
 import io.tictactoe.authentication.services.Hash
-import io.tictactoe.values.{Email, EventId, EventTimestamp, Unconfirmed, UserId, Username, Confirmed}
+import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Unconfirmed, UserId, Username}
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
@@ -13,6 +15,8 @@ import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
 import io.tictactoe.emails.model.MissingEmail
 import io.tictactoe.emails.values.MailId
 import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.infrastructure.uuid.Id
+import shapeless.{::, Generic, HNil}
 
 object Generators {
 
@@ -20,7 +24,7 @@ object Generators {
     for {
       sender <- email()
       recipients <- emails(1, 10)
-      id <- mailId()
+      id <- id[MailId]
       title <- Gen.alphaNumStr
       text <- Gen.alphaNumStr
     } yield MissingEmail(id, NonEmptyList.fromListUnsafe(recipients), sender, EmailMessageText(text), EmailMessageTitle(title))
@@ -51,20 +55,10 @@ object Generators {
       address <- Gen.listOfN(addressSize, Gen.alphaChar).map(_.mkString)
     } yield Hash(address)
 
-  def userId(): Gen[UserId] =
+  def id[I <: AnyVal](implicit repr: Generic.Aux[I, UUID :: HNil]): Gen[I] =
     for {
       id <- Gen.uuid
-    } yield UserId(id)
-
-  def mailId(): Gen[MailId] =
-    for {
-      id <- Gen.uuid
-    } yield MailId(id)
-
-  def eventId(): Gen[EventId] =
-    for {
-      id <- Gen.uuid
-    } yield EventId(id)
+    } yield Id.create[I](id)
 
   def username(): Gen[Username] =
     for {
@@ -79,7 +73,7 @@ object Generators {
 
   def user(confirmed: Boolean = false): Gen[User] =
     for {
-      id <- userId()
+      id <- id[UserId]
       hash <- hash()
       email <- email()
       username <- username()
@@ -92,14 +86,11 @@ object Generators {
       users <- Gen.listOfN(numberOfUsers, Generators.user(true))
     } yield users
 
-  def userRegisteredEvent(): Gen[UserRegisteredEvent] =
+  def userRegisteredEvent(confirmed: Boolean = false): Gen[UserRegisteredEvent] =
     for {
-      id <- eventId()
-      userId <- userId()
+      id <- id[EventId]
       timestamp <- Gen.calendar.map(c => EventTimestamp(c.toInstant))
-      username <- username()
-      email <- email()
-      token <- confirmationToken()
-    } yield UserRegisteredEvent(id, timestamp, userId, username, email, token)
+      user <- user(confirmed)
+    } yield UserRegisteredEvent(id, timestamp, user.id, user.username, user.email, user.registrationConfirmationToken, user.isConfirmed)
 
 }

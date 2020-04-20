@@ -15,15 +15,19 @@ object InMemoryEmailRepository {
 
   def inMemory: EmailRepository[TestAppState] = new EmailRepository[TestAppState] {
     override def save(email: EmailMessage): TestAppState[MailId] = StateT { data: TestAppData =>
-      val mailId = MailId(data.uuids.head)
-      val missingEmail = email.to[MissingEmail].set(id = mailId)
+      data.uuids match {
+        case uuid :: uuidsTail =>
+          val mailId = MailId(uuid)
+          val missingEmail = email.to[MissingEmail].set(id = mailId)
+          IO.pure(
+            (
+              data.copy(uuids = uuidsTail, savedEmails = email :: data.savedEmails, missingEmails = missingEmail :: data.missingEmails),
+              mailId
+            )
+          )
+        case _ => IO.raiseError(new IllegalArgumentException("The UUIDs list is empty."))
+      }
 
-      IO.pure(
-        (
-          data.copy(uuids = data.uuids.tail, savedEmails = email :: data.savedEmails, missingEmails = missingEmail :: data.missingEmails),
-          mailId
-        )
-      )
     }
 
     override def confirm(mailId: MailId): TestAppState[Unit] = StateT { data: TestAppData =>

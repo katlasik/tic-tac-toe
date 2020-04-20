@@ -2,7 +2,7 @@ package io.tictactoe.values
 
 import cats.Show
 
-final case class Link (value: String)
+final case class Link(value: String)
 
 object Link {
 

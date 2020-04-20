@@ -4,7 +4,7 @@ import cats.Monad
 import cats.effect.Sync
 import cats.implicits._
 
-trait ResourceAuthorization[F[_], R, U] {
+trait ResourceAuthorization[F[_], -R, U] {
   def canAccess(resource: R, user: U, claim: Claim): F[Boolean]
 }
 

@@ -177,7 +177,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
 
     val inputData = TestAppData(
       uuids = List(eventId),
-      dates = List(eventTimestamp),
+      instants = List(eventTimestamp),
       users = List(
         User(
           userId,
@@ -211,7 +211,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
 
     response.status.code shouldBe 200
 
-    data.users.head.hash shouldBe Hash("newpass")
+    data.users.exists(_.hash === Hash("newpass")) shouldBe true
 
     data.infoMessages should contain(show"Password of user with id $userId was changed.")
 
@@ -262,7 +262,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
 
     response.status.code shouldBe 400
 
-    data.users.head.hash shouldBe Hash("userpass")
+    data.users.exists(_.hash === Hash("userpass")) shouldBe true
 
     data.infoMessages shouldBe empty
 

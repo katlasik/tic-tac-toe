@@ -2,5 +2,18 @@ package io.tictactoe.game.model
 
 import io.tictactoe.game.values.GameId
 import io.tictactoe.values.UserId
+import cats.syntax.option._
+import io.tictactoe.game.model.GameInvitationStatus.Accepted
 
-final case class InvitationResult(gameId: GameId, guestId: Option[UserId])
+final case class InvitationResult(gameId: GameId, guestId: Option[UserId], hostId: UserId, status: GameInvitationStatus)
+
+object InvitationResult {
+
+  def fromGameInvitation(invitation: GameInvitation): InvitationResult = invitation match {
+    case AcceptedGameInvitation(id, ownerId, guestId, _, _, _) =>
+      InvitationResult(id, guestId.some, ownerId, Accepted)
+    case invitation: UnacceptedGameInvitation =>
+      InvitationResult(invitation.id, invitation.guestId, invitation.ownerId, invitation.status)
+  }
+
+}

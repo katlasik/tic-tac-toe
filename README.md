@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/katlasik/tic-tac-toe.svg?style=svg)](https://circleci.com/gh/katlasik/tic-tac-toe)
 
-An implementation of simple service, that allows playing game of tic-tac-toe. It uses popular FP techniques as tagless-final.
+An implementation of simple service allowing playing game of tic-tac-toe. It uses popular FP techniques as tagless-final. 
 
 ## Running locally
 

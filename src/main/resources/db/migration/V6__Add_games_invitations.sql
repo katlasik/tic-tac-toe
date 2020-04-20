@@ -4,9 +4,9 @@ CREATE TABLE game_invitations (
    guest_id UUID CHECK (guest_id IS NULL OR owner_id <> guest_id),
    guest_email EMAIL,
    token VARCHAR,
-   accepted_on TIMESTAMP,
-   rejected_on TIMESTAMP,
-   cancelled_on TIMESTAMP,
+   accepted_on TIMESTAMP CHECK(accepted_on IS NULL OR (accepted_on IS NOT NULL AND rejected_on IS NULL AND cancelled_on IS NULL)),
+   rejected_on TIMESTAMP CHECK(rejected_on IS NULL OR (rejected_on IS NOT NULL AND accepted_on IS NULL AND cancelled_on IS NULL)),
+   cancelled_on TIMESTAMP CHECK(cancelled_on IS NULL OR (cancelled_on IS NOT NULL AND rejected_on IS NULL AND rejected_on IS NULL)),
    created_on TIMESTAMP DEFAULT NOW(),
    updated_on TIMESTAMP
 );

@@ -11,7 +11,10 @@ object FixedConfirmationTokenGenerator {
 
   def fixed: TokenGenerator[TestAppState] = new TokenGenerator[TestAppState] {
     override def generate: TestAppState[ConfirmationToken] = StateT { data: TestAppData =>
-      IO.pure((data.copy(tokens = data.tokens.tail), data.tokens.head))
+      data.tokens match {
+        case head :: tail => IO.pure((data.copy(tokens = tail), head))
+        case _            => IO.raiseError(new IllegalArgumentException("The confirmation tokens' list is empty."))
+      }
     }
   }
 }

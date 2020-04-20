@@ -9,7 +9,11 @@ import io.tictactoe.testutils.TestAppData.TestAppState
 object FixedUUIDGenerator {
 
   def fixed: UUIDGenerator[TestAppState] = () => StateT { data: TestAppData =>
-    IO.pure((data.copy(uuids = data.uuids.tail), data.uuids.head))
+    data.uuids match {
+      case head :: tail => IO.pure((data.copy(uuids = tail),head))
+      case _ => IO.raiseError(new IllegalArgumentException("The UUIDs list is empty."))
+    }
+
   }
 
 }

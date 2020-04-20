@@ -27,8 +27,10 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
       )
     )
 
+    val handler = ApplicationEventHandler.live[TestAppState].runA(emptyData).unsafeRunSync()
+
     forAll(Generators.userRegisteredEvent()) { event =>
-      val outputData = ApplicationEventHandler.live[TestAppState].handle(event).runS(inputData).unsafeRunSync()
+      val outputData = handler.handle(event).runS(inputData).unsafeRunSync()
 
       outputData.infoMessages should contain(show"Sending registration confirmation email to ${event.email}.")
 
@@ -39,7 +41,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
           show"""Thanks for registering, ${event.username}!
                 |
                 |To confirm your account click on link below:
-                |http://localhost:8082/registration?token=${event.confirmationToken}&id=${event.userId}""".stripMargin
+                |http://localhost:8082/registration?token=${event.confirmationToken.get}&id=${event.userId}""".stripMargin
         ),
         EmailMessageTitle(show"Hello, ${event.username}!")
       )
@@ -81,7 +83,9 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
       userId
     )
 
-    val outputData = ApplicationEventHandler.live[TestAppState].handle(event).runS(inputData).unsafeRunSync()
+    val handler = ApplicationEventHandler.live[TestAppState].runA(emptyData).unsafeRunSync()
+
+    val outputData = handler.handle(event).runS(inputData).unsafeRunSync()
 
     val emailMessage = EmailMessage(
       NonEmptyList.one(email),

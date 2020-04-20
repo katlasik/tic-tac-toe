@@ -43,7 +43,7 @@ object SecuredRouter {
         val result = for {
           user <- Authentication[F].verify(token)
           invitation <- GameInvitationService[F].inviteByEmail(user.id, request.email)
-        } yield InvitationResult(invitation.id, invitation.guestId)
+        } yield InvitationResult.fromGameInvitation(invitation)
 
         result.mapErrors
     }
@@ -53,12 +53,32 @@ object SecuredRouter {
         val result = for {
           user <- Authentication[F].verify(token)
           invitation <- GameInvitationService[F].inviteById(user.id, request.userId)
-        } yield InvitationResult(invitation.id, invitation.guestId)
+        } yield InvitationResult.fromGameInvitation(invitation)
 
         result.mapErrors
     }
 
-    getUsers <+> getUser <+> invitationByEmail <+> userInvitation
+    val acceptInvitation = Endpoints.acceptInvitation.toRoutes {
+      case (gameId, token) =>
+        val result = for {
+          user <- Authentication[F].verify(token)
+          invitation <- GameInvitationService[F].acceptInvitation(gameId, user.id)
+        } yield InvitationResult.fromGameInvitation(invitation)
+
+        result.mapErrors
+    }
+
+    val rejectInvitation = Endpoints.rejectInvitation.toRoutes {
+      case (gameId, token) =>
+        val result = for {
+          user <- Authentication[F].verify(token)
+          invitation <- GameInvitationService[F].rejectInvitation(gameId, user.id)
+        } yield InvitationResult.fromGameInvitation(invitation)
+
+        result.mapErrors
+    }
+
+    getUsers <+> getUser <+> invitationByEmail <+> userInvitation <+> acceptInvitation <+> rejectInvitation
   }
 
 }

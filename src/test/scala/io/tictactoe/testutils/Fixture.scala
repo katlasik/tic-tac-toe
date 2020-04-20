@@ -33,8 +33,6 @@ trait Fixture {
 
   val emptyData = TestAppData()
 
-  lazy implicit val configuration: Configuration[TestAppState] = Configuration.load[TestAppState].runA(emptyData).unsafeRunSync()
-
   lazy implicit val logging: Logging[TestAppState] = MemoryLogging.memory
   lazy implicit val uuidGenerator: UUIDGenerator[TestAppState] = FixedUUIDGenerator.fixed
   lazy implicit val passwordHasher: PasswordHasher[TestAppState] = BypassingPasswordHasher.bypassing
@@ -45,17 +43,26 @@ trait Fixture {
   lazy implicit val mockedEmailTransport: EmailTransport[TestAppState] = MockedEmailTransport.mocked
   lazy implicit val emailRepository: EmailRepository[TestAppState] = InMemoryEmailRepository.inMemory
   lazy implicit val invitationRepository: InvitationRepository[TestAppState] = InMemoryInvitationRepository.inMemory
-
-  lazy implicit val emailSender: EmailSender[TestAppState] = EmailSender.live[TestAppState].runA(emptyData).unsafeRunSync()
-  lazy implicit val passwordChanger: PasswordChanger[TestAppState] = PasswordChanger.live[TestAppState].runA(emptyData).unsafeRunSync()
-  lazy implicit val templateRenderer: TemplateRenderer[TestAppState] = TemplateRenderer.live[TestAppState].runA(emptyData).unsafeRunSync()
   lazy implicit val calendar: Calendar[TestAppState] = FixedCalendar.fixed
-  lazy implicit val registration: Registration[TestAppState] = Registration.live.runA(emptyData).unsafeRunSync()
-  lazy implicit val authentication: Authentication[TestAppState] = Authentication.live.runA(emptyData).unsafeRunSync()
+
   lazy implicit val userService: UserService[TestAppState] = UserService.live
-  lazy implicit val registrationEmail: AuthEmail[TestAppState] = AuthEmail.live[TestAppState].runA(emptyData).unsafeRunSync()
-  lazy implicit val invitationEmail: InvitationEmail[TestAppState] = InvitationEmail.live[TestAppState].runA(emptyData).unsafeRunSync()
-  lazy implicit val gameInvitationService: GameInvitationService[TestAppState] = GameInvitationService.live[TestAppState].runA(emptyData).unsafeRunSync()
+
+  val fixtures = for {
+    implicit0(configuration: Configuration[TestAppState]) <- Configuration.load[TestAppState].runA(emptyData)
+    implicit0(templateRenderer: TemplateRenderer[TestAppState]) <- TemplateRenderer.live[TestAppState].runA(emptyData)
+    implicit0(emailSender: EmailSender[TestAppState]) <- EmailSender.live[TestAppState].runA(emptyData)
+    implicit0(registrationEmail: AuthEmail[TestAppState]) <- AuthEmail.live[TestAppState].runA(emptyData)
+    implicit0(passwordChanger: PasswordChanger[TestAppState]) <- PasswordChanger.live[TestAppState].runA(emptyData)
+    implicit0(invitationEmail: InvitationEmail[TestAppState]) <- InvitationEmail.live[TestAppState].runA(emptyData)
+    implicit0(gameInvitationService: GameInvitationService[TestAppState]) <- GameInvitationService.live[TestAppState].runA(emptyData)
+    implicit0(registration: Registration[TestAppState]) <- Registration.live.runA(emptyData)
+    implicit0(authentication: Authentication[TestAppState]) <- Authentication.live.runA(emptyData)
+  } yield (configuration, templateRenderer, emailSender, registrationEmail, passwordChanger, invitationEmail, gameInvitationService, registration, authentication)
+
+  implicit val (configuration, templateRenderer, emailSender, registrationEmail, passwordChanger, invitationEmail, gameInvitationService, registration, authentication) = fixtures.unsafeRunSync()
+
+  implicitly[Configuration[TestAppState]]
+  implicitly[Authentication[TestAppState]]
 
   def authenticate(credentials: Credentials): TestAppState[String] = authentication.authenticate(credentials).map(_.jwt.toEncodedString)
 
