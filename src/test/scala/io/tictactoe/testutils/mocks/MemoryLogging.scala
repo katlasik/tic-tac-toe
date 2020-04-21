@@ -18,7 +18,7 @@ object MemoryLogging {
           IO.pure((data.copy(infoMessages = msg :: data.infoMessages), ()))
         }
 
-        override def error(msg: => String, throwable: Throwable): TestAppState[Unit] =
+        override def error(msg: => String, throwable: => Throwable): TestAppState[Unit] =
           for {
             _ <- liveLogger.error(msg, throwable)
             _ <- StateT { data: TestAppData =>

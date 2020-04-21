@@ -20,7 +20,7 @@ object TemplateRenderer {
 
     def basePath(path: String): String = s"/templates/mails/$path.mustache"
 
-    val SectionSeparator = "---"
+    val SectionSeparator: String = "---"
 
     for {
       engine <- Sync[F].delay(new TemplateEngine)

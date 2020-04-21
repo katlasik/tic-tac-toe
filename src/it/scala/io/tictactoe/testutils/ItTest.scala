@@ -156,26 +156,24 @@ trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach { self: Suite =>
         .hcursor
         .downField("items")
         .values
-        .get
         .flatMap(
-          _.hcursor
-            .downField("Content")
-            .pipe(
-              cursor =>
-                cursor
-                  .downField("Body")
-                  .as[String]
-                  .toOption
-                  .lazyZip(
-                    cursor.downField("Headers").downField("To").as[List[String]].toOption.flatMap(_.headOption)
-                  )
-            )
+          _.flatMap(
+            _.hcursor
+              .downField("Content")
+              .pipe(
+                cursor =>
+                  cursor
+                    .downField("Body")
+                    .as[String]
+                    .toOption
+                    .lazyZip(
+                      cursor.downField("Headers").downField("To").as[List[String]].toOption.flatMap(_.headOption)
+                    )
+              )
+          ).flatMap {
+            case (body, to) => extractor(body).map((_, to))
+          }.headOption
         )
-        .toList
-        .flatMap {
-          case (body, to) => extractor(body).map((_, to))
-        }
-        .headOption
 
     }
 

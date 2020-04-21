@@ -14,7 +14,7 @@ final case class Email(value: String) extends AnyVal
 
 object Email {
 
-  private val EmailRegex = "[^@]+@[^@]+".r
+  private val EmailRegex = "^[^@]+@[^@]+$".r
 
   implicit val eq: Eq[Email] = Eq.fromUniversalEquals
   implicit val show: Show[Email] = Show.show(_.value)

@@ -1,1 +1,1 @@
-CREATE DOMAIN EMAIL VARCHAR CHECK (value ~ '[^@]+@[^@]+');
+CREATE DOMAIN EMAIL VARCHAR CHECK (value ~ '^[^@]+@[^@]+$');
