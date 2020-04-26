@@ -8,9 +8,9 @@ import io.tictactoe.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.UserId
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
 
-class AuthenticatedEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
+class UserEndpointsItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
-  feature("Authenticated endpoint") {
+  feature("User endpoints") {
 
     scenario("The user gets own account's details") {
 

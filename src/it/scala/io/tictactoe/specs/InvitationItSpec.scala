@@ -34,9 +34,7 @@ class InvitationItSpec extends FeatureSpec with GivenWhenThen with Matchers with
 
       Then("a guest receives email with invitation")
 
-      val (_, to) = getFirstMailContaining("You have been invited to play game of tic tac toe by user200.")
-
-      to shouldBe "user201@email.com"
+      getFirstMailContaining("You have been invited to play game of tic tac toe by user200.").recipient shouldBe "user201@email.com"
 
     }
 
@@ -64,9 +62,7 @@ class InvitationItSpec extends FeatureSpec with GivenWhenThen with Matchers with
 
       Then("a guest receives email with invitation")
 
-      val (_, to) = getFirstMailContaining("You have been invited to play game of tic tac toe by user200.")
-
-      to shouldBe "guest@email.com"
+      getFirstMailContaining("You have been invited to play game of tic tac toe by user200.").recipient shouldBe "guest@email.com"
 
     }
 

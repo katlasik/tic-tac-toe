@@ -36,9 +36,11 @@ trait Fixture {
   lazy implicit val logging: Logging[TestAppState] = MemoryLogging.memory
   lazy implicit val uuidGenerator: UUIDGenerator[TestAppState] = FixedUUIDGenerator.fixed
   lazy implicit val passwordHasher: PasswordHasher[TestAppState] = BypassingPasswordHasher.bypassing
+
   lazy implicit val authRepository: AuthRepository[TestAppState] = InMemoryAuthRepository.inMemory
   lazy implicit val userRepository: UserRepository[TestAppState] = InMemoryUserRepository.inMemory
   lazy implicit val eventBus: EventBus[TestAppState] = InMemoryEventBus.inMemory
+
   lazy implicit val confirmationTokenGenerator: TokenGenerator[TestAppState] = FixedConfirmationTokenGenerator.fixed
   lazy implicit val mockedEmailTransport: EmailTransport[TestAppState] = MockedEmailTransport.mocked
   lazy implicit val emailRepository: EmailRepository[TestAppState] = InMemoryEmailRepository.inMemory
@@ -60,9 +62,6 @@ trait Fixture {
   } yield (configuration, templateRenderer, emailSender, registrationEmail, passwordChanger, invitationEmail, gameInvitationService, registration, authentication)
 
   implicit val (configuration, templateRenderer, emailSender, registrationEmail, passwordChanger, invitationEmail, gameInvitationService, registration, authentication) = fixtures.unsafeRunSync()
-
-  implicitly[Configuration[TestAppState]]
-  implicitly[Authentication[TestAppState]]
 
   def authenticate(credentials: Credentials): TestAppState[String] = authentication.authenticate(credentials).map(_.jwt.toEncodedString)
 

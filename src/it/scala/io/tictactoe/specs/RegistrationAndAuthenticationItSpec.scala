@@ -1,13 +1,13 @@
 package io.tictactoe.specs
 
 import io.tictactoe.authentication.model.AuthResponse
-import io.tictactoe.testutils.ItTest
+import io.tictactoe.testutils.{CapturedMail, ItTest}
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
 import io.circe.generic.auto._
 
-class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
+class RegistrationAndAuthenticationItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
-  feature("Public endpoint") {
+  feature("Registration and authentication") {
 
     scenario("The user registers and logs in") {
 
@@ -35,7 +35,7 @@ class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers 
 
       And("the registration confirmation email is sent")
 
-      val (confirmationUrl, _) = getFirstMailMatching(UrlRegex.findFirstIn(_))
+      val CapturedMail(confirmationUrl, _) = getFirstMailMatching(UrlRegex.findFirstIn(_))
 
       When("the user uses confirmation link")
       get(confirmationUrl)
@@ -68,8 +68,8 @@ class PublicEndpointItSpec extends FeatureSpec with GivenWhenThen with Matchers 
       post(baseUrl(s"password?email=$email"))
 
       Then("the user receives token on mail")
-      val (token, _) = getFirstMailMatching(TokenRegex.findFirstIn(_))
-      val (id, _) = getFirstMailMatching(IdRegex.findFirstIn(_))
+      val CapturedMail(token, _) = getFirstMailMatching(TokenRegex.findFirstIn(_))
+      val CapturedMail(id, _) = getFirstMailMatching(IdRegex.findFirstIn(_))
 
       When("the user uses token to change password")
       val passwordChangePayload =
