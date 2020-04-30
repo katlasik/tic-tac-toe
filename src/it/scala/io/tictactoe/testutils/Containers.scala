@@ -34,7 +34,7 @@ trait Containers { _: ItTest =>
     ),
     waitStrategy = new LogMessageWaitStrategy()
       .withRegEx(".*database system is ready to accept connections.*\\s")
-      .withTimes(5)
+      .withTimes(2)
       .withStartupTimeout(Duration.of(60, SECONDS))
       .some
   )

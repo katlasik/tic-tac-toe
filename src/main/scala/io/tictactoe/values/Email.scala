@@ -22,7 +22,7 @@ object Email {
   implicit val decoder: Decoder[Email] = Decoder[String].emap(Email.fromString(_).leftMap(_.reduce.msg).toEither)
   implicit val encoder: Encoder[Email] = Encoder[String].contramap(_.value)
 
-  implicit val codec: PlainCodec[Email] = Codec.stringPlainCodecUtf8.map(Email(_))(_.value)
+  implicit val codec: PlainCodec[Email] = Codec.string.map(Email(_))(_.value)
 
   def fromString(value: String): ValidatedNel[ValidationError, Email] =
     EmailRegex

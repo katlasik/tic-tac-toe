@@ -14,7 +14,7 @@ object ConfirmationToken {
 
   implicit val eq: Eq[ConfirmationToken] = Eq.fromUniversalEquals
 
-  implicit val codec: PlainCodec[ConfirmationToken] = Codec.stringPlainCodecUtf8.map(ConfirmationToken(_))(_.value)
+  implicit val codec: PlainCodec[ConfirmationToken] = Codec.string.map(ConfirmationToken(_))(_.value)
 
   implicit val encoder: Encoder[ConfirmationToken] = deriveUnwrappedEncoder
   implicit val decoder: Decoder[ConfirmationToken] = deriveUnwrappedDecoder
