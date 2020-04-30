@@ -12,12 +12,15 @@ import cats.syntax.either._
 
 trait Containers { _: ItTest =>
 
-  lazy protected val DatabaseConfig(dbUsername, dbPassword, _, dbName, _, host) = DbUrlParser.parse(config.db.databaseUrl).toOption.get
+  lazy protected val Right(DatabaseConfig(dbUsername, dbPassword, _, dbName, _, host)) = DbUrlParser.parse(config.db.databaseUrl)
 
   lazy val mailContainer: GenericContainer = new GenericContainer(
     dockerImage = "mailhog/mailhog:v1.0.0",
     exposedPorts = List(8025, 1025),
-    waitStrategy = Wait.forHttp("/").some
+    waitStrategy = Wait
+      .forHttp("/")
+      .withStartupTimeout(Duration.ofSeconds(30))
+      .some
   )
 
   lazy val dbContainer: GenericContainer = new GenericContainer(
@@ -31,7 +34,7 @@ trait Containers { _: ItTest =>
     ),
     waitStrategy = new LogMessageWaitStrategy()
       .withRegEx(".*database system is ready to accept connections.*\\s")
-      .withTimes(2)
+      .withTimes(5)
       .withStartupTimeout(Duration.of(60, SECONDS))
       .some
   )
