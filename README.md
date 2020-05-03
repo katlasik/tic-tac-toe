@@ -48,4 +48,4 @@ On every startup of the application flyway runs [migrations](src/main/resources/
 
 ## Documentation
 
-On every startup of the application generates rest documentation to file `tic-tac-toe-swagger.yaml`.
+Rest documentation is available on endpoint `/docs`.

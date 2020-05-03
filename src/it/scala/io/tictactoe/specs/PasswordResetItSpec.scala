@@ -20,7 +20,7 @@ class PasswordResetItSpec extends FeatureSpec with GivenWhenThen with Matchers w
       val newPassword = "Test999999"
 
       When("request for registration is sent")
-      post(baseUrl(s"password?email=$email"))
+      put(baseUrl(s"password?email=$email"))
 
       Then("the user receives token on mail")
       val CapturedMail(token, _) = getFirstMailMatching(TokenRegex.findFirstIn(_))

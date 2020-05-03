@@ -2,10 +2,11 @@ package io.tictactoe.testutils.mocks
 
 import cats.data.StateT
 import cats.effect.IO
-import io.tictactoe.infrastructure.events.EventBus
-import io.tictactoe.infrastructure.events.model.Event
+import io.tictactoe.utilities.events.EventBus
+import io.tictactoe.utilities.events.model.Event
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
+import fs2.Stream
 
 object InMemoryEventBus  {
 
@@ -18,6 +19,10 @@ object InMemoryEventBus  {
       e <- event
       t <- StateT { data : TestAppData => IO.pure((data.copy(events = e :: data.events), ()))}
     } yield t
+
+    override def subscribe: Stream[TestAppState, Event] =  Stream.evalSeq(StateT { data =>
+      IO.pure((data, data.events))
+    })
   }
 
 }

@@ -11,20 +11,19 @@ import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
-import io.tictactoe.authentication.services.Hash
 import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Password, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
-import io.tictactoe.authentication.events.PasswordChangedEvent
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
-import io.tictactoe.infrastructure.emails.model.EmailMessage
-import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.events.model.authentication.PasswordChangedEvent
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
+import io.tictactoe.utilities.emails.model.EmailMessage
+import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}
 
 class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   it should "allow sending requests to reset password" in new Fixture {
-    import dsl._
 
     val newToken = ConfirmationToken("2")
     val id = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
@@ -52,12 +51,11 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
     )
 
     val request = Request[TestAppState](
-      method = POST,
+      method = PUT,
       uri = uri"password?email=email@user.pl"
     )
 
-    val (data, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (data, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -90,8 +88,6 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
 
   it should "ignore sending requests to reset password if user is not confirmed" in new Fixture {
 
-    import dsl._
-
     val id = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
     val hash = Hash("userpass")
@@ -112,12 +108,11 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
     )
 
     val request = Request[TestAppState](
-      method = POST,
+      method = PUT,
       uri = uri"password?email=email@user.pl"
     )
 
-    val (data, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (data, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -135,17 +130,14 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
 
   it should "ignore sending requests to reset password if user doesn't exist" in new Fixture {
 
-    import dsl._
-
     val inputData = TestAppData()
 
     val request = Request[TestAppState](
-      method = POST,
+      method = PUT,
       uri = uri"password?email=wrong@user.pl"
     )
 
-    val (data, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (data, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -162,8 +154,6 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
   }
 
   it should "allow changing password if token is correct" in new Fixture {
-
-    import dsl._
 
     val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
@@ -202,8 +192,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       )
     )
 
-    val (data, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (data, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -215,13 +204,11 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
 
     data.infoMessages should contain(show"Password of user with id $userId was changed.")
 
-    data.events should contain(PasswordChangedEvent(EventId(eventId), EventTimestamp(eventTimestamp), userId))
+    data.events should contain(PasswordChangedEvent(EventId(eventId), EventTimestamp(eventTimestamp), userId, username, email))
 
   }
 
   it should "reject changing password if token is incorrect" in new Fixture {
-
-    import dsl._
 
     val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val username = Username("user")
@@ -253,8 +240,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       )
     )
 
-    val (data, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (data, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -272,8 +258,6 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
 
   it should "reject changing password if user doesn't exist" in new Fixture {
 
-    import dsl._
-
     val inputData = TestAppData()
 
     val request = Request[TestAppState](
@@ -287,8 +271,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       )
     )
 
-    val (data, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (data, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)

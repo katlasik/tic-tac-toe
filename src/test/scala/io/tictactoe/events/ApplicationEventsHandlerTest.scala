@@ -4,11 +4,11 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import io.tictactoe.authentication.events.PasswordChangedEvent
+import io.tictactoe.authentication.infrastructure.effects.Hash
 import io.tictactoe.authentication.model.User
-import io.tictactoe.authentication.services.Hash
-import io.tictactoe.infrastructure.emails.model.EmailMessage
-import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.events.model.authentication.PasswordChangedEvent
+import io.tictactoe.utilities.emails.model.EmailMessage
+import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.generators.Generators
 import io.tictactoe.testutils.{Fixture, TestAppData}
@@ -27,7 +27,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
       )
     )
 
-    val handler = ApplicationEventHandler.live[TestAppState].runA(emptyData).unsafeRunSync()
+    val handler = ApplicationEventHandler.live[TestAppState](authModule).runEmptyA.unsafeRunSync()
 
     forAll(Generators.userRegisteredEvent()) { event =>
       val outputData = handler.handle(event).runS(inputData).unsafeRunSync()
@@ -41,7 +41,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
           show"""Thanks for registering, ${event.username}!
                 |
                 |To confirm your account click on link below:
-                |http://localhost:8082/registration?token=${event.confirmationToken.get}&id=${event.userId}""".stripMargin
+                |http://localhost:8082/registration/confirmation?token=${event.confirmationToken.get}&id=${event.userId}""".stripMargin
         ),
         EmailMessageTitle(show"Hello, ${event.username}!")
       )
@@ -59,15 +59,15 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
   it should "send password changed confirmation emails, when password of user is changed" in new Fixture {
 
     val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
-
     val email = Email("email@user.pl")
+    val username = Username("user1")
 
     val inputData = TestAppData(
       uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000002")),
       users = List(
         User(
           userId,
-          Username("user1"),
+          username,
           Hash("userpass"),
           email,
           Unconfirmed,
@@ -80,10 +80,12 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
     val event = PasswordChangedEvent(
       EventId.unsafeFromString("0000000-0000-0000-0000-000000000001"),
       EventTimestamp.unsafeFromString("2020-03-01T14:42:13.775935Z"),
-      userId
+      userId,
+      username,
+      email
     )
 
-    val handler = ApplicationEventHandler.live[TestAppState].runA(emptyData).unsafeRunSync()
+    val handler = ApplicationEventHandler.live[TestAppState](authModule).runEmptyA.unsafeRunSync()
 
     val outputData = handler.handle(event).runS(inputData).unsafeRunSync()
 

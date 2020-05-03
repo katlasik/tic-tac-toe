@@ -2,12 +2,12 @@ package io.tictactoe.testutils
 
 import cats.effect.IO
 import io.tictactoe.EntryPoint
-import io.tictactoe.configuration.ConfigurationProperties
-import org.scalatest.{Args, BeforeAndAfterAll, BeforeAndAfterEach, Retries, Status, Suite}
+import org.scalatest.{Args, BeforeAndAfterAll, BeforeAndAfterEach, Status, Suite}
 import com.typesafe.config.ConfigFactory
-import io.tictactoe.infrastructure.configuration.Configuration
+import io.tictactoe.utilities.configuration.Configuration
+import io.tictactoe.utilities.configuration.model.ConfigurationProperties
 
-trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach with Containers with Database with Server with Http with Mails with Retries {
+trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach with Containers with Database with Server with Http with Mails {
   self: Suite =>
 
   lazy val config: ConfigurationProperties = Configuration.load[IO].flatMap(_.access()).unsafeRunSync()
@@ -18,7 +18,7 @@ trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach with Containers w
     ConfigFactory.invalidateCaches()
   }
 
-  def repeatUntil[R](times: Int = 9, failureMsg: String = s"Condition was not fulfilled although attempted N times.")(
+  def repeatUntil[R](times: Int = 10, failureMsg: String = s"Condition was not fulfilled although attempted N times.")(
       predicate: => Option[R]
   ): R = {
     predicate match {

@@ -1,17 +1,15 @@
 package io.tictactoe.game.infrastructure.emails
 
 import cats.effect.Sync
-import io.tictactoe.authentication.services.AuthEmail
-import io.tictactoe.infrastructure.configuration.Configuration
-import io.tictactoe.infrastructure.logging.Logging
+import io.tictactoe.authentication.domain.services.LiveAuthEmail
+import io.tictactoe.utilities.configuration.Configuration
+import io.tictactoe.utilities.logging.Logging
 import cats.implicits._
-import io.tictactoe.emails.services.EmailSender
 import io.tictactoe.game.infrastructure.emails.templates.{InvitationNotificationTemplateData, InvitationTemplateData}
-import io.tictactoe.game.values.GameId
-import io.tictactoe.infrastructure.templates.TemplateRenderer
-import io.tictactoe.values.{Email, Link}
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
+import io.tictactoe.values.{Email, GameId, Link}
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.users.model.DetailedUser
+import io.tictactoe.utilities.emails.EmailSender
 
 trait InvitationEmail[F[_]] {
   def sendInvitationEmail(recipient: Email, host: DetailedUser, gameId: GameId, token: ConfirmationToken): F[Unit]
@@ -23,10 +21,10 @@ object InvitationEmail {
 
   def apply[F[_]](implicit ev: InvitationEmail[F]): InvitationEmail[F] = ev
 
-  def live[F[_]: Configuration: Logging: TemplateRenderer: EmailSender: Sync]: F[InvitationEmail[F]] = {
+  def live[F[_]: Configuration: Logging: Sync: EmailSender]: F[InvitationEmail[F]] = {
     for {
       configuration <- Configuration[F].access()
-      logger <- Logging[F].create[AuthEmail.type]
+      logger <- Logging[F].create[LiveAuthEmail.type]
     } yield {
 
       new InvitationEmail[F] {

@@ -1,13 +1,13 @@
 package io.tictactoe.scheduler
 
-import cats.effect.Sync
-import io.tictactoe.emails.services.EmailSender
+import cats.effect.{Resource, Sync}
 import io.tictactoe.scheduler.tasks.SendMissingMails
-import io.tictactoe.infrastructure.scheduler.{ScheduledTask, Scheduler}
+import io.tictactoe.utilities.emails.EmailSender
+import io.tictactoe.utilities.scheduler.{ScheduledTask, Scheduler}
 
 trait ApplicationScheduler[F[_]] {
 
-  def start(): F[Unit]
+  def start(): Resource[F, Unit]
 
 }
 
@@ -17,7 +17,8 @@ object ApplicationScheduler {
     new SendMissingMails[F]
   )
 
-  def live[F[_]: Scheduler: EmailSender: Sync]: ApplicationScheduler[F] =
-    () => Scheduler[F].schedule(tasks)
+  def live[F[_]: Scheduler: EmailSender: Sync]: ApplicationScheduler[F] = new ApplicationScheduler[F] {
+    override def start(): Resource[F, Unit] = Scheduler[F].schedule(tasks)
+  }
 
 }

@@ -1,7 +1,6 @@
 package io.tictactoe.game.model
 
-import io.tictactoe.game.values.GameId
-import io.tictactoe.values.UserId
+import io.tictactoe.values.{GameId, UserId}
 import cats.syntax.option._
 import io.tictactoe.game.model.GameInvitationStatus.Accepted
 

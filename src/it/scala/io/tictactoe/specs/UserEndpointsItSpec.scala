@@ -2,10 +2,9 @@ package io.tictactoe.specs
 
 import io.circe.generic.auto._
 import io.tictactoe.authentication.model.AuthResponse
-import io.tictactoe.authentication.values.AuthToken
 import io.tictactoe.testutils.ItTest
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
-import io.tictactoe.values.UserId
+import io.tictactoe.values.{AuthToken, UserId}
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
 
 class UserEndpointsItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
@@ -31,11 +30,11 @@ class UserEndpointsItSpec extends FeatureSpec with GivenWhenThen with Matchers w
       Then("user should be able to get it's own account details")
 
       val result = get(
-        baseUrl("users/7e9f3585-c1e3-4a71-b724-f5fdac912d32"),
+        baseUrl("users/00000000-0000-0000-0000-000000000001"),
         Map("Authorization" -> s"Bearer $token")
       )
 
-      result.success.json[DetailedUser].id shouldBe UserId.unsafeFromString("7e9f3585-c1e3-4a71-b724-f5fdac912d32")
+      result.success.json[DetailedUser].id shouldBe UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
 
     }
 
@@ -64,7 +63,7 @@ class UserEndpointsItSpec extends FeatureSpec with GivenWhenThen with Matchers w
 
       result.success
         .json[List[SimpleUser]]
-        .map(_.id.value.toString) should contain allOf ("7e9f3585-c1e3-4a71-b724-f5fdac912d32", "348d4be8-8b23-49f6-a1d7-227064bd8a23")
+        .map(_.id.value.toString) should contain allOf ("00000000-0000-0000-0000-000000000001", "348d4be8-8b23-49f6-a1d7-227064bd8a23")
 
     }
   }

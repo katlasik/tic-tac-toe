@@ -1,11 +1,10 @@
 package io.tictactoe.routes
 
 import io.tictactoe.authentication.model.{Credentials, User}
-import io.tictactoe.authentication.services.Hash
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.users.model.{DetailedUser, SimpleUser}
-import io.tictactoe.values.{Email, Password, UserId, Username, Confirmed}
+import io.tictactoe.values.{Confirmed, Email, Password, UserId, Username}
 import org.http4s.{Header, Headers, Request}
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.implicits._
@@ -14,14 +13,13 @@ import io.circe.generic.auto._
 import io.tictactoe.testutils.generators.Generators
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import henkan.convert.Syntax._
-import io.tictactoe.error.ErrorView
+import io.tictactoe.errors.ErrorView
 import cats.implicits._
+import io.tictactoe.authentication.infrastructure.effects.Hash
 
 class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   it should "disallow getting all players if user is unauthenticated" in new Fixture {
-
-    import dsl._
 
     forAll(Generators.users(5, 10)) { allUsers =>
       val inputData = TestAppData(
@@ -34,8 +32,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
         headers = Headers(List(Header("Authorization", s"Bearer illegal")))
       )
 
-      val Some(response) = SecuredRouter
-        .routes[TestAppState]
+      val Some(response) = userModule.router.routes
         .run(request)
         .value
         .runA(inputData)
@@ -49,8 +46,6 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
   }
 
   it should "allow getting all players if user is authenticated" in new Fixture {
-
-    import dsl._
 
     val userId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
 
@@ -75,8 +70,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
         headers = Headers(List(Header("Authorization", s"Bearer $token")))
       )
 
-      val Some(response) = SecuredRouter
-        .routes[TestAppState]
+      val Some(response) = userModule.router.routes
         .run(request)
         .value
         .runA(inputData)
@@ -90,8 +84,6 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
   }
 
   it should "allow getting player's own details" in new Fixture {
-
-    import dsl._
 
     val user =
       User(
@@ -116,8 +108,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     )
 
-    val Some(response) = SecuredRouter
-      .routes[TestAppState]
+    val Some(response) = userModule.router.routes
       .run(request)
       .value
       .runA(inputData)
@@ -130,8 +121,6 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
   }
 
   it should "forbid getting another user's details" in new Fixture {
-
-    import dsl._
 
     val user =
       User(
@@ -170,8 +159,7 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     )
 
-    val Some(response) = SecuredRouter
-      .routes[TestAppState]
+    val Some(response) = userModule.router.routes
       .run(request)
       .value
       .runA(inputData)

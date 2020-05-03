@@ -3,19 +3,19 @@ package io.tictactoe.testutils.generators
 import java.util.UUID
 
 import cats.data.NonEmptyList
-import io.tictactoe.authentication.events.UserRegisteredEvent
 import io.tictactoe.authentication.model.User
-import io.tictactoe.authentication.services.Hash
 import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Unconfirmed, UserId, Username}
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
-import io.tictactoe.infrastructure.tokens.TokenGenerator
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
-import io.tictactoe.emails.model.MissingEmail
-import io.tictactoe.emails.values.MailId
-import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
-import io.tictactoe.infrastructure.uuid.Id
+import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.events.model.authentication.UserRegisteredEvent
+import io.tictactoe.utilities.emails.model
+import io.tictactoe.utilities.emails.model.MissingEmail
+import io.tictactoe.utilities.tokens.TokenGenerator
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
+import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle, MailId}
+import io.tictactoe.utilities.uuid.Id
 import shapeless.{::, Generic, HNil}
 
 object Generators {
@@ -27,7 +27,7 @@ object Generators {
       id <- id[MailId]
       title <- Gen.alphaNumStr
       text <- Gen.alphaNumStr
-    } yield MissingEmail(id, NonEmptyList.fromListUnsafe(recipients), sender, EmailMessageText(text), EmailMessageTitle(title))
+    } yield model.MissingEmail(id, NonEmptyList.fromListUnsafe(recipients), sender, EmailMessageText(text), EmailMessageTitle(title))
 
   def missingEmails(from: Int = 10, to: Int = 20): Gen[List[MissingEmail]] =
     for {

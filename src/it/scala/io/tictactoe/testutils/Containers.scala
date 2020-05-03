@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit.SECONDS
 
 import cats.syntax.option._
 import com.dimafeng.testcontainers.GenericContainer
-import io.tictactoe.database.{DatabaseConfig, DbUrlParser}
+import io.tictactoe.utilities.database.{DatabaseConfig, DbUrlParser}
 import org.testcontainers.containers.wait.strategy.{LogMessageWaitStrategy, Wait}
 
 import cats.syntax.either._

@@ -1,6 +1,6 @@
 package io.tictactoe.game.errors
 
-import io.tictactoe.error.BaseError
+import io.tictactoe.errors.BaseError
 import cats.implicits._
 import io.tictactoe.values.Email
 

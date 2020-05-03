@@ -3,10 +3,9 @@ package io.tictactoe.game.model
 import java.time.LocalDateTime
 
 import cats.effect.Sync
-import io.tictactoe.authorization.{Claim, ResourceAuthorization}
-import io.tictactoe.game.values.GameId
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
-import io.tictactoe.values.{Email, UserId}
+import io.tictactoe.utilities.authorization.{Claim, ResourceAuthorization}
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
+import io.tictactoe.values.{Email, GameId, UserId}
 import cats.implicits._
 import io.tictactoe.game.model.GameInvitationStatus._
 

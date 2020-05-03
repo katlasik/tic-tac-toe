@@ -7,7 +7,7 @@ import io.circe.{Decoder, Encoder}
 import shapeless.the
 import sttp.tapir.Codec.PlainCodec
 import io.circe.generic.extras.semiauto._
-import io.tictactoe.infrastructure.uuid.Id
+import io.tictactoe.utilities.uuid.Id
 
 final case class UserId(value: UUID) extends AnyVal
 

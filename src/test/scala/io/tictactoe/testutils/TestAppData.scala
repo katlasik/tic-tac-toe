@@ -3,14 +3,16 @@ package io.tictactoe.testutils
 import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 
+import cats.Monoid
 import cats.data.StateT
 import cats.effect.IO
 import io.tictactoe.authentication.model.User
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
-import io.tictactoe.emails.model.MissingEmail
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.game.model.GameInvitation
-import io.tictactoe.infrastructure.emails.model.EmailMessage
-import io.tictactoe.infrastructure.events.model.Event
+import io.tictactoe.utilities.emails.model.{EmailMessage, MissingEmail}
+import io.tictactoe.utilities.events.model.Event
+import cats.derived.semi.monoid
+import cats.implicits._
 
 final case class TestAppData(
     uuids: List[UUID] = Nil,
@@ -28,5 +30,9 @@ final case class TestAppData(
 )
 
 object TestAppData {
+
   type TestAppState[V] = StateT[IO, TestAppData, V]
+
+  implicit val m: Monoid[TestAppData] = monoid[TestAppData]
+
 }

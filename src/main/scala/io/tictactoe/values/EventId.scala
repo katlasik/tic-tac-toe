@@ -3,7 +3,7 @@ package io.tictactoe.values
 import java.util.UUID
 
 import cats.Eq
-import io.tictactoe.infrastructure.uuid.Id
+import io.tictactoe.utilities.uuid.Id
 
 final case class EventId(value: UUID) extends AnyVal
 

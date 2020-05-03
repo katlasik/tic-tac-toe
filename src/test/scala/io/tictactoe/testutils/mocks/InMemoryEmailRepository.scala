@@ -3,13 +3,12 @@ package io.tictactoe.testutils.mocks
 import cats.data.StateT
 import cats.effect.IO
 import cats.implicits._
-import io.tictactoe.emails.model.MissingEmail
-import io.tictactoe.emails.services.EmailRepository
-import io.tictactoe.emails.values.MailId
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 import henkan.convert.Syntax._
-import io.tictactoe.infrastructure.emails.model.EmailMessage
+import io.tictactoe.utilities.emails.EmailRepository
+import io.tictactoe.utilities.emails.model.{EmailMessage, MissingEmail}
+import io.tictactoe.utilities.emails.values.MailId
 
 object InMemoryEmailRepository {
 

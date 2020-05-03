@@ -7,18 +7,15 @@ import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
-import io.tictactoe.authentication.services.Hash
-import io.tictactoe.error.ErrorView
-import io.tictactoe.values.{Email, Unconfirmed, Password, UserId, Username, Confirmed}
+import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.errors.ErrorView
+import io.tictactoe.values.{AuthToken, Confirmed, Email, Password, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import io.tictactoe.authentication.values.AuthToken
 
 class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 
   it should "allow login in as user" in new Fixture {
-
-    import dsl._
 
     val inputData = TestAppData(
       users = List(
@@ -39,8 +36,7 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
       uri = uri"login"
     ).withEntity(Credentials(Email("email@user.pl"), Password("userpass")))
 
-    val (outputData, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -57,8 +53,6 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
   }
 
   it should "reject login if user is unconfirmed" in new Fixture {
-
-    import dsl._
 
     val inputData = TestAppData(
       users = List(
@@ -79,8 +73,7 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
       uri = uri"login"
     ).withEntity(Credentials(Email("email@user.pl"), Password("userpass")))
 
-    val (outputData, Some(response)) = PublicRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) = authModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -97,8 +90,6 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
   }
 
   it should "reject unsuccessful login attempts" in new Fixture {
-
-    import dsl._
 
     val inputData = TestAppData(
       users = List(
@@ -119,8 +110,7 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
       uri = uri"login"
     ).withEntity(Credentials(Email("email@user.pl"), Password("xxxxxx")))
 
-    val Some(response) = PublicRouter
-      .routes[TestAppState]
+    val Some(response) = authModule.router.routes
       .run(request)
       .value
       .runA(inputData)

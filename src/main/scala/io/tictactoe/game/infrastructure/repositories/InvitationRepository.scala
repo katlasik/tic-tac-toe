@@ -4,25 +4,18 @@ import java.time.LocalDateTime
 
 import cats.effect.Sync
 import doobie.hikari.HikariTransactor
-import io.tictactoe.database.Database
-import io.tictactoe.game.model.{
-  AcceptedGameInvitation,
-  CancelledGameInvitation,
-  GameInvitation,
-  PendingGameInvitation,
-  RejectedGameInvitation
-}
+import io.tictactoe.utilities.database.Database
+import io.tictactoe.game.model.{AcceptedGameInvitation, CancelledGameInvitation, GameInvitation, PendingGameInvitation, RejectedGameInvitation}
 import doobie.implicits._
 import doobie.postgres.implicits._
 import cats.implicits._
-import io.tictactoe.game.values.GameId
 import doobie.implicits.javatime._
 import cats.implicits._
 import doobie.util.Read
 import doobie.util.update.Update
 import doobie.util.query.Query
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
-import io.tictactoe.values.{Email, UserId}
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
+import io.tictactoe.values.{Email, GameId, UserId}
 import shapeless.HNil
 
 trait InvitationRepository[F[_]] {

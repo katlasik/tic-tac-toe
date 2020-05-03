@@ -6,30 +6,36 @@ import java.util.UUID
 import cats.data.NonEmptyList
 import io.circe.generic.auto._
 import io.tictactoe.authentication.model.{Credentials, User}
-import io.tictactoe.authentication.services.Hash
 import cats.implicits._
-import io.tictactoe.error.ErrorView
+import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.errors.ErrorView
 import io.tictactoe.game.model.GameInvitationStatus.Pending
-import io.tictactoe.game.model.{AcceptedGameInvitation, CancelledGameInvitation, EmailInvitationRequest, GameInvitation, GameInvitationStatus, InvitationResult, RejectedGameInvitation, UserInvitationRequest}
+import io.tictactoe.game.model.{
+  AcceptedGameInvitation,
+  CancelledGameInvitation,
+  EmailInvitationRequest,
+  GameInvitation,
+  GameInvitationStatus,
+  InvitationResult,
+  RejectedGameInvitation,
+  UserInvitationRequest
+}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.{Fixture, TestAppData}
-import io.tictactoe.values._
+import io.tictactoe.values.{GameId, _}
 import org.http4s.{Header, Headers, Request}
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.implicits._
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
-import io.tictactoe.game.values.GameId
-import io.tictactoe.infrastructure.emails.model.EmailMessage
-import io.tictactoe.infrastructure.emails.values.{EmailMessageText, EmailMessageTitle}
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
+import io.tictactoe.utilities.emails.model.EmailMessage
+import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import org.scalatest.prop.TableDrivenPropertyChecks
 
 class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with TableDrivenPropertyChecks {
 
   it should "allow inviting users by email" in new Fixture {
-
-    import dsl._
 
     val inputData = TestAppData(
       uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000002"), UUID.fromString("00000000-0000-0000-0000-000000000003")),
@@ -55,8 +61,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     ).withEntity(EmailInvitationRequest(Email("email@email.com")))
 
-    val (outputData, Some(response)) = SecuredRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) = gameModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -93,8 +98,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
 
   it should "allow inviting users directly" in new Fixture {
 
-    import dsl._
-
     val inputData = TestAppData(
       uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000002"), UUID.fromString("00000000-0000-0000-0000-000000000003")),
       tokens = List(ConfirmationToken("token")),
@@ -128,8 +131,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     ).withEntity(UserInvitationRequest(UserId.unsafeFromString("00000000-0000-0000-0000-000000000004")))
 
-    val (outputData, Some(response)) = SecuredRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) = gameModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -166,8 +168,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
 
   it should "send notification email if guest mail is already registered" in new Fixture {
 
-    import dsl._
-
     val inputData = TestAppData(
       uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000002"), UUID.fromString("00000000-0000-0000-0000-000000000003")),
       tokens = List(ConfirmationToken("token")),
@@ -201,8 +201,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     ).withEntity(EmailInvitationRequest(Email("guest@email.pl")))
 
-    val (outputData, Some(response)) = SecuredRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) = gameModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -224,8 +223,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
   }
 
   it should "reject invitation if user wants to invite itself by email" in new Fixture {
-
-    import dsl._
 
     val inputData = TestAppData(
       uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000002"), UUID.fromString("00000000-0000-0000-0000-000000000003")),
@@ -251,8 +248,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     ).withEntity(EmailInvitationRequest(Email("email@user.pl")))
 
-    val Some(response) = SecuredRouter
-      .routes[TestAppState]
+    val Some(response) = gameModule.router.routes
       .run(request)
       .value
       .runA(inputData)
@@ -264,8 +260,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
   }
 
   it should "reject invitation if user wants to invite itself by id" in new Fixture {
-
-    import dsl._
 
     val inputData = TestAppData(
       uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000002"), UUID.fromString("00000000-0000-0000-0000-000000000003")),
@@ -291,8 +285,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     ).withEntity(UserInvitationRequest(UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")))
 
-    val Some(response) = SecuredRouter
-      .routes[TestAppState]
+    val Some(response) = gameModule.router.routes
       .run(request)
       .value
       .runA(inputData)
@@ -304,8 +297,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
   }
 
   it should "reject invitation if invitee doesn't exist" in new Fixture {
-
-    import dsl._
 
     val inputData = TestAppData(
       uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000002"), UUID.fromString("00000000-0000-0000-0000-000000000003")),
@@ -331,8 +322,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     ).withEntity(UserInvitationRequest(UserId.unsafeFromString("00000000-0000-0000-0000-000000000009")))
 
-    val Some(response) = SecuredRouter
-      .routes[TestAppState]
+    val Some(response) = gameModule.router.routes
       .run(request)
       .value
       .runA(inputData)
@@ -344,8 +334,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
   }
 
   it should "allow accepting invitations" in new Fixture {
-
-    import dsl._
 
     val ownerId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val guestId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000002")
@@ -387,13 +375,12 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
     val token = authenticate(Credentials(Email("email2@user.pl"), Password("userpass"))).runA(inputData).unsafeRunSync()
 
     val request = Request[TestAppState](
-      method = PUT,
+      method = POST,
       uri = uri(show"games/$gameId"),
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     )
 
-    val (outputData, Some(response)) = SecuredRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) = gameModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -421,8 +408,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
   }
 
   it should "reject accepting invitations by wrong user" in new Fixture {
-
-    import dsl._
 
     val ownerId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val guestId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000002")
@@ -480,29 +465,25 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       val token = authenticate(Credentials(email, Password("userpass"))).runA(inputData).unsafeRunSync()
 
       val request = Request[TestAppState](
-        method = PUT,
+        method = POST,
         uri = uri(show"games/$gameId"),
         headers = Headers(List(Header("Authorization", s"Bearer $token")))
       )
 
-      val Some(response) = SecuredRouter
-        .routes[TestAppState]
+      val Some(response) = gameModule.router.routes
         .run(request)
         .value
         .runA(inputData)
         .unsafeRunSync()
 
-     response.status.code shouldBe 403
+      response.status.code shouldBe 403
 
       response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Access to resource is forbidden!")
     }
 
   }
 
-
   it should "allow cancelling invitations" in new Fixture {
-
-    import dsl._
 
     val ownerId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val guestId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000002")
@@ -549,8 +530,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     )
 
-    val (outputData, Some(response)) = SecuredRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) = gameModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -578,8 +558,6 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
   }
 
   it should "allow rejecting invitations" in new Fixture {
-
-    import dsl._
 
     val ownerId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
     val guestId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000002")
@@ -626,8 +604,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       headers = Headers(List(Header("Authorization", s"Bearer $token")))
     )
 
-    val (outputData, Some(response)) = SecuredRouter
-      .routes[TestAppState]
+    val (outputData, Some(response)) =gameModule.router.routes
       .run(request)
       .value
       .run(inputData)
@@ -656,71 +633,67 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
 
   it should "reject cancelling or rejecting invitations by wrong user" in new Fixture {
 
-    import dsl._
-
     val gameId = GameId.unsafeFromString("00000000-0000-0000-0000-000000000004")
     val now = LocalDateTime.parse("2019-02-02T11:12:10")
 
-      val inputData = TestAppData(
-        invitations = List(
-          GameInvitation.withGuestId(
-            id = gameId,
-            ownerId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000005"),
-            guestId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000006")
-          )
+    val inputData = TestAppData(
+      invitations = List(
+        GameInvitation.withGuestId(
+          id = gameId,
+          ownerId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000005"),
+          guestId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000006")
+        )
+      ),
+      dates = List(now),
+      tokens = List(ConfirmationToken("token")),
+      users = List(
+        User(
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000005"),
+          Username("user"),
+          Hash("userpass"),
+          Email("email@user.pl"),
+          Confirmed,
+          None,
+          None
         ),
-        dates = List(now),
-        tokens = List(ConfirmationToken("token")),
-        users = List(
-          User(
-            UserId.unsafeFromString("00000000-0000-0000-0000-000000000005"),
-            Username("user"),
-            Hash("userpass"),
-            Email("email@user.pl"),
-            Confirmed,
-            None,
-            None
-          ),
-          User(
-            UserId.unsafeFromString("00000000-0000-0000-0000-000000000006"),
-            Username("user2"),
-            Hash("userpass"),
-            Email("email2@user.pl"),
-            Confirmed,
-            None,
-            None
-          ),
-          User(
-            UserId.unsafeFromString("00000000-0000-0000-0000-000000000007"),
-            Username("user3"),
-            Hash("userpass"),
-            Email("email3@user.pl"),
-            Confirmed,
-            None,
-            None
-          )
+        User(
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000006"),
+          Username("user2"),
+          Hash("userpass"),
+          Email("email2@user.pl"),
+          Confirmed,
+          None,
+          None
+        ),
+        User(
+          UserId.unsafeFromString("00000000-0000-0000-0000-000000000007"),
+          Username("user3"),
+          Hash("userpass"),
+          Email("email3@user.pl"),
+          Confirmed,
+          None,
+          None
         )
       )
+    )
 
-      val token = authenticate(Credentials(Email("email3@user.pl"), Password("userpass"))).runA(inputData).unsafeRunSync()
+    val token = authenticate(Credentials(Email("email3@user.pl"), Password("userpass"))).runA(inputData).unsafeRunSync()
 
-      val request = Request[TestAppState](
-        method = PUT,
-        uri = uri(show"games/$gameId"),
-        headers = Headers(List(Header("Authorization", s"Bearer $token")))
-      )
+    val request = Request[TestAppState](
+      method = DELETE,
+      uri = uri(show"games/$gameId"),
+      headers = Headers(List(Header("Authorization", s"Bearer $token")))
+    )
 
-      val Some(response) = SecuredRouter
-        .routes[TestAppState]
-        .run(request)
-        .value
-        .runA(inputData)
-        .unsafeRunSync()
+    val Some(response) = gameModule.router.routes
+      .run(request)
+      .value
+      .runA(inputData)
+      .unsafeRunSync()
 
-      response.status.code shouldBe 403
+    response.status.code shouldBe 403
 
-      response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Access to resource is forbidden!")
-    }
-
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Access to resource is forbidden!")
+  }
 
 }

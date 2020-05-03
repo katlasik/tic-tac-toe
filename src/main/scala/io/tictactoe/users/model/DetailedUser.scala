@@ -4,7 +4,7 @@ import cats.effect.Sync
 import cats.implicits._
 import io.tictactoe.authentication.model.TokenPayload
 import io.tictactoe.values.{Email, UserId, Username}
-import io.tictactoe.authorization.{Claim, ResourceAuthorization}
+import io.tictactoe.utilities.authorization.{Claim, ResourceAuthorization}
 
 final case class DetailedUser(
     id: UserId,

@@ -2,7 +2,7 @@ package io.tictactoe.testutils.mocks
 
 import cats.data.StateT
 import cats.effect.IO
-import io.tictactoe.infrastructure.logging.{Logger, Logging}
+import io.tictactoe.utilities.logging.{Logger, Logging}
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 

@@ -1,6 +1,6 @@
 package io.tictactoe.authentication.model
 
-import io.tictactoe.infrastructure.tokens.values.ConfirmationToken
+import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.values.{Password, UserId}
 
 final case class PasswordChangeRequest(
