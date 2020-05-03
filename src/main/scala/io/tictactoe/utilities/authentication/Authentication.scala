@@ -1,14 +1,15 @@
 package io.tictactoe.utilities.authentication
 
 import cats.effect.Sync
-import io.tictactoe.authentication.model.TokenPayload
 import io.tictactoe.utilities.authentication.Authentication.JWTToken
 import tsec.authentication.{AugmentedJWT, JWTAuthenticator}
 import tsec.jws.mac.JWTMac
 import tsec.mac.jca.HMACSHA256
+
 import scala.concurrent.duration._
 import io.circe.generic.auto._
 import cats.implicits._
+import io.tictactoe.utilities.authentication.model.TokenPayload
 
 trait Authentication[F[_]] {
   def verify(token: String): F[TokenPayload]

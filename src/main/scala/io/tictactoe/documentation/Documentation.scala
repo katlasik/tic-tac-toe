@@ -12,6 +12,7 @@ import org.http4s.HttpRoutes
 import sttp.tapir._
 import sttp.tapir.server.http4s._
 import cats.implicits._
+import io.tictactoe.BuildInfo
 
 trait Documentation[F[_]] {
   def routes(): HttpRoutes[F]
@@ -19,24 +20,23 @@ trait Documentation[F[_]] {
 
 object Documentation {
 
-  def documentation[F[_]: Applicative: Http4sServerOptions: Sync: ContextShift](body: String): HttpRoutes[F] = endpoint
-    .get
-    .in("docs")
-    .out(header("Content-Type", "text/yaml"))
-    .out(plainBody[String])
-    .serverLogic(_ => body.pure[F].map(_.asRight[Unit]))
-    .toRoutes
+  def documentation[F[_]: Applicative: Http4sServerOptions: Sync: ContextShift](body: String): HttpRoutes[F] =
+    endpoint.get
+      .in("docs")
+      .out(header("Content-Type", "text/yaml"))
+      .out(plainBody[String])
+      .serverLogic(_ => body.pure[F].map(_.asRight[Unit]))
+      .toRoutes
 
-  def init[F[_]: Configuration: Sync: ContextShift: Applicative: Http4sServerOptions](router: RoutingModule[F], rest: RoutingModule[F]*): F[Documentation[F]] = {
+  def init[F[_]: Configuration: Sync: ContextShift: Applicative: Http4sServerOptions](
+      router: RoutingModule[F],
+      rest: RoutingModule[F]*
+  ): Documentation[F] = {
 
     val endpoints = NonEmptyList.of(router, rest: _*).flatMap(_.router.endpoints)
+    val yaml = endpoints.toList.toOpenAPI(BuildInfo.name, BuildInfo.version).toYaml
 
-    for {
-      config <- Configuration[F].access()
-      yaml = endpoints.toList.toOpenAPI(config.app.name, config.app.version).toYaml
-    } yield new Documentation[F] {
-      override def routes(): HttpRoutes[F] = documentation(yaml)
-    }
+    () => documentation(yaml)
   }
 
 }

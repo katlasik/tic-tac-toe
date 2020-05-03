@@ -5,8 +5,8 @@ import cats.effect.IO
 import cats.implicits._
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.users.model.{DetailedUser, SimpleUser}
-import io.tictactoe.users.infrastructure.repositories.UserRepository
+import io.tictactoe.modules.users.model.{DetailedUser, SimpleUser}
+import io.tictactoe.modules.users.infrastructure.repositories.UserRepository
 import io.tictactoe.values.{Confirmed, Email, UserId}
 import henkan.convert.Syntax._
 

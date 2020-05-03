@@ -5,7 +5,7 @@ import cats.effect.IO
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.values.Password
 import cats.implicits._
-import io.tictactoe.authentication.infrastructure.effects.{Hash, PasswordHasher}
+import io.tictactoe.modules.authentication.infrastructure.effects.{Hash, PasswordHasher}
 
 object BypassingPasswordHasher {
 

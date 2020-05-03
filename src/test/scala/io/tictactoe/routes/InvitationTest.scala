@@ -5,12 +5,12 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import io.circe.generic.auto._
-import io.tictactoe.authentication.model.{Credentials, User}
+import io.tictactoe.modules.authentication.model.{Credentials, User}
 import cats.implicits._
-import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.errors.ErrorView
-import io.tictactoe.game.model.GameInvitationStatus.Pending
-import io.tictactoe.game.model.{
+import io.tictactoe.modules.game.model.GameInvitationStatus.Pending
+import io.tictactoe.modules.game.model.{
   AcceptedGameInvitation,
   CancelledGameInvitation,
   EmailInvitationRequest,

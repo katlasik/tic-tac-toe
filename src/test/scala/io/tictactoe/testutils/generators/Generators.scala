@@ -3,12 +3,12 @@ package io.tictactoe.testutils.generators
 import java.util.UUID
 
 import cats.data.NonEmptyList
-import io.tictactoe.authentication.model.User
+import io.tictactoe.modules.authentication.model.User
 import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Unconfirmed, UserId, Username}
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
-import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.events.model.authentication.UserRegisteredEvent
 import io.tictactoe.utilities.emails.model
 import io.tictactoe.utilities.emails.model.MissingEmail

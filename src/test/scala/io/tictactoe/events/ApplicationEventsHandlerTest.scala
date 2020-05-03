@@ -4,8 +4,8 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import io.tictactoe.authentication.infrastructure.effects.Hash
-import io.tictactoe.authentication.model.User
+import io.tictactoe.modules.authentication.infrastructure.effects.Hash
+import io.tictactoe.modules.authentication.model.User
 import io.tictactoe.events.model.authentication.PasswordChangedEvent
 import io.tictactoe.utilities.emails.model.EmailMessage
 import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}

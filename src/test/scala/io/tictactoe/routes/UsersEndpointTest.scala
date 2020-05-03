@@ -1,9 +1,9 @@
 package io.tictactoe.routes
 
-import io.tictactoe.authentication.model.{Credentials, User}
+import io.tictactoe.modules.authentication.model.{Credentials, User}
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.users.model.{DetailedUser, SimpleUser}
+import io.tictactoe.modules.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.{Confirmed, Email, Password, UserId, Username}
 import org.http4s.{Header, Headers, Request}
 import org.scalatest.{FlatSpec, Matchers}
@@ -15,7 +15,7 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import henkan.convert.Syntax._
 import io.tictactoe.errors.ErrorView
 import cats.implicits._
-import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 
 class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
 

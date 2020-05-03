@@ -4,7 +4,7 @@ import java.time.Instant
 import java.util.UUID
 
 import cats.data.NonEmptyList
-import io.tictactoe.authentication.model.{PasswordChangeRequest, User}
+import io.tictactoe.modules.authentication.model.{PasswordChangeRequest, User}
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
@@ -15,7 +15,7 @@ import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Password,
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
-import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.events.model.authentication.PasswordChangedEvent
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.utilities.emails.model.EmailMessage

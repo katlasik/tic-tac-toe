@@ -1,14 +1,14 @@
 package io.tictactoe.testutils
 
 import cats.effect.{ContextShift, IO}
-import io.tictactoe.authentication.AuthenticationModule
-import io.tictactoe.authentication.infrastructure.effects.PasswordHasher
-import io.tictactoe.authentication.model.Credentials
-import io.tictactoe.authentication.infrastructure.repositories.AuthRepository
-import io.tictactoe.authentication.domain.services.{LiveAuthEmail, LiveAuthenticator, LivePasswordChanger, LiveRegistration}
-import io.tictactoe.authentication.infrastructure.routes.AuthenticationRouter
-import io.tictactoe.authentication.infrastructure.services.{AuthEmail, Authenticator, PasswordChanger, Registration}
-import io.tictactoe.game.GameModule
+import io.tictactoe.modules.authentication.AuthenticationModule
+import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
+import io.tictactoe.modules.authentication.model.Credentials
+import io.tictactoe.modules.authentication.infrastructure.repositories.AuthRepository
+import io.tictactoe.modules.authentication.domain.services.{LiveAuthEmail, LiveAuthenticator, LivePasswordChanger, LiveRegistration}
+import io.tictactoe.modules.authentication.infrastructure.routes.AuthenticationRouter
+import io.tictactoe.modules.authentication.infrastructure.services.{AuthEmail, Authenticator, PasswordChanger, Registration}
+import io.tictactoe.modules.game.GameModule
 import io.tictactoe.utilities.events.EventBus
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.utilities.templates.TemplateRenderer
@@ -16,18 +16,18 @@ import io.tictactoe.utilities.tokens.TokenGenerator
 import io.tictactoe.utilities.uuid.UUIDGenerator
 import io.tictactoe.utilities.calendar.Calendar
 import io.tictactoe.utilities.emails.services.LiveEmailSender
-import io.tictactoe.game.infrastructure.emails.InvitationEmail
-import io.tictactoe.game.domain.services.LiveGameInvitationService
-import io.tictactoe.game.infrastructure.routes.GameRouter
-import io.tictactoe.game.infrastructure.services.GameInvitationService
+import io.tictactoe.modules.game.infrastructure.emails.InvitationEmail
+import io.tictactoe.modules.game.domain.services.LiveGameInvitationService
+import io.tictactoe.modules.game.infrastructure.routes.GameRouter
+import io.tictactoe.modules.game.infrastructure.services.GameInvitationService
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.emails.{EmailRepository, EmailSender, EmailTransport}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailRepository, InMemoryEventBus, InMemoryInvitationRepository, InMemoryUserRepository, MemoryLogging, MockedEmailTransport}
-import io.tictactoe.users.UserModule
-import io.tictactoe.users.domain.services.LiveUserService
-import io.tictactoe.users.infrastructure.routes.UserRouter
-import io.tictactoe.users.infrastructure.services.UserService
+import io.tictactoe.modules.users.UserModule
+import io.tictactoe.modules.users.domain.services.LiveUserService
+import io.tictactoe.modules.users.infrastructure.routes.UserRouter
+import io.tictactoe.modules.users.infrastructure.services.UserService
 import io.tictactoe.utilities.authentication.Authentication
 import io.tictactoe.utilities.routes.Router
 import org.http4s.Uri

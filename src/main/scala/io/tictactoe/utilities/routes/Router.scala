@@ -14,7 +14,7 @@ trait Router[F[_]] {
   protected def serverEndpoints: NonEmptyList[ServerEndpoint[_, _, _, Nothing, F]]
 
   def routes(implicit serverOptions: Http4sServerOptions[F], fs: Sync[F], fcs: ContextShift[F]): HttpRoutes[F] =
-    serverEndpoints.map(_.toRoutes).reduce[HttpRoutes[F]](_ <+> _)
+    serverEndpoints.reduceMapK(_.toRoutes)
 
   def endpoints: NonEmptyList[Endpoint[_, _, _, Nothing]] = serverEndpoints.map(_.endpoint)
 

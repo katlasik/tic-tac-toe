@@ -4,7 +4,7 @@ import cats.effect.Sync
 import io.tictactoe.utilities.events.EventHandler
 import io.tictactoe.utilities.events.model.Event
 import cats.implicits._
-import io.tictactoe.authentication.AuthenticationModule
+import io.tictactoe.modules.authentication.AuthenticationModule
 import io.tictactoe.events.model.authentication.{PasswordChangedEvent, UserRegisteredEvent}
 import io.tictactoe.utilities.logging.{Logger, Logging}
 import io.tictactoe.values.Unconfirmed

@@ -1,7 +1,7 @@
 package io.tictactoe.specs
 
 import io.circe.generic.auto._
-import io.tictactoe.authentication.model.AuthResponse
+import io.tictactoe.modules.authentication.model.AuthResponse
 import io.tictactoe.testutils.ItTest
 import io.tictactoe.values.AuthToken
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}

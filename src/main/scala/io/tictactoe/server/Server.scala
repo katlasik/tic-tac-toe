@@ -7,8 +7,8 @@ import io.tictactoe.utilities.database.{Database, Migrator}
 import io.tictactoe.utilities.logging.Logging
 import org.http4s.server.blaze.BlazeServerBuilder
 import cats.implicits._
-import io.tictactoe.authentication.AuthenticationModule
-import io.tictactoe.authentication.infrastructure.effects.PasswordHasher
+import io.tictactoe.modules.authentication.AuthenticationModule
+import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
 import io.tictactoe.utilities.events.EventBus
 import io.tictactoe.utilities.tokens.TokenGenerator
 import io.tictactoe.utilities.uuid.UUIDGenerator
@@ -16,8 +16,8 @@ import io.tictactoe.utilities.calendar.Calendar
 import io.tictactoe.scheduler.ApplicationScheduler
 import io.tictactoe.utilities.scheduler.Scheduler
 import io.tictactoe.events.ApplicationEventHandler
-import io.tictactoe.game.GameModule
-import io.tictactoe.users.UserModule
+import io.tictactoe.modules.game.GameModule
+import io.tictactoe.modules.users.UserModule
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.emails.EmailSender
 import io.tictactoe.utilities.authentication.Authentication
@@ -47,7 +47,7 @@ object Server {
       _ <- Stream.resource(ApplicationScheduler.live[F].start())
       _ <- Stream.eval(Migrator.init[F].flatMap(_.migrate))
       config <- Stream.eval(configuration.access()).map(_.server)
-      app <- App.create(userModule, gameModule, authModule)
+      app = App.create(userModule, gameModule, authModule)
       exitCode <- BlazeServerBuilder[F]
         .bindHttp(config.port, config.host)
         .withHttpApp(app)

@@ -4,8 +4,8 @@ import java.time.LocalDateTime
 
 import cats.data.StateT
 import cats.effect.IO
-import io.tictactoe.game.infrastructure.repositories.InvitationRepository
-import io.tictactoe.game.model.{AcceptedGameInvitation, CancelledGameInvitation, GameInvitation, PendingGameInvitation, RejectedGameInvitation}
+import io.tictactoe.modules.game.infrastructure.repositories.InvitationRepository
+import io.tictactoe.modules.game.model.{AcceptedGameInvitation, CancelledGameInvitation, GameInvitation, PendingGameInvitation, RejectedGameInvitation}
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 import cats.implicits._

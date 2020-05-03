@@ -6,9 +6,9 @@ import java.util.UUID
 import cats.Monoid
 import cats.data.StateT
 import cats.effect.IO
-import io.tictactoe.authentication.model.User
+import io.tictactoe.modules.authentication.model.User
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
-import io.tictactoe.game.model.GameInvitation
+import io.tictactoe.modules.game.model.GameInvitation
 import io.tictactoe.utilities.emails.model.{EmailMessage, MissingEmail}
 import io.tictactoe.utilities.events.model.Event
 import cats.derived.semi.monoid

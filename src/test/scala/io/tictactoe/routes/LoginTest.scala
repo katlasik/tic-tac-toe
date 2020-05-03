@@ -1,13 +1,13 @@
 package io.tictactoe.routes
 
-import io.tictactoe.authentication.model.{AuthResponse, Credentials, User}
+import io.tictactoe.modules.authentication.model.{AuthResponse, Credentials, User}
 import io.tictactoe.testutils.{Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
-import io.tictactoe.authentication.infrastructure.effects.Hash
+import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.errors.ErrorView
 import io.tictactoe.values.{AuthToken, Confirmed, Email, Password, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
