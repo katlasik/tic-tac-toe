@@ -1,0 +1,427 @@
+{
+	"info": {
+		"_postman_id": "ac182b14-57eb-4c01-9760-77c91c1f40f2",
+		"name": "tictactoe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Registration",
+			"item": [
+				{
+					"name": "Register user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"username\": \"user2222\",\n\t\"password\": \"test12\",\n\t\"email\": \"user2222@email.com\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/registration",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"registration"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm user registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/registration/confirmation?token=tO5AtC2h1jHnOZIEFepCoL32m9Hn&id=f11ac0da-d92b-4f26-be26-07cc0c070e76",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"registration",
+								"confirmation"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "tO5AtC2h1jHnOZIEFepCoL32m9Hn"
+								},
+								{
+									"key": "id",
+									"value": "f11ac0da-d92b-4f26-be26-07cc0c070e76"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Resend registration email",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{tictactoeUrl}}/registration?email={{userEmail}}",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"registration"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "{{userEmail}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ff86756c-6d43-478d-ba7b-b204d1f4986e",
+								"exec": [
+									"var data = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"token\", data.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"user2222@email.com\",\n\t\"password\": \"test12\"\n}",
+							"options": {
+								"raw": {}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/login",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request sending password change email",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{tictactoeUrl}}/password?email=111111@email.com",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"password"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "111111@email.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"7d4147c2-e93c-4847-956f-d7757e611f2c\",\n    \"token\": \"tO5AtC2h1jHnOZIEFepCoL32m9Hn\",\n    \"password\": \"newpassword\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/password/change",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"password",
+								"change"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{tictactoeUrl}}/users/7d4147c2-e93c-4847-956f-d7757e611f2c",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"users",
+								"7d4147c2-e93c-4847-956f-d7757e611f2c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get users",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{tictactoeUrl}}/users/",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Invitations",
+			"item": [
+				{
+					"name": "Invite user by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"userId\": \"3f73125d-cdd3-4236-a578-da0cc51e905a\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/games",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"games"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accept invitation",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/games/3f73125d-cdd3-4236-a578-da0cc51e905a",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"games",
+								"3f73125d-cdd3-4236-a578-da0cc51e905a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject / cancel invitation Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/games/3f73125d-cdd3-4236-a578-da0cc51e905a",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"games",
+								"3f73125d-cdd3-4236-a578-da0cc51e905a"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite person by email",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"test@email.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tictactoeUrl}}/games/invitation",
+							"host": [
+								"{{tictactoeUrl}}"
+							],
+							"path": [
+								"games",
+								"invitation"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
