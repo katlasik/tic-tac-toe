@@ -4,12 +4,12 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import io.tictactoe.modules.authentication.model.User
-import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Unconfirmed, UserId, Username}
+import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, GameId, Hash, Unconfirmed, UserId, Username}
 import org.scalacheck.Gen
 import mouse.all._
 import cats.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.events.model.authentication.UserRegisteredEvent
+import io.tictactoe.events.model.game.GameInvitationAccepted
 import io.tictactoe.utilities.emails.model
 import io.tictactoe.utilities.emails.model.MissingEmail
 import io.tictactoe.utilities.tokens.TokenGenerator
@@ -88,9 +88,18 @@ object Generators {
 
   def userRegisteredEvent(confirmed: Boolean = false): Gen[UserRegisteredEvent] =
     for {
-      id <- id[EventId]
+      eventId <- id[EventId]
       timestamp <- Gen.calendar.map(c => EventTimestamp(c.toInstant))
       user <- user(confirmed)
-    } yield UserRegisteredEvent(id, timestamp, user.id, user.username, user.email, user.registrationConfirmationToken, user.isConfirmed)
+    } yield UserRegisteredEvent(eventId, timestamp, user.id, user.username, user.email, user.registrationConfirmationToken, user.isConfirmed)
+
+  def gameInvitationAccepted(): Gen[GameInvitationAccepted] =
+    for {
+      eventId <- id[EventId]
+      timestamp <- Gen.calendar.map(c => EventTimestamp(c.toInstant))
+      gameId <- id[GameId]
+      hostId <- id[UserId]
+      guestId <- id[UserId]
+    } yield GameInvitationAccepted(eventId, timestamp, gameId, hostId, guestId)
 
 }

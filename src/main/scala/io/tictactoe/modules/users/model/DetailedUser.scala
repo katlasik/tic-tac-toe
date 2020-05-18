@@ -2,6 +2,7 @@ package io.tictactoe.modules.users.model
 
 import cats.effect.Sync
 import cats.implicits._
+import io.tictactoe.implicits._
 import io.tictactoe.utilities.authentication.model.TokenPayload
 import io.tictactoe.values.{Email, UserId, Username}
 import io.tictactoe.utilities.authorization.{Claim, ResourceAuthorization}

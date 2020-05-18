@@ -1,8 +1,7 @@
 package io.tictactoe.modules.authentication.model
 
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
-import io.tictactoe.values.{Email, IsConfirmed, UserId, Username}
+import io.tictactoe.values.{Email, Hash, IsConfirmed, UserId, Username}
 
 final case class User(
     id: UserId,

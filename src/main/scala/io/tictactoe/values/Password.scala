@@ -1,6 +1,5 @@
 package io.tictactoe.values
 
-import cats.Eq
 import cats.data.ValidatedNel
 import cats.implicits._
 import io.circe.{Decoder, Encoder}
@@ -12,8 +11,6 @@ final case class Password(value: String) extends AnyVal
 object Password {
 
   private val RequiredSize = 6
-
-  implicit val eq: Eq[Password] = Eq.fromUniversalEquals
 
   implicit val decoder: Decoder[Password] = Decoder[String].emap(Password.fromString(_).leftMap(_.reduce.msg).toEither)
   implicit val encoder: Encoder[Password] = Encoder[String].contramap(_.value)

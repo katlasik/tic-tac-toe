@@ -12,7 +12,7 @@ import io.tictactoe.events.model.authentication.PasswordChangedEvent
 import io.tictactoe.utilities.events.EventBus
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.utilities.tokens.TokenGenerator
-import io.tictactoe.utilities.syntax._
+import io.tictactoe.implicits._
 import io.tictactoe.utilities.uuid.UUIDGenerator
 import io.tictactoe.utilities.calendar.Calendar
 

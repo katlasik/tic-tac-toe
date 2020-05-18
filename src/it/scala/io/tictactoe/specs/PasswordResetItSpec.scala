@@ -4,6 +4,7 @@ import io.circe.generic.auto._
 import io.tictactoe.modules.authentication.model.AuthResponse
 import io.tictactoe.testutils.{CapturedMail, ItTest}
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
+import io.tictactoe.implicits._
 
 class PasswordResetItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
@@ -37,7 +38,7 @@ class PasswordResetItSpec extends FeatureSpec with GivenWhenThen with Matchers w
       post(baseUrl("password/change"), passwordChangePayload).success.plain
 
       Then("received email notification")
-      getFirstMailContaining("Your password has been successfully changed.").recipient shouldBe "user100@email.com"
+      getFirstMailContaining("Your password has been successfully changed.").recipient shouldEq "user100@email.com"
 
       When("the user tries to log in ")
       val loginPayload =

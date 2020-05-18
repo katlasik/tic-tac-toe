@@ -2,13 +2,18 @@ package io.tictactoe.testutils
 
 import cats.effect.IO
 import io.tictactoe.EntryPoint
-import org.scalatest.{Args, BeforeAndAfterAll, BeforeAndAfterEach, Status, Suite}
+import org.scalatest.{Args, BeforeAndAfterAll, BeforeAndAfterEach, Matchers, Status, Suite}
 import com.typesafe.config.ConfigFactory
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.configuration.model.ConfigurationProperties
+import org.scalactic.Equality
 
 trait ItTest extends BeforeAndAfterAll with BeforeAndAfterEach with Containers with Database with Server with Http with Mails {
-  self: Suite =>
+  self: Suite with Matchers =>
+
+  implicit class ShouldEqOps[A: Equality](left: A) {
+    def shouldEq(right: A) = left shouldEqual right
+  }
 
   lazy val config: ConfigurationProperties = Configuration.load[IO].flatMap(_.access()).unsafeRunSync()
 

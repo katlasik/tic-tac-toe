@@ -1,14 +1,15 @@
 package io.tictactoe.scheduler
 
 import io.tictactoe.scheduler.tasks.SendMissingMails
-import io.tictactoe.testutils.{Fixture, TestAppData}
+import io.tictactoe.testutils.{EqMatcher, Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.generators.Generators
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
+import io.tictactoe.implicits._
 
-class ApplicationSchedulerTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class ApplicationSchedulerTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with EqMatcher {
 
   it should "send all missing emails" in new Fixture {
 

@@ -21,6 +21,7 @@ import io.tictactoe.modules.users.UserModule
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.emails.EmailSender
 import io.tictactoe.utilities.authentication.Authentication
+import io.tictactoe.utilities.random.{RandomInt, RandomPicker}
 
 object Server {
 
@@ -39,16 +40,18 @@ object Server {
       implicit0(emailSender: EmailSender[F]) <- Stream.eval(EmailSender.live[F])
       implicit0(tokenGenerator: TokenGenerator[F]) <- Stream.eval(TokenGenerator.live[F])
       implicit0(eventBus: EventBus[F]) <- Stream.eval(EventBus.create())
+      implicit0(randomInt: RandomInt[F]) <- Stream.eval(RandomInt.live[F])
+      implicit0(randomPicker: RandomPicker[F]) = RandomPicker.live
       userModule = UserModule.live
       gameModule <- Stream.eval(GameModule.live[F](userModule))
       authModule <- Stream.eval(AuthenticationModule.live[F](gameModule))
-      handler <- Stream.eval(ApplicationEventHandler.live[F](authModule))
+      handler <- Stream.eval(ApplicationEventHandler.live[F](authModule, gameModule))
       _ <- Stream.resource(handler.start)
       _ <- Stream.resource(ApplicationScheduler.live[F].start())
       _ <- Stream.eval(Migrator.init[F].flatMap(_.migrate))
       config <- Stream.eval(configuration.access()).map(_.server)
       app = App.create(userModule, gameModule, authModule)
-      exitCode <- BlazeServerBuilder[F]
+      exitCode <- BlazeServerBuilder[F](ApplicationExecutionContexts.main)
         .bindHttp(config.port, config.host)
         .withHttpApp(app)
         .serve

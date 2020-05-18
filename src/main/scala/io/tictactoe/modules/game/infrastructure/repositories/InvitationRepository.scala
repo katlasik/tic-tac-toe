@@ -8,6 +8,7 @@ import io.tictactoe.utilities.database.Database
 import io.tictactoe.modules.game.model.{AcceptedGameInvitation, CancelledGameInvitation, GameInvitation, PendingGameInvitation, RejectedGameInvitation}
 import doobie.implicits._
 import doobie.postgres.implicits._
+import io.tictactoe.implicits._
 import cats.implicits._
 import doobie.implicits.javatime._
 import cats.implicits._
@@ -34,8 +35,6 @@ trait InvitationRepository[F[_]] {
 }
 
 object InvitationRepository {
-
-  def apply[F[_]: Sync](implicit ev: InvitationRepository[F]): InvitationRepository[F] = ev
 
   def postgresql[F[_]: Sync: Database]: InvitationRepository[F] = new InvitationRepository[F] {
     val transactor: HikariTransactor[F] = Database[F].transactor()

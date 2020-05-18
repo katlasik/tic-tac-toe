@@ -5,7 +5,7 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import io.tictactoe.modules.authentication.model.{RawRegistrationRequest, RegistrationResult, User}
-import io.tictactoe.testutils.{Fixture, TestAppData}
+import io.tictactoe.testutils.{EqMatcher, Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
@@ -13,24 +13,26 @@ import org.scalatest.prop.TableDrivenPropertyChecks
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
 import io.tictactoe.testutils.generators.Generators
-import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, GameId, Unconfirmed, UserId, Username}
+import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, GameId, Hash, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
+import io.tictactoe.implicits._
 import io.tictactoe.errors.ErrorView
 import io.tictactoe.events.model.authentication.UserRegisteredEvent
+import io.tictactoe.events.model.game.GameInvitationAccepted
 import io.tictactoe.modules.game.model.GameInvitation
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.utilities.emails.model.EmailMessage
 import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}
 import org.scalacheck.Gen
 
-class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers {
+class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with ScalaCheckDrivenPropertyChecks with Matchers with EqMatcher {
 
   it should "allow registering new players" in new Fixture {
 
     forAll(Generators.user()) { user =>
+
       val eventId = UUID.fromString("0000000-0000-0000-0000-000000000001")
       val timestamp = Instant.parse("2020-03-01T14:42:13.775935Z")
 
@@ -69,9 +71,9 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         )
       )
 
-      response.status.code shouldBe 200
+      response.status.code shouldEq 200
 
-      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldBe RegistrationResult(user.id)
+      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldEq RegistrationResult(user.id)
     }
 
   }
@@ -85,13 +87,14 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
     } yield (user, token, gameId)
 
     forAll(gen) { case (user, token, gameId) =>
-      val eventId = UUID.fromString("0000000-0000-0000-0000-000000000001")
+      val userRegisteredEventId = UUID.fromString("0000000-0000-0000-0000-000000000001")
+      val gameAcceptedEventId = UUID.fromString("0000000-0000-0000-0000-000000000002")
       val timestamp = Instant.parse("2020-03-01T14:42:13.775935Z")
       val ownerId =  UserId.unsafeFromString("0000000-0000-0000-0000-000000000010")
 
       val inputData = TestAppData(
-        uuids = List(user.id.value, eventId),
-        instants = List(timestamp),
+        uuids = List(user.id.value, gameAcceptedEventId, userRegisteredEventId),
+        instants = List(timestamp, timestamp),
         dates = List(LocalDateTime.parse("2019-09-09T10:33:33")),
         users = List(
           User(
@@ -131,21 +134,28 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         show"New user with id = ${user.id} was created."
       )
 
-      outputData.events should contain(
+      outputData.events should contain allOf(
         UserRegisteredEvent(
-          EventId(eventId),
+          EventId(userRegisteredEventId),
           EventTimestamp(timestamp),
           user.id,
           user.username,
           user.email,
           none,
           Confirmed
+        ),
+        GameInvitationAccepted(
+          EventId(gameAcceptedEventId),
+          EventTimestamp(timestamp),
+          gameId,
+          ownerId,
+          user.id
         )
       )
 
-      response.status.code shouldBe 200
+      response.status.code shouldEq 200
 
-      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldBe RegistrationResult(user.id)
+      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldEq RegistrationResult(user.id)
     }
 
   }
@@ -219,9 +229,9 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
         )
       )
 
-      response.status.code shouldBe 200
+      response.status.code shouldEq 200
 
-      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldBe RegistrationResult(user.id)
+      response.as[RegistrationResult].runA(inputData).unsafeRunSync() shouldEq RegistrationResult(user.id)
     }
 
   }
@@ -288,9 +298,9 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
 
       outputData.infoMessages shouldBe empty
 
-      response.status.code shouldBe 400
+      response.status.code shouldEq 400
 
-      response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView(errorMessage)
+      response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView(errorMessage)
 
     }
 
@@ -323,7 +333,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
     data.users should contain(
       User(
@@ -377,7 +387,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
     data.infoMessages should contain allOf (
       "Sending of new registration confirmation email requested by email@user.pl.",
@@ -436,7 +446,7 @@ class RegistrationTest extends FlatSpec with TableDrivenPropertyChecks with Scal
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 404
+    response.status.code shouldEq 404
 
     data.sentEmails shouldBe empty
 

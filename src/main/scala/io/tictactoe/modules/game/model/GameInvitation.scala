@@ -7,6 +7,7 @@ import io.tictactoe.utilities.authorization.{Claim, ResourceAuthorization}
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.values.{Email, GameId, UserId}
 import cats.implicits._
+import io.tictactoe.implicits._
 import io.tictactoe.modules.game.model.GameInvitationStatus._
 
 sealed trait GameInvitation extends Product with Serializable {

@@ -8,7 +8,7 @@ import cats.data.StateT
 import cats.effect.IO
 import io.tictactoe.modules.authentication.model.User
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
-import io.tictactoe.modules.game.model.GameInvitation
+import io.tictactoe.modules.game.model.{Game, GameInvitation}
 import io.tictactoe.utilities.emails.model.{EmailMessage, MissingEmail}
 import io.tictactoe.utilities.events.model.Event
 import cats.derived.semi.monoid
@@ -18,6 +18,9 @@ final case class TestAppData(
     uuids: List[UUID] = Nil,
     infoMessages: List[String] = Nil,
     errorMessages: List[String] = Nil,
+    warningMessages: List[String] = Nil,
+    games: List[Game] = Nil,
+    randomInts: List[Int] = Nil,
     users: List[User] = Nil,
     instants: List[Instant] = Nil,
     dates: List[LocalDateTime] = Nil,

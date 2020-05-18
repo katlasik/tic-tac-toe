@@ -4,6 +4,7 @@ import io.tictactoe.modules.authentication.model.AuthResponse
 import io.tictactoe.testutils.{CapturedMail, ItTest}
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
 import io.circe.generic.auto._
+import io.tictactoe.implicits._
 
 class RegistrationAndAuthenticationItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
@@ -31,7 +32,7 @@ class RegistrationAndAuthenticationItSpec extends FeatureSpec with GivenWhenThen
       val registrationResponse = post(baseUrl("registration"), registrationPayload)
 
       Then("the user is registered")
-      registrationResponse.status shouldBe 200
+      registrationResponse.status shouldEq 200
 
       And("the registration confirmation email is sent")
 

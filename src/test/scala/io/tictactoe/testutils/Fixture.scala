@@ -17,18 +17,19 @@ import io.tictactoe.utilities.uuid.UUIDGenerator
 import io.tictactoe.utilities.calendar.Calendar
 import io.tictactoe.utilities.emails.services.LiveEmailSender
 import io.tictactoe.modules.game.infrastructure.emails.InvitationEmail
-import io.tictactoe.modules.game.domain.services.LiveGameInvitationService
+import io.tictactoe.modules.game.domain.services.{LiveGameInvitationService, LiveGameService}
 import io.tictactoe.modules.game.infrastructure.routes.GameRouter
-import io.tictactoe.modules.game.infrastructure.services.GameInvitationService
+import io.tictactoe.modules.game.infrastructure.services.{GameInvitationService, GameService}
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.emails.{EmailRepository, EmailSender, EmailTransport}
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailRepository, InMemoryEventBus, InMemoryInvitationRepository, InMemoryUserRepository, MemoryLogging, MockedEmailTransport}
+import io.tictactoe.testutils.mocks.{BypassingPasswordHasher, FixedCalendar, FixedConfirmationTokenGenerator, FixedRandomInt, FixedUUIDGenerator, InMemoryAuthRepository, InMemoryEmailRepository, InMemoryEventBus, InMemoryGameRepository, InMemoryInvitationRepository, InMemoryUserRepository, MemoryLogging, MockedEmailTransport}
 import io.tictactoe.modules.users.UserModule
 import io.tictactoe.modules.users.domain.services.LiveUserService
 import io.tictactoe.modules.users.infrastructure.routes.UserRouter
 import io.tictactoe.modules.users.infrastructure.services.UserService
 import io.tictactoe.utilities.authentication.Authentication
+import io.tictactoe.utilities.random.{RandomInt, RandomPicker}
 import io.tictactoe.utilities.routes.Router
 import org.http4s.Uri
 import org.http4s.dsl.Http4sDsl
@@ -39,17 +40,18 @@ trait Fixture extends Http4sDsl[TestAppState]{
 
   implicit val cs: ContextShift[IO]  = IO.contextShift(ExecutionContext.global)
 
-  lazy implicit val uuidGenerator: UUIDGenerator[TestAppState] = FixedUUIDGenerator.fixed
-  lazy implicit val eventBus: EventBus[TestAppState] = InMemoryEventBus.inMemory
-  lazy implicit val logging: Logging[TestAppState] = MemoryLogging.memory
+  implicit val uuidGenerator: UUIDGenerator[TestAppState] = FixedUUIDGenerator.fixed
+  implicit val eventBus: EventBus[TestAppState] = InMemoryEventBus.inMemory
+  implicit val logging: Logging[TestAppState] = MemoryLogging.memory
+  implicit val calendar: Calendar[TestAppState] = FixedCalendar.fixed
+  implicit val passwordHasher: PasswordHasher[TestAppState] = BypassingPasswordHasher.bypassing
+  implicit val confirmationTokenGenerator: TokenGenerator[TestAppState] = FixedConfirmationTokenGenerator.fixed
+  implicit val randomInt: RandomInt[TestAppState] = FixedRandomInt.fixed
+  implicit val randomPicker: RandomPicker[TestAppState] = RandomPicker.live[TestAppState]
 
-  lazy implicit val calendar: Calendar[TestAppState] = FixedCalendar.fixed
-  lazy implicit val passwordHasher: PasswordHasher[TestAppState] = BypassingPasswordHasher.bypassing
-  lazy implicit val confirmationTokenGenerator: TokenGenerator[TestAppState] = FixedConfirmationTokenGenerator.fixed
-
-  lazy val authRepository: AuthRepository[TestAppState] = InMemoryAuthRepository.inMemory
-  lazy val mockedEmailTransport: EmailTransport[TestAppState] = MockedEmailTransport.mocked
-  lazy val inMemoryEmailRepository: EmailRepository[TestAppState] = InMemoryEmailRepository.inMemory
+  val authRepository: AuthRepository[TestAppState] = InMemoryAuthRepository.inMemory
+  val mockedEmailTransport: EmailTransport[TestAppState] = MockedEmailTransport.mocked
+  val inMemoryEmailRepository: EmailRepository[TestAppState] = InMemoryEmailRepository.inMemory
 
   implicit val fixtures = for {
     implicit0(configuration: Configuration[TestAppState]) <- Configuration.load[TestAppState]
@@ -69,7 +71,9 @@ trait Fixture extends Http4sDsl[TestAppState]{
   val gameModule = (for {
     ie <- InvitationEmail.live[TestAppState]
     is <- LiveGameInvitationService.live(InMemoryInvitationRepository.inMemory, ie, userModule.userService)
+    r = InMemoryGameRepository.inMemory
   } yield new GameModule[TestAppState] {
+    override def gameService: GameService[TestAppState] = LiveGameService.live(r)
     override def invitationService: GameInvitationService[TestAppState] = is
     override def router: GameRouter[TestAppState] = new GameRouter[TestAppState](is)
   }).runEmptyA.unsafeRunSync()

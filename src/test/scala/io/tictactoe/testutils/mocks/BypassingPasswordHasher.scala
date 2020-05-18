@@ -3,9 +3,9 @@ package io.tictactoe.testutils.mocks
 import cats.data.StateT
 import cats.effect.IO
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.values.Password
+import io.tictactoe.values.{Hash, Password}
 import cats.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.{Hash, PasswordHasher}
+import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
 
 object BypassingPasswordHasher {
 

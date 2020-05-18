@@ -4,6 +4,7 @@ import cats.effect.Sync
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.values.{Email, Link, UserId, Username}
 import cats.implicits._
+import io.tictactoe.implicits._
 import io.tictactoe.modules.authentication.infrastructure.emails.{PasswordChangedMailTemplateData, PasswordResetMailTemplateData, RegistrationMailTemplateData}
 import io.tictactoe.modules.authentication.infrastructure.services.AuthEmail
 import io.tictactoe.utilities.tokens.values.ConfirmationToken

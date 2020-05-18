@@ -25,12 +25,12 @@ object EventBus {
       q: Queue[F, Event] <- Queue.bounded[F, Event](QueueSize)
     } yield
       new EventBus[F] {
-        override def publish(event: Event): F[Unit] = q.offer1(event).flatMap {
+        override def publish[E <: Event](event: E): F[Unit] = q.offer1(event).flatMap {
           case true  => Sync[F].unit
           case false => Sync[F].raiseError(FullEventBusError(event))
         }
 
-        override def publishF(event: F[Event]): F[Unit] =
+        override def publishF[E <: Event](event: F[E]): F[Unit] =
           for {
             e <- event
             _ <- publish(e)
@@ -42,9 +42,9 @@ object EventBus {
 }
 
 trait EventBus[F[_]] {
-  def publish(event: Event): F[Unit]
+  def publish[E <: Event](event: E): F[Unit]
 
-  def publishF(event: F[Event]): F[Unit]
+  def publishF[E <: Event](event: F[E]): F[Unit]
 
   def subscribe: Stream[F, Event]
 }

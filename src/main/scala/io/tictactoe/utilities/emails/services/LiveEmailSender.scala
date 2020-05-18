@@ -10,7 +10,7 @@ import io.tictactoe.utilities.templates.TemplateRenderer
 import io.tictactoe.utilities.templates.model.{RenderedTemplate, TemplateDataValues}
 import io.tictactoe.values.Email
 import cats.implicits._
-import io.tictactoe.utilities.emails.syntax._
+import io.tictactoe.implicits._
 
 object LiveEmailSender {
 

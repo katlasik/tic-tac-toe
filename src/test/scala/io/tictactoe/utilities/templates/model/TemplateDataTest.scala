@@ -1,11 +1,11 @@
 package io.tictactoe.utilities.templates.model
 
 import cats.Show
-import io.tictactoe.testutils.Fixture
+import io.tictactoe.testutils.{EqMatcher, Fixture}
 import org.scalatest.{FlatSpec, Matchers}
 import shapeless.test.illTyped
 
-class TemplateDataTest extends FlatSpec with Matchers  {
+class TemplateDataTest extends FlatSpec with Matchers with EqMatcher  {
 
   case class WithShow(value: String)
   case class NoShow(value: String)
@@ -19,8 +19,8 @@ class TemplateDataTest extends FlatSpec with Matchers  {
 
     val data = Test(WithShow("user"), WithShow("123"))
 
-    data.values shouldBe Map("user" -> "user", "token" -> "123")
-    data.templatePath shouldBe "path"
+    data.values shouldEq Map("user" -> "user", "token" -> "123")
+    data.templatePath shouldEq "path"
 
   }
 

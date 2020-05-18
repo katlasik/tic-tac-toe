@@ -11,8 +11,6 @@ import io.tictactoe.utilities.validation.ValidationError
 import sttp.model.StatusCode
 import tsec.mac.jca.MacVerificationError
 
-package object errors extends ErrorMapper
-
 trait ErrorMapper {
   implicit class FExtensions[F[_]: Sync: Logging, A](f: F[A]) {
     def mapErrors: F[Either[(ErrorView, StatusCode), A]] =

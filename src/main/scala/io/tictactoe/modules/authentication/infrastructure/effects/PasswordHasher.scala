@@ -2,7 +2,7 @@ package io.tictactoe.modules.authentication.infrastructure.effects
 
 import cats.effect.Sync
 import cats.implicits._
-import io.tictactoe.values.Password
+import io.tictactoe.values.{Hash, Password}
 import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.jca.BCrypt
 
@@ -10,8 +10,6 @@ trait PasswordHasher[F[_]] {
   def hash(password: Password): F[Hash]
   def check(password: Password, hash: Hash): F[Boolean]
 }
-
-final case class Hash(value: String) extends AnyVal
 
 object PasswordHasher {
 

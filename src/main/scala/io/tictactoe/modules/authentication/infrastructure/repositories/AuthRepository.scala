@@ -5,10 +5,10 @@ import cats.implicits._
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import doobie.postgres.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.{Hash, PasswordHasher}
+import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
 import io.tictactoe.modules.authentication.model.User
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
-import io.tictactoe.values.{Confirmed, Email, UserId, Username}
+import io.tictactoe.values.{Confirmed, Email, Hash, UserId, Username}
 import io.tictactoe.utilities.database.Database
 
 trait AuthRepository[F[_]] {

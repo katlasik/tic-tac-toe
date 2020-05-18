@@ -19,7 +19,7 @@ import io.tictactoe.utilities.validation.Validator._
 import io.tictactoe.utilities.calendar.Calendar
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.values.{Confirmed, Email, GameId, IsConfirmed, Password, Unconfirmed, UserId, Username}
-import io.tictactoe.utilities.syntax._
+import io.tictactoe.implicits._
 
 object LiveRegistration {
 

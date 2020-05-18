@@ -5,6 +5,7 @@ import io.tictactoe.modules.authentication.model.AuthResponse
 import io.tictactoe.testutils.ItTest
 import io.tictactoe.values.AuthToken
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
+import io.tictactoe.implicits._
 
 class InvitationItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
@@ -34,7 +35,7 @@ class InvitationItSpec extends FeatureSpec with GivenWhenThen with Matchers with
 
       Then("a guest receives email with invitation")
 
-      getFirstMailContaining("You have been invited to play game of tic tac toe by user200.").recipient shouldBe "user201@email.com"
+      getFirstMailContaining("You have been invited to play game of tic tac toe by user200.").recipient shouldEq "user201@email.com"
 
     }
 
@@ -62,7 +63,7 @@ class InvitationItSpec extends FeatureSpec with GivenWhenThen with Matchers with
 
       Then("a guest receives email with invitation")
 
-      getFirstMailContaining("You have been invited to play game of tic tac toe by user200.").recipient shouldBe "guest@email.com"
+      getFirstMailContaining("You have been invited to play game of tic tac toe by user200.").recipient shouldEq "guest@email.com"
 
     }
 

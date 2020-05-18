@@ -8,7 +8,7 @@ import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.configuration.model.{MailServer, Smtp}
 import io.tictactoe.utilities.emails.EmailTransport
 import io.tictactoe.utilities.emails.model.EmailMessage
-import io.tictactoe.utilities.emails.syntax._
+import io.tictactoe.implicits._
 import io.tictactoe.utilities.logging.Logging
 import javax.mail.Message.RecipientType
 import javax.mail.internet.MimeMessage

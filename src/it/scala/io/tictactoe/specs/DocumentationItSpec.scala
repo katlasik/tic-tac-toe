@@ -3,6 +3,7 @@ package io.tictactoe.specs
 import io.tictactoe.testutils.ItTest
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
 
+
 class DocumentationItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
   feature("Documentation generator") {

@@ -1,19 +1,19 @@
 package io.tictactoe.routes
 
 import io.tictactoe.modules.authentication.model.{AuthResponse, Credentials, User}
-import io.tictactoe.testutils.{Fixture, TestAppData}
+import io.tictactoe.testutils.{EqMatcher, Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
+import io.tictactoe.implicits._
 import io.tictactoe.errors.ErrorView
-import io.tictactoe.values.{AuthToken, Confirmed, Email, Password, Unconfirmed, UserId, Username}
+import io.tictactoe.values.{AuthToken, Confirmed, Email, Hash, Password, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with EqMatcher {
 
   it should "allow login in as user" in new Fixture {
 
@@ -44,11 +44,11 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
 
     outputData.infoMessages should contain("User with id = 00000000-0000-0000-0000-000000000001 authenticated.")
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
     val Some(token) = response.headers.get("Set-Auth-Token".ci).map(_.value)
 
-    response.as[AuthResponse].runA(inputData).unsafeRunSync() shouldBe AuthResponse(AuthToken(token))
+    response.as[AuthResponse].runA(inputData).unsafeRunSync() shouldEq AuthResponse(AuthToken(token))
 
   }
 
@@ -81,11 +81,11 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
 
     outputData.infoMessages shouldBe empty
 
-    response.status.code shouldBe 401
+    response.status.code shouldEq 401
 
-    response.headers.get("Set-Auth-Token".ci) shouldBe None
+    response.headers.get("Set-Auth-Token".ci) shouldEq None
 
-    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Account is not yet confirmed.")
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Account is not yet confirmed.")
 
   }
 
@@ -116,11 +116,11 @@ class LoginTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matche
       .runA(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 401
+    response.status.code shouldEq 401
 
-    response.headers.get("Set-Auth-Token".ci) shouldBe None
+    response.headers.get("Set-Auth-Token".ci) shouldEq None
 
-    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Invalid credentials.")
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Invalid credentials.")
 
   }
 

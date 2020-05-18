@@ -10,14 +10,13 @@ import io.tictactoe.modules.game.model.{EmailInvitationRequest, InvitationResult
 import io.tictactoe.utilities.authentication.Authentication
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.utilities.routes.Router
-import io.tictactoe.values.GameId
+import io.tictactoe.values.{BearerToken, GameId}
 import sttp.tapir._
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.ServerEndpoint
-import sttp.tapir.server.http4s._
-import io.tictactoe.errors._
+import io.tictactoe.implicits._
 
-class GameRouter[F[_]: Sync: ContextShift: Http4sServerOptions: Logging: Authentication](
+class GameRouter[F[_]: Sync: ContextShift: Logging: Authentication](
     invitationService: GameInvitationService[F]
 ) extends Router[F] {
 
@@ -27,13 +26,13 @@ class GameRouter[F[_]: Sync: ContextShift: Http4sServerOptions: Logging: Authent
       .description("Endpoint for inviting unregistered users by email.")
       .post
       .in("games" / "invitation")
-      .in(auth.bearer)
+      .in(auth.bearer[BearerToken])
       .in(jsonBody[EmailInvitationRequest])
       .out(jsonBody[InvitationResult].description("Details of invitation."))
       .errorOut(jsonBody[ErrorView].description("Error message."))
       .errorOut(statusCode)
       .serverLogic {
-        case (token: String, request) =>
+        case (token, request) =>
           val result = for {
             user <- Authentication[F].verify(token)
             invitation <- invitationService.inviteByEmail(user.id, request.email)
@@ -46,7 +45,7 @@ class GameRouter[F[_]: Sync: ContextShift: Http4sServerOptions: Logging: Authent
       .description("Endpoint for inviting other players.")
       .post
       .in("games")
-      .in(auth.bearer)
+      .in(auth.bearer[BearerToken])
       .in(jsonBody[UserInvitationRequest])
       .out(jsonBody[InvitationResult].description("Details of invitation."))
       .errorOut(jsonBody[ErrorView].description("Error message."))
@@ -65,7 +64,7 @@ class GameRouter[F[_]: Sync: ContextShift: Http4sServerOptions: Logging: Authent
       .description("Endpoint for accepting other players' invitations.")
       .post
       .in("games" / path[GameId])
-      .in(auth.bearer)
+      .in(auth.bearer[BearerToken])
       .out(jsonBody[InvitationResult].description("Details of invitation."))
       .errorOut(jsonBody[ErrorView].description("Error message."))
       .errorOut(statusCode)
@@ -83,7 +82,7 @@ class GameRouter[F[_]: Sync: ContextShift: Http4sServerOptions: Logging: Authent
       .description("Endpoint for cancelling player's own invitations/rejecting other players' invitations.")
       .delete
       .in("games" / path[GameId])
-      .in(auth.bearer)
+      .in(auth.bearer[BearerToken])
       .out(jsonBody[InvitationResult].description("Details of invitation."))
       .errorOut(jsonBody[ErrorView].description("Error message."))
       .errorOut(statusCode)

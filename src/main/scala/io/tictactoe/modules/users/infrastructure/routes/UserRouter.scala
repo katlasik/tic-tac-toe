@@ -7,14 +7,13 @@ import io.tictactoe.modules.users.infrastructure.services.UserService
 import io.tictactoe.modules.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.utilities.authentication.Authentication
 import io.tictactoe.utilities.routes.Router
-import io.tictactoe.values.UserId
+import io.tictactoe.values.{BearerToken, UserId}
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir.server.ServerEndpoint
 import sttp.tapir.{auth, endpoint, path, statusCode}
 import cats.implicits._
 import io.tictactoe.utilities.authorization.Authorized.canRead
-import io.tictactoe.errors._
-import io.tictactoe.utilities.syntax._
+import io.tictactoe.implicits._
 import io.circe.generic.auto._
 import sttp.tapir._
 import io.tictactoe.utilities.logging.Logging
@@ -29,7 +28,7 @@ final class UserRouter[F[_]: Authentication: Sync: Logging](
       .description("Endpoint for getting users' details.")
       .get
       .in("users")
-      .in(auth.bearer)
+      .in(auth.bearer[BearerToken])
       .out(jsonBody[List[SimpleUser]].description("List of users."))
       .errorOut(jsonBody[ErrorView].description("Error message."))
       .errorOut(statusCode)
@@ -46,7 +45,7 @@ final class UserRouter[F[_]: Authentication: Sync: Logging](
       .description("Endpoint for getting user's details.")
       .get
       .in("users" / path[UserId].name("id").description("The id of the user."))
-      .in(auth.bearer)
+      .in(auth.bearer[BearerToken])
       .out(jsonBody[DetailedUser].description("Details of single user."))
       .errorOut(jsonBody[ErrorView].description("Error message."))
       .errorOut(statusCode)

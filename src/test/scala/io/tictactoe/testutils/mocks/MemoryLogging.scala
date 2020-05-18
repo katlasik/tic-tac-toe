@@ -25,6 +25,14 @@ object MemoryLogging {
               IO.pure((data.copy(errorMessages = s"$msg: $throwable" :: data.errorMessages), ()))
             }
           } yield ()
+
+        override def warn(msg: => String): TestAppState[Unit] =
+          for {
+            _ <- liveLogger.warn(msg)
+            _ <- StateT { data: TestAppData =>
+              IO.pure((data.copy(warningMessages = msg :: data.warningMessages), ()))
+            }
+          } yield ()
       }
 
       StateT.pure(logger)

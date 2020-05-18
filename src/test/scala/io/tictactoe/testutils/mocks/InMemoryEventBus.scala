@@ -11,11 +11,11 @@ import fs2.Stream
 object InMemoryEventBus  {
 
   def inMemory: EventBus[TestAppState] = new EventBus[TestAppState] {
-    override def publish(event: Event): TestAppState[Unit] = StateT { data =>
+    override def publish[E <: Event](event: E): TestAppState[Unit] = StateT { data =>
       IO.pure((data.copy(events = event :: data.events), ()))
     }
 
-    override def publishF(event: TestAppState[Event]): TestAppState[Unit] = for {
+    override def publishF[E <: Event](event: TestAppState[E]): TestAppState[Unit] = for {
       e <- event
       t <- StateT { data : TestAppData => IO.pure((data.copy(events = e :: data.events), ()))}
     } yield t

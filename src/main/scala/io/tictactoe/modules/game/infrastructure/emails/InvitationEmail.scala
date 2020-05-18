@@ -5,6 +5,7 @@ import io.tictactoe.modules.authentication.domain.services.LiveAuthEmail
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.logging.Logging
 import cats.implicits._
+import io.tictactoe.implicits._
 import io.tictactoe.modules.game.infrastructure.emails.templates.{InvitationNotificationTemplateData, InvitationTemplateData}
 import io.tictactoe.values.{Email, GameId, Link}
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
@@ -18,8 +19,6 @@ trait InvitationEmail[F[_]] {
 }
 
 object InvitationEmail {
-
-  def apply[F[_]](implicit ev: InvitationEmail[F]): InvitationEmail[F] = ev
 
   def live[F[_]: Configuration: Logging: Sync: EmailSender]: F[InvitationEmail[F]] = {
     for {

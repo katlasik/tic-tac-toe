@@ -13,7 +13,6 @@ object FixedCalendar {
       case head :: instantsTail => IO.pure((data.copy(instants = instantsTail), head))
       case _ =>IO.raiseError(new IllegalArgumentException("The instants list is empty!"))
     }
-
   }
 
 }

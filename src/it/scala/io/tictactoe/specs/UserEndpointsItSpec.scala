@@ -6,6 +6,7 @@ import io.tictactoe.testutils.ItTest
 import io.tictactoe.modules.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.values.{AuthToken, UserId}
 import org.scalatest.{BeforeAndAfter, FeatureSpec, GivenWhenThen, Matchers}
+import io.tictactoe.implicits._
 
 class UserEndpointsItSpec extends FeatureSpec with GivenWhenThen with Matchers with ItTest with BeforeAndAfter {
 
@@ -34,7 +35,7 @@ class UserEndpointsItSpec extends FeatureSpec with GivenWhenThen with Matchers w
         Map("Authorization" -> s"Bearer $token")
       )
 
-      result.success.json[DetailedUser].id shouldBe UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
+      result.success.json[DetailedUser].id shouldEq UserId.unsafeFromString("00000000-0000-0000-0000-000000000001")
 
     }
 

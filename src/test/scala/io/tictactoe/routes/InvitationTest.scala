@@ -1,39 +1,31 @@
 package io.tictactoe.routes
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 
 import cats.data.NonEmptyList
 import io.circe.generic.auto._
 import io.tictactoe.modules.authentication.model.{Credentials, User}
 import cats.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
+import io.tictactoe.implicits._
 import io.tictactoe.errors.ErrorView
+import io.tictactoe.events.model.game.GameInvitationAccepted
 import io.tictactoe.modules.game.model.GameInvitationStatus.Pending
-import io.tictactoe.modules.game.model.{
-  AcceptedGameInvitation,
-  CancelledGameInvitation,
-  EmailInvitationRequest,
-  GameInvitation,
-  GameInvitationStatus,
-  InvitationResult,
-  RejectedGameInvitation,
-  UserInvitationRequest
-}
+import io.tictactoe.modules.game.model.{AcceptedGameInvitation, CancelledGameInvitation, EmailInvitationRequest, GameInvitation, GameInvitationStatus, InvitationResult, RejectedGameInvitation, UserInvitationRequest}
 import io.tictactoe.testutils.TestAppData.TestAppState
-import io.tictactoe.testutils.{Fixture, TestAppData}
+import io.tictactoe.testutils.{EqMatcher, Fixture, TestAppData}
 import io.tictactoe.values.{GameId, _}
 import org.http4s.{Header, Headers, Request}
 import org.http4s.circe.CirceEntityCodec._
 import org.http4s.implicits._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{FlatSpec, Inspectors, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import io.tictactoe.utilities.emails.model.EmailMessage
 import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import org.scalatest.prop.TableDrivenPropertyChecks
 
-class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with TableDrivenPropertyChecks {
+class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with EqMatcher with TableDrivenPropertyChecks with Inspectors {
 
   it should "allow inviting users by email" in new Fixture {
 
@@ -86,9 +78,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
     outputData.sentEmails should contain(email)
     outputData.savedEmails should contain(email)
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldBe InvitationResult(
+    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldEq InvitationResult(
       GameId(UUID.fromString("00000000-0000-0000-0000-000000000002")),
       None,
       UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
@@ -156,9 +148,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
     outputData.sentEmails should contain(email)
     outputData.savedEmails should contain(email)
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldBe InvitationResult(
+    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldEq InvitationResult(
       GameId(UUID.fromString("00000000-0000-0000-0000-000000000002")),
       UserId.unsafeFromString("00000000-0000-0000-0000-000000000004").some,
       UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
@@ -212,9 +204,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       "User with email guest@email.pl was already registered, sending notification email."
     )
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldBe InvitationResult(
+    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldEq InvitationResult(
       GameId(UUID.fromString("00000000-0000-0000-0000-000000000002")),
       UserId.unsafeFromString("00000000-0000-0000-0000-000000000004").some,
       UserId.unsafeFromString("00000000-0000-0000-0000-000000000001"),
@@ -254,9 +246,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       .runA(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 400
+    response.status.code shouldEq 400
 
-    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Can't invite self.")
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Can't invite self.")
   }
 
   it should "reject invitation if user wants to invite itself by id" in new Fixture {
@@ -291,9 +283,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       .runA(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 400
+    response.status.code shouldEq 400
 
-    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Can't invite self.")
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Can't invite self.")
   }
 
   it should "reject invitation if invitee doesn't exist" in new Fixture {
@@ -328,9 +320,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       .runA(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 404
+    response.status.code shouldEq 404
 
-    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Can't find resource.")
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Can't find resource.")
   }
 
   it should "allow accepting invitations" in new Fixture {
@@ -339,8 +331,10 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
     val guestId = UserId.unsafeFromString("00000000-0000-0000-0000-000000000002")
     val gameId = GameId.unsafeFromString("00000000-0000-0000-0000-000000000004")
     val now = LocalDateTime.parse("2019-02-02T11:12:10")
+    val eventTimestamp = Instant.parse("2019-02-03T12:30:30.775935Z")
 
     val inputData = TestAppData(
+      uuids = List(UUID.fromString("00000000-0000-0000-0000-000000000010")),
       invitations = List(
         GameInvitation.withGuestId(
           id = gameId,
@@ -348,6 +342,7 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
           guestId = guestId
         )
       ),
+      instants = List(eventTimestamp),
       dates = List(now),
       tokens = List(ConfirmationToken("token")),
       users = List(
@@ -386,9 +381,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldBe InvitationResult(
+    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldEq InvitationResult(
       gameId,
       guestId.some,
       ownerId,
@@ -405,6 +400,17 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
         now
       )
     )
+
+    outputData.events should contain(
+      GameInvitationAccepted(
+        EventId.unsafeFromString("00000000-0000-0000-0000-000000000010"),
+        EventTimestamp(eventTimestamp),
+        gameId,
+        ownerId,
+        guestId
+      )
+    )
+
   }
 
   it should "reject accepting invitations by wrong user" in new Fixture {
@@ -476,9 +482,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
         .runA(inputData)
         .unsafeRunSync()
 
-      response.status.code shouldBe 403
+      response.status.code shouldEq 403
 
-      response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Access to resource is forbidden!")
+      response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Access to resource is forbidden!")
     }
 
   }
@@ -536,9 +542,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldBe InvitationResult(
+    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldEq InvitationResult(
       gameId,
       guestId.some,
       ownerId,
@@ -610,9 +616,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldBe InvitationResult(
+    response.as[InvitationResult].runA(inputData).unsafeRunSync() shouldEq InvitationResult(
       gameId,
       guestId.some,
       ownerId,
@@ -691,9 +697,9 @@ class InvitationTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with M
       .runA(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 403
+    response.status.code shouldEq 403
 
-    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Access to resource is forbidden!")
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Access to resource is forbidden!")
   }
 
 }

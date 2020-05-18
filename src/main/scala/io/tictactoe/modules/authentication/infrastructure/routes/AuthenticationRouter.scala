@@ -2,13 +2,19 @@ package io.tictactoe.modules.authentication.infrastructure.routes
 
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Sync}
-import io.tictactoe.modules.authentication.model.{AuthResponse, Credentials, PasswordChangeRequest, RawRegistrationRequest, RegistrationResult}
+import io.tictactoe.modules.authentication.model.{
+  AuthResponse,
+  Credentials,
+  PasswordChangeRequest,
+  RawRegistrationRequest,
+  RegistrationResult
+}
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.values.{AuthToken, Email, UserId}
 import sttp.tapir.server.http4s._
 import cats.implicits._
 import io.tictactoe.errors.ErrorView
-import io.tictactoe.errors._
+import io.tictactoe.implicits._
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir._

@@ -10,7 +10,7 @@ object Dependencies {
   val EnumeratumCirceVersion = "1.5.22"
   val EnumeratumDoobieVersion = "1.5.17"
   val EnumeratumCatsVersion = "1.5.16"
-  val TapirVersion = "0.13.2"
+  val TapirVersion = "0.14.5"
   val CatsTimeVersion = "0.3.0"
   val DoobieVersion = "0.8.8"
   val TSecVersion = "0.2.0"

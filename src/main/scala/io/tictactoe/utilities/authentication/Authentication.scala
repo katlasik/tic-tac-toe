@@ -10,9 +10,10 @@ import scala.concurrent.duration._
 import io.circe.generic.auto._
 import cats.implicits._
 import io.tictactoe.utilities.authentication.model.TokenPayload
+import io.tictactoe.values.BearerToken
 
 trait Authentication[F[_]] {
-  def verify(token: String): F[TokenPayload]
+  def verify(token: BearerToken): F[TokenPayload]
 
   def create(tokenPayload: TokenPayload): F[JWTToken]
 }
@@ -31,9 +32,9 @@ object Authentication {
       signingKey = key
     )
   } yield new Authentication[F] {
-    def verify(token: String): F[TokenPayload] =
+    def verify(token: BearerToken): F[TokenPayload] =
       for {
-        parsed <- JWTMac.verifyAndParse[F, HMACSHA256](token, key)
+        parsed <- JWTMac.verifyAndParse[F, HMACSHA256](token.value, key)
         view <- parsed.body.asF[F, TokenPayload]
       } yield view
 

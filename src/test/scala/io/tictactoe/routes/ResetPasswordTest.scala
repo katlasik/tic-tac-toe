@@ -5,23 +5,23 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import io.tictactoe.modules.authentication.model.{PasswordChangeRequest, User}
-import io.tictactoe.testutils.{Fixture, TestAppData}
+import io.tictactoe.testutils.{EqMatcher, Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import org.http4s.Request
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.circe.CirceEntityCodec._
 import io.circe.generic.auto._
-import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Password, Unconfirmed, UserId, Username}
+import io.tictactoe.values.{Confirmed, Email, EventId, EventTimestamp, Hash, Password, Unconfirmed, UserId, Username}
 import org.http4s.implicits._
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import cats.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.events.model.authentication.PasswordChangedEvent
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.utilities.emails.model.EmailMessage
 import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}
+import io.tictactoe.implicits._
 
-class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with EqMatcher {
 
   it should "allow sending requests to reset password" in new Fixture {
 
@@ -61,7 +61,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
     val message = EmailMessage(
       NonEmptyList.one(email),
@@ -118,7 +118,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
     data.sentEmails shouldBe empty
 
@@ -143,7 +143,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
     data.sentEmails shouldBe empty
 
@@ -198,9 +198,9 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    data.users.exists(_.hash === Hash("newpass")) shouldBe true
+    data.users.map(_.hash) should contain(Hash("newpass"))
 
     data.infoMessages should contain(show"Password of user with id $userId was changed.")
 
@@ -246,9 +246,9 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 400
+    response.status.code shouldEq 400
 
-    data.users.exists(_.hash === Hash("userpass")) shouldBe true
+    data.users.map(_.hash) should contain(Hash("userpass"))
 
     data.infoMessages shouldBe empty
 
@@ -277,7 +277,7 @@ class ResetPasswordTest  extends FlatSpec with ScalaCheckDrivenPropertyChecks wi
       .run(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 400
+    response.status.code shouldEq 400
 
     data.infoMessages shouldBe empty
 

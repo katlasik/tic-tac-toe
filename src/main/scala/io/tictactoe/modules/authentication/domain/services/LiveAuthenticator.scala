@@ -11,7 +11,7 @@ import io.tictactoe.modules.authentication.infrastructure.services.Authenticator
 import io.tictactoe.utilities.authentication.Authentication
 import io.tictactoe.utilities.authentication.Authentication.JWTToken
 import io.tictactoe.utilities.authentication.model.TokenPayload
-import io.tictactoe.utilities.syntax._
+import io.tictactoe.implicits._
 import io.tictactoe.values.Confirmed
 
 object LiveAuthenticator {

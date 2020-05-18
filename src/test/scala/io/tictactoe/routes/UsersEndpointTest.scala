@@ -1,10 +1,10 @@
 package io.tictactoe.routes
 
 import io.tictactoe.modules.authentication.model.{Credentials, User}
-import io.tictactoe.testutils.{Fixture, TestAppData}
+import io.tictactoe.testutils.{EqMatcher, Fixture, TestAppData}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.modules.users.model.{DetailedUser, SimpleUser}
-import io.tictactoe.values.{Confirmed, Email, Password, UserId, Username}
+import io.tictactoe.values.{Confirmed, Email, Hash, Password, UserId, Username}
 import org.http4s.{Header, Headers, Request}
 import org.scalatest.{FlatSpec, Matchers}
 import org.http4s.implicits._
@@ -15,9 +15,9 @@ import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 import henkan.convert.Syntax._
 import io.tictactoe.errors.ErrorView
 import cats.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
+import io.tictactoe.implicits._
 
-class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with EqMatcher {
 
   it should "disallow getting all players if user is unauthenticated" in new Fixture {
 
@@ -38,9 +38,9 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
         .runA(inputData)
         .unsafeRunSync()
 
-      response.status.code shouldBe 401
+      response.status.code shouldEq 401
 
-      response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Could not verify signature")
+      response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Could not verify signature")
     }
 
   }
@@ -76,9 +76,9 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
         .runA(inputData)
         .unsafeRunSync()
 
-      response.status.code shouldBe 200
+      response.status.code shouldEq 200
 
-      response.as[List[SimpleUser]].runA(inputData).unsafeRunSync() shouldBe allUsers.map(_.to[SimpleUser]())
+      response.as[List[SimpleUser]].runA(inputData).unsafeRunSync() shouldEq allUsers.map(_.to[SimpleUser]())
     }
 
   }
@@ -114,9 +114,9 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
       .runA(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 200
+    response.status.code shouldEq 200
 
-    response.as[DetailedUser].runA(inputData).unsafeRunSync() shouldBe user.to[DetailedUser]()
+    response.as[DetailedUser].runA(inputData).unsafeRunSync() shouldEq user.to[DetailedUser]()
 
   }
 
@@ -165,9 +165,9 @@ class UsersEndpointTest extends FlatSpec with ScalaCheckDrivenPropertyChecks wit
       .runA(inputData)
       .unsafeRunSync()
 
-    response.status.code shouldBe 403
+    response.status.code shouldEq 403
 
-    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldBe ErrorView("Access to resource is forbidden!")
+    response.as[ErrorView].runA(inputData).unsafeRunSync() shouldEq ErrorView("Access to resource is forbidden!")
 
   }
 

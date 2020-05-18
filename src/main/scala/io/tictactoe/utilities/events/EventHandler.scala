@@ -6,7 +6,7 @@ import io.tictactoe.utilities.logging.{Logger, Logging}
 import cats.implicits._
 
 trait EventHandler[F[_]] {
-  def handle(event: Event): F[Unit]
+  def handle: PartialFunction[Event, F[Unit]]
 
   def start(implicit L: Logging[F], C: Concurrent[F], eventBus: EventBus[F]): Resource[F, Unit] = {
 
@@ -14,7 +14,7 @@ trait EventHandler[F[_]] {
       Concurrent[F]
         .start(
           eventBus.subscribe
-            .evalTap(handle(_).recoverWith(logger.error("Unhandled error in event bus!", _)))
+            .evalTap(e => handle.lift(e).fold(logger.warn(s"Couldn't handle event: $e."))(_.recoverWith(logger.error("Unhandled error in event bus!", _))))
             .compile
             .drain
         )

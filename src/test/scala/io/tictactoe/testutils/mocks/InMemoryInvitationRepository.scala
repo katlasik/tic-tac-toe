@@ -9,6 +9,7 @@ import io.tictactoe.modules.game.model.{AcceptedGameInvitation, CancelledGameInv
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState
 import cats.implicits._
+import io.tictactoe.implicits._
 import henkan.convert.Syntax._
 import io.tictactoe.errors.ResourceNotFound
 import io.tictactoe.values.{GameId, UserId}

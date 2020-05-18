@@ -4,19 +4,52 @@ import java.util.UUID
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import io.tictactoe.modules.authentication.infrastructure.effects.Hash
 import io.tictactoe.modules.authentication.model.User
 import io.tictactoe.events.model.authentication.PasswordChangedEvent
+import io.tictactoe.modules.game.model.Game
 import io.tictactoe.utilities.emails.model.EmailMessage
 import io.tictactoe.utilities.emails.values.{EmailMessageText, EmailMessageTitle}
 import io.tictactoe.testutils.TestAppData.TestAppState
 import io.tictactoe.testutils.generators.Generators
-import io.tictactoe.testutils.{Fixture, TestAppData}
-import io.tictactoe.values.{Email, EventId, EventTimestamp, Unconfirmed, UserId, Username}
+import io.tictactoe.testutils.{EqMatcher, Fixture, TestAppData}
+import io.tictactoe.values.{Email, EventId, EventTimestamp, Hash, Unconfirmed, UserId, Username}
+import org.scalacheck.Gen
 import org.scalatest.{FlatSpec, Matchers}
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
+import io.tictactoe.implicits._
 
-class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers {
+class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropertyChecks with Matchers with EqMatcher {
+
+  it should "create new game in case invitation is accepted" in new Fixture {
+
+    val gen = for {
+      event <- Generators.gameInvitationAccepted()
+      rand <- Gen.chooseNum(0, 1)
+      initialPlayer = List(event.ownerId, event.guestId)(rand)
+    } yield (event, rand, initialPlayer)
+
+    val handler = ApplicationEventHandler.live[TestAppState](authModule, gameModule).runEmptyA.unsafeRunSync()
+
+    forAll(gen) { case (event, rand, initialPlayer) =>
+
+      val inputData = TestAppData(
+        randomInts = List(rand)
+      )
+
+      val outputData = handler.handle(event).runS(inputData).unsafeRunSync()
+
+      outputData.games should contain(
+        Game(
+          event.gameId,
+          event.ownerId,
+          event.guestId,
+          initialPlayer
+        )
+      )
+
+    }
+
+  }
 
   it should "send registration confirmation emails, when new user is registered" in new Fixture {
 
@@ -27,7 +60,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
       )
     )
 
-    val handler = ApplicationEventHandler.live[TestAppState](authModule).runEmptyA.unsafeRunSync()
+    val handler = ApplicationEventHandler.live[TestAppState](authModule, gameModule).runEmptyA.unsafeRunSync()
 
     forAll(Generators.userRegisteredEvent()) { event =>
       val outputData = handler.handle(event).runS(inputData).unsafeRunSync()
@@ -85,7 +118,7 @@ class ApplicationEventsHandlerTest extends FlatSpec with ScalaCheckDrivenPropert
       email
     )
 
-    val handler = ApplicationEventHandler.live[TestAppState](authModule).runEmptyA.unsafeRunSync()
+    val handler = ApplicationEventHandler.live[TestAppState](authModule, gameModule).runEmptyA.unsafeRunSync()
 
     val outputData = handler.handle(event).runS(inputData).unsafeRunSync()
 

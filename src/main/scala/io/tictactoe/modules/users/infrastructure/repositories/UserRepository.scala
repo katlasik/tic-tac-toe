@@ -17,7 +17,6 @@ trait UserRepository[F[_]] {
 }
 
 object UserRepository {
-  def apply[F[_]](implicit ev: UserRepository[F]): UserRepository[F] = ev
 
   def postgresql[F[_]: Sync: Database]: UserRepository[F] = new UserRepository[F] {
 

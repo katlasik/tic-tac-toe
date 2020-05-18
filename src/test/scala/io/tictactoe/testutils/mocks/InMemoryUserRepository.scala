@@ -9,6 +9,7 @@ import io.tictactoe.modules.users.model.{DetailedUser, SimpleUser}
 import io.tictactoe.modules.users.infrastructure.repositories.UserRepository
 import io.tictactoe.values.{Confirmed, Email, UserId}
 import henkan.convert.Syntax._
+import io.tictactoe.implicits._
 
 object InMemoryUserRepository {
 
