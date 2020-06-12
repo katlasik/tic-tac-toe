@@ -1,25 +1,24 @@
-package io.tictactoe.modules.authentication.domain.services
+package io.tictactoe.modules.authentication.domain
 
 import cats.effect.Sync
-import io.tictactoe.modules.authentication.infrastructure.repositories.AuthRepository
-import io.tictactoe.values.{Confirmed, Email, Username}
-import cats.implicits._
+import io.tictactoe.events.model.authentication.PasswordChangedEvent
+import io.tictactoe.modules.authentication.api.{AuthEmail, AuthRepository, PasswordChanger}
 import io.tictactoe.modules.authentication.errors.IllegalConfirmationToken
 import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
 import io.tictactoe.modules.authentication.model.{PasswordChangeRequest, User}
-import io.tictactoe.modules.authentication.infrastructure.services.{AuthEmail, PasswordChanger}
-import io.tictactoe.events.model.authentication.PasswordChangedEvent
+import io.tictactoe.utilities.calendar.Calendar
 import io.tictactoe.utilities.events.EventBus
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.utilities.tokens.TokenGenerator
-import io.tictactoe.implicits._
 import io.tictactoe.utilities.uuid.UUIDGenerator
-import io.tictactoe.utilities.calendar.Calendar
+import io.tictactoe.values.{Confirmed, Email, Username}
+import cats.implicits._
+import io.tictactoe.implicits._
 
 object LivePasswordChanger {
 
   def live[F[_]: Sync: TokenGenerator: Logging: PasswordHasher: EventBus: Calendar: UUIDGenerator](authEmail: AuthEmail[F], authRepository: AuthRepository[F])
-    : F[PasswordChanger[F]] =
+  : F[PasswordChanger[F]] =
     for {
       logger <- Logging[F].create[PasswordChanger[F]]
     } yield

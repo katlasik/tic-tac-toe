@@ -55,6 +55,7 @@ object Dependencies {
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-docs" % TapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-openapi-circe-yaml" % TapirVersion,
     "com.softwaremill.sttp.tapir" %% "tapir-enumeratum" % TapirVersion,
+    "com.softwaremill.sttp.tapir" %% "tapir-swagger-ui-http4s" % TapirVersion,
     "com.softwaremill.quicklens" %% "quicklens" % QuickLensVersion,
     "com.kailuowang" %% "henkan-convert" % HenkanVersion,
     "org.scalatra.scalate" %% "scalate-core" % ScalateVersion,

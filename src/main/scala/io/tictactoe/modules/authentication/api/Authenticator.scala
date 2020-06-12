@@ -1,4 +1,4 @@
-package io.tictactoe.modules.authentication.infrastructure.services
+package io.tictactoe.modules.authentication.api
 
 import io.tictactoe.modules.authentication.model.Credentials
 import io.tictactoe.utilities.authentication.Authentication.JWTToken

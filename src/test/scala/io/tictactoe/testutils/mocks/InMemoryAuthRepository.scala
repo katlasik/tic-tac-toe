@@ -5,8 +5,8 @@ import cats.implicits._
 import io.tictactoe.implicits._
 import cats.effect.IO
 import io.tictactoe.modules.authentication.model.User
-import io.tictactoe.modules.authentication.infrastructure.repositories.AuthRepository
 import io.tictactoe.errors.ResourceNotFound
+import io.tictactoe.modules.authentication.api.AuthRepository
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.testutils.TestAppData
 import io.tictactoe.testutils.TestAppData.TestAppState

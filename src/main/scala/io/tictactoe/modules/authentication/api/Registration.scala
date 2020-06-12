@@ -1,4 +1,4 @@
-package io.tictactoe.modules.authentication.infrastructure.services
+package io.tictactoe.modules.authentication.api
 
 import io.tictactoe.modules.authentication.model.{RawRegistrationRequest, RegistrationResult}
 import io.tictactoe.utilities.tokens.values.ConfirmationToken

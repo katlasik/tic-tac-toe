@@ -2,11 +2,11 @@ package io.tictactoe.modules.authentication
 
 import cats.effect.{ContextShift, Sync}
 import cats.implicits._
-import io.tictactoe.modules.authentication.domain.services.{LiveAuthEmail, LiveAuthenticator, LivePasswordChanger, LiveRegistration}
+import io.tictactoe.modules.authentication.api.{Authenticator, PasswordChanger, Registration}
+import io.tictactoe.modules.authentication.domain.{LiveAuthEmail, LiveAuthenticator, LiveRegistration, LivePasswordChanger}
 import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
-import io.tictactoe.modules.authentication.infrastructure.repositories.AuthRepository
+import io.tictactoe.modules.authentication.infrastructure.repositories.LiveAuthRepository
 import io.tictactoe.modules.authentication.infrastructure.routes.AuthenticationRouter
-import io.tictactoe.modules.authentication.infrastructure.services.{Authenticator, PasswordChanger, Registration}
 import io.tictactoe.modules.game.GameModule
 import io.tictactoe.utilities.database.Database
 import io.tictactoe.utilities.authentication.Authentication
@@ -32,7 +32,7 @@ object AuthenticationModule {
   def live[F[_]: Sync: Logging: Configuration: EmailSender: Authentication: PasswordHasher: Database: EventBus: Calendar: TokenGenerator: UUIDGenerator: ContextShift: Http4sServerOptions](
       gameModule: GameModule[F]
   ): F[AuthenticationModule[F]] = {
-    val authRepository = AuthRepository.postgresql
+    val authRepository = LiveAuthRepository.postgresql
 
     for {
       e <- LiveAuthEmail.live

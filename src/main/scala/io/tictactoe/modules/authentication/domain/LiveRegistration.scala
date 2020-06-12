@@ -1,24 +1,24 @@
-package io.tictactoe.modules.authentication.domain.services
+package io.tictactoe.modules.authentication.domain
 
 import cats.effect.Sync
-import io.tictactoe.modules.authentication.model.{RawRegistrationRequest, RegistrationRequest, RegistrationResult, User}
-import io.tictactoe.utilities.uuid.UUIDGenerator
 import cats.implicits._
-import io.tictactoe.modules.authentication.errors.{EmailAlreadyExists, IllegalConfirmationToken, UsernameAlreadyExists}
-import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
-import io.tictactoe.modules.authentication.infrastructure.repositories.AuthRepository
-import io.tictactoe.modules.authentication.infrastructure.services.{AuthEmail, Registration}
 import io.tictactoe.errors.ResourceNotFound
 import io.tictactoe.events.model.authentication.UserRegisteredEvent
+import io.tictactoe.implicits._
+import io.tictactoe.modules.authentication.api.{AuthEmail, AuthRepository, Registration}
+import io.tictactoe.modules.authentication.errors.{EmailAlreadyExists, IllegalConfirmationToken, UsernameAlreadyExists}
+import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
+import io.tictactoe.modules.authentication.model.{RawRegistrationRequest, RegistrationRequest, RegistrationResult, User}
 import io.tictactoe.modules.game.infrastructure.services.GameInvitationService
+import io.tictactoe.utilities.calendar.Calendar
+import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.events.EventBus
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.utilities.tokens.TokenGenerator
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
+import io.tictactoe.utilities.uuid.UUIDGenerator
 import io.tictactoe.utilities.validation.Validator._
-import io.tictactoe.utilities.calendar.Calendar
-import io.tictactoe.utilities.configuration.Configuration
-import io.tictactoe.values.{Confirmed, Email, GameId, IsConfirmed, Password, Unconfirmed, UserId, Username}
+import io.tictactoe.values._
 import io.tictactoe.implicits._
 
 object LiveRegistration {

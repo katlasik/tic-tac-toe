@@ -1,18 +1,17 @@
-package io.tictactoe.modules.authentication.domain.services
+package io.tictactoe.modules.authentication.domain
 
 import cats.effect.Sync
-import cats.implicits._
-import io.tictactoe.modules.authentication.model.Credentials
-import io.tictactoe.utilities.logging.Logging
+import io.tictactoe.modules.authentication.api.{AuthRepository, Authenticator}
 import io.tictactoe.modules.authentication.errors.{AccountNotConfirmed, WrongCredentials}
 import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
-import io.tictactoe.modules.authentication.infrastructure.repositories.AuthRepository
-import io.tictactoe.modules.authentication.infrastructure.services.Authenticator
+import io.tictactoe.modules.authentication.model.Credentials
 import io.tictactoe.utilities.authentication.Authentication
 import io.tictactoe.utilities.authentication.Authentication.JWTToken
 import io.tictactoe.utilities.authentication.model.TokenPayload
-import io.tictactoe.implicits._
+import io.tictactoe.utilities.logging.Logging
+import cats.implicits._
 import io.tictactoe.values.Confirmed
+import io.tictactoe.implicits._
 
 object LiveAuthenticator {
 

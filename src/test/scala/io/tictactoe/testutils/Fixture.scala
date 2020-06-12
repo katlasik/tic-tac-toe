@@ -2,12 +2,11 @@ package io.tictactoe.testutils
 
 import cats.effect.{ContextShift, IO}
 import io.tictactoe.modules.authentication.AuthenticationModule
+import io.tictactoe.modules.authentication.api.{AuthEmail, AuthRepository, Authenticator, PasswordChanger, Registration}
+import io.tictactoe.modules.authentication.domain.{LiveAuthEmail, LiveAuthenticator, LiveRegistration, LivePasswordChanger}
 import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
 import io.tictactoe.modules.authentication.model.Credentials
-import io.tictactoe.modules.authentication.infrastructure.repositories.AuthRepository
-import io.tictactoe.modules.authentication.domain.services.{LiveAuthEmail, LiveAuthenticator, LivePasswordChanger, LiveRegistration}
 import io.tictactoe.modules.authentication.infrastructure.routes.AuthenticationRouter
-import io.tictactoe.modules.authentication.infrastructure.services.{AuthEmail, Authenticator, PasswordChanger, Registration}
 import io.tictactoe.modules.game.GameModule
 import io.tictactoe.utilities.events.EventBus
 import io.tictactoe.utilities.logging.Logging

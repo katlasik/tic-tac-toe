@@ -1,7 +1,6 @@
 package io.tictactoe.modules.game.infrastructure.emails
 
 import cats.effect.Sync
-import io.tictactoe.modules.authentication.domain.services.LiveAuthEmail
 import io.tictactoe.utilities.configuration.Configuration
 import io.tictactoe.utilities.logging.Logging
 import cats.implicits._
@@ -23,7 +22,7 @@ object InvitationEmail {
   def live[F[_]: Configuration: Logging: Sync: EmailSender]: F[InvitationEmail[F]] = {
     for {
       configuration <- Configuration[F].access()
-      logger <- Logging[F].create[LiveAuthEmail.type]
+      logger <- Logging[F].create[InvitationEmail.type]
     } yield {
 
       new InvitationEmail[F] {

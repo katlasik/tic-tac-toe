@@ -2,13 +2,7 @@ package io.tictactoe.modules.authentication.infrastructure.routes
 
 import cats.data.NonEmptyList
 import cats.effect.{ContextShift, Sync}
-import io.tictactoe.modules.authentication.model.{
-  AuthResponse,
-  Credentials,
-  PasswordChangeRequest,
-  RawRegistrationRequest,
-  RegistrationResult
-}
+import io.tictactoe.modules.authentication.model.{AuthResponse, Credentials, PasswordChangeRequest, RawRegistrationRequest, RegistrationResult}
 import io.tictactoe.utilities.logging.Logging
 import io.tictactoe.values.{AuthToken, Email, UserId}
 import sttp.tapir.server.http4s._
@@ -19,7 +13,7 @@ import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import sttp.tapir.json.circe.jsonBody
 import sttp.tapir._
 import io.circe.generic.auto._
-import io.tictactoe.modules.authentication.infrastructure.services.{Authenticator, PasswordChanger, Registration}
+import io.tictactoe.modules.authentication.api.{Authenticator, PasswordChanger, Registration}
 import io.tictactoe.utilities.routes.Router
 import sttp.tapir.server.ServerEndpoint
 

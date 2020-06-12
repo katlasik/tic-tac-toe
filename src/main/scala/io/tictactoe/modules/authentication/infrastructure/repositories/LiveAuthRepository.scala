@@ -5,34 +5,14 @@ import cats.implicits._
 import doobie.hikari.HikariTransactor
 import doobie.implicits._
 import doobie.postgres.implicits._
+import io.tictactoe.modules.authentication.api.AuthRepository
 import io.tictactoe.modules.authentication.infrastructure.effects.PasswordHasher
 import io.tictactoe.modules.authentication.model.User
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
 import io.tictactoe.values.{Confirmed, Email, Hash, UserId, Username}
 import io.tictactoe.utilities.database.Database
 
-trait AuthRepository[F[_]] {
-  def updateRegistrationConfirmationToken(userId: UserId, token: ConfirmationToken): F[Unit]
-
-  def updatePasswordResetToken(userId: UserId, token: ConfirmationToken): F[Unit]
-
-  def updateHash(userId: UserId, hash: Hash): F[Unit]
-
-  def confirm(user: User): F[User]
-
-  def getById(id: UserId): F[Option[User]]
-
-  def getByEmail(email: Email): F[Option[User]]
-
-  def existsByEmail(email: Email): F[Boolean]
-
-  def existsByName(username: Username): F[Boolean]
-
-  def save(user: User): F[User]
-
-}
-
-object AuthRepository {
+object LiveAuthRepository {
 
   def postgresql[F[_]: Sync: PasswordHasher: Database]: AuthRepository[F] = new AuthRepository[F] {
 

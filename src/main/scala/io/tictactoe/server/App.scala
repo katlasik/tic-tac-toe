@@ -18,7 +18,7 @@ object App {
     val documentation = Documentation.init[F](first, rest: _*)
     val routes = NonEmptyList.of(first, rest: _*).map(_.router.routes) ::: NonEmptyList.one(documentation.routes())
     val httpApp = routes.reduceK.orNotFound.map(ErrorTranslator.handle)
-    Logger.httpApp(logHeaders = false, logBody = true)(httpApp)
+    Logger.httpApp(logHeaders = true, logBody = true)(httpApp)
   }
 
 }

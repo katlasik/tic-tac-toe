@@ -1,8 +1,7 @@
-package io.tictactoe.modules.authentication.infrastructure.services
+package io.tictactoe.modules.authentication.api
 
-import io.tictactoe.values.{Email, UserId, Username}
 import io.tictactoe.utilities.tokens.values.ConfirmationToken
-
+import io.tictactoe.values.{Email, UserId, Username}
 
 trait AuthEmail[F[_]] {
   def sendRegistrationConfirmation(email: Email, username: Username, id: UserId, token: ConfirmationToken): F[Unit]
